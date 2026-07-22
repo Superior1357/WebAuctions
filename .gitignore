@@ -429,3 +429,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider files
 .idea/
+/src/WARSApplication/WARSApplication/WARSApplication.http
+
+# MacOS directory files
+.DS_Store
