@@ -1,4 +1,4 @@
-using WARSApplication.DataModel;
+using WARSApplication.Data.DataModel.Business;
 
 namespace WARSApplication.Repository;
 

@@ -1,15 +1,14 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-
-using WARSApplication;
-using WARSApplication.APIData;
 using WARSApplication.Repository;
-using WARSApplication.DataModel;
+using WARSApplication;
+using WARSApplication.BusinessMethods;
+using WARSApplication.Data.APIData.Outgoing;
+using WARSApplication.Data.DataModel.Authentication;
+using WARSApplication.Data.DataModel.Business;
+using WARSApplication.Data.SharedDataProperties;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Auctions") ?? "Data Source=Auctions.db";
@@ -28,7 +27,7 @@ builder.Services.AddIdentityCore<IdentityUser>(
         options.Password.RequireUppercase = false;
         options.Password.RequiredLength = 6;
     }
-    ).AddEntityFrameworkStores<AuthDbContext>();
+).AddEntityFrameworkStores<AuthDbContext>();
 
 var jwtKey = builder.Configuration["JwtSecret"]; // TODO: what if not configured?
 
@@ -67,101 +66,51 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
 
-app.MapGroup("/buy").MapBuyApis();
+app.MapGroup("/buy").MapBuyApis().RequireAuthorization();
 app.MapGroup("/sell").MapSellApis().RequireAuthorization();
 app.MapGroup("/authenticate").MapAuthApis();
 
-/*
-var summaries = new[]
-   {
-       "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    }; 
- 
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
-    
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-   {
-       public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-   }
-*/
-
-
 app.Run();
 
-internal static class ApiMappingExtensions {
-    extension(RouteGroupBuilder group)
-    {
-        public RouteGroupBuilder MapBuyApis()
+namespace WARSApplication
+{
+    internal static class ApiMappingExtensions {
+        extension(RouteGroupBuilder group)
         {
-            // TODO
-            return group;
-        }
+            public RouteGroupBuilder MapBuyApis()
+            {
+                group.MapPost("/bid", BuyMethods.BidAsync);
+                group.MapGroup("/list").MapBuyListApis(); // just ids
+                group.MapGet("/info", BuyMethods.GetInfoAsync).Produces<IEnumerable<BuyerAuctionInfo>>(); // information about auctions
+                
+                return group;
+            }
 
-        public RouteGroupBuilder MapSellApis()
-        {
-            // TODO
-            group.MapPost("/new", AuctionManagement.CreateAuctionAsync);
-            group.MapPatch("/update", AuctionManagement.UpdateAuction);
+            private void MapBuyListApis()
+            {
+                group.MapGet("/sellers", BuyMethods.ListAllSellersAsync).Produces<IEnumerable<UserId>>();
+                group.MapGet("/{auctionType}", BuyMethods.ListPendingAuctionsAsync).Produces<IEnumerable<AuctionId>>();
+                
+                group.MapGet("/won", BuyMethods.ListWonAuctionsAsync).Produces<IEnumerable<AuctionId>>();
+                group.MapGet("/participated", BuyMethods.ListParticipatedAuctionsAsync).Produces<IEnumerable<AuctionId>>();
+            }
+
+            public RouteGroupBuilder MapSellApis()
+            {
+                group.MapPost("/create", SellMethods.CreateAuctionAsync);
+                group.MapPatch("/update", SellMethods.UpdateAuction);
+                
+                group.MapGet("/list/{auctionType}", SellMethods.ListAsync).Produces<IEnumerable<AuctionId>>();
+                group.MapGet("/info", SellMethods.GetInfoAsync).Produces<IEnumerable<SellerAuctionInfo>>();
+                
+                return group;
+            }
             
-            group.MapGet("/list", AuctionManagement.ListAuctionsAsync).Produces<Auction[]>();
-            group.MapGet("/info/{id}", AuctionManagement.AuctionInfo).Produces<AuctionInfo>();
-            return group;
-        }
-
-        public RouteGroupBuilder MapAuthApis()
-        { // TODO: check if really working (changed emails to username, deleted email from line 96)
-            group.MapPost("/register", async (RegisterRequest req, UserManager<IdentityUser> userManager) =>
+            public void MapAuthApis()
             {
-                var user = new IdentityUser { UserName = req.UserName };
-                var result = await userManager.CreateAsync(user, req.Password);
-                
-                return result.Succeeded ? Results.Ok() : Results.BadRequest(result.Errors);
-            });
-
-            group.MapPost("/login", async (LoginRequest req, UserManager<IdentityUser> userManager, IConfiguration config) =>
-            {
-                var user = await userManager.FindByNameAsync(req.UserName);
-                if (user is null || !await userManager.CheckPasswordAsync(user, req.Password))
-                    return Results.Unauthorized();
-                
-                // 1. Get the secret key bytes
-                var keyBytes = Encoding.UTF8.GetBytes(config["JwtSecret"]!);
-                
-                // 2. Define the token's properties (Claims, Expiration, Signature)
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity([
-                        new Claim(ClaimTypes.NameIdentifier, user.Id)
-                    ]),
-                    Expires = DateTime.UtcNow.AddHours(8),
-                    SigningCredentials = new SigningCredentials(
-                        new SymmetricSecurityKey(keyBytes), 
-                        SecurityAlgorithms.HmacSha256Signature)
-                };
-                
-                // 3. Generate the token string
-                var handler = new JwtSecurityTokenHandler();
-                var token = handler.CreateToken(tokenDescriptor);
-                var jwtString = handler.WriteToken(token);
-
-                return Results.Ok(new { Token = jwtString });
-            });
-            return group;
+                group.MapPost("/register", AuthMethods.Register);
+                group.MapPost("/login", AuthMethods.Login);
+            }
         }
     }
 }
-
-public record RegisterRequest(string UserName, string Password);
-public record LoginRequest(string UserName, string Password);
