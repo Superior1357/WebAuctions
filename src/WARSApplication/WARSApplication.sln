@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WARSApplication", "WARSApplication\WARSApplication.csproj", "{51D5A0CD-4163-4781-84D8-0E6B4324660A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{C17BE8B3-5AD4-456E-90B7-0A04EC8BB119}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{51D5A0CD-4163-4781-84D8-0E6B4324660A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51D5A0CD-4163-4781-84D8-0E6B4324660A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51D5A0CD-4163-4781-84D8-0E6B4324660A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C17BE8B3-5AD4-456E-90B7-0A04EC8BB119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C17BE8B3-5AD4-456E-90B7-0A04EC8BB119}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C17BE8B3-5AD4-456E-90B7-0A04EC8BB119}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C17BE8B3-5AD4-456E-90B7-0A04EC8BB119}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
