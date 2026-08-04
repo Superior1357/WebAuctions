@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Time.Testing;
 using WARSApplication.Data.DataModel.Business;
 
 namespace IntegrationTests;
@@ -12,14 +13,24 @@ namespace IntegrationTests;
 public class TestingWARSAppFactory : WebApplicationFactory<Program>
 {
     private SqliteConnection _dbConnection = null!;
+    public readonly DateTimeOffset TestApplicationTime = new (2022, 1, 1, 0, 0, 0, TimeSpan.Zero);
     
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         _dbConnection = new SqliteConnection("Data Source=:memory:;Foreign Keys=True;");
         _dbConnection.Open();
-
+        
         builder.ConfigureTestServices(services =>
             {
+                var timeProviderDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(TimeProvider));
+                if (timeProviderDescriptor != null)
+                {
+                    services.Remove(timeProviderDescriptor);
+                }
+                
+                var fakeTimeProvider = new FakeTimeProvider(TestApplicationTime);
+                services.AddSingleton<TimeProvider>(fakeTimeProvider);
+                
                 services.AddAuthentication("Test")
                     .AddScheme<AuthenticationSchemeOptions, MinimalDummyAuthHandler>("Test", _ => { });
                 
@@ -49,6 +60,15 @@ public class TestingWARSAppFactory : WebApplicationFactory<Program>
         
         await db.Database.EnsureDeletedAsync();
         await db.Database.EnsureCreatedAsync();
+    }
+    
+    public async Task SeedAsync(Func<AuctionDbContext, Task> seedAction)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+    
+        await seedAction(db);
+        await db.SaveChangesAsync();
     }
 
     protected override void Dispose(bool disposing)
