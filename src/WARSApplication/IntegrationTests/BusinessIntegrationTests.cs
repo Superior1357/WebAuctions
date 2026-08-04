@@ -68,9 +68,13 @@ public class BusinessEndpointFunctionalityTests : IClassFixture<TestingWARSAppFa
         
         // Act
         var response = await _client.PostAsJsonAsync("/sell/create", payload);
-
+        var responseBody = await response.Content.ReadAsStringAsync();
+        
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(
+            response.StatusCode == HttpStatusCode.OK, 
+            $"Expected OK but got {response.StatusCode}. Response: {responseBody}"
+        );
     }
     
     [Fact]

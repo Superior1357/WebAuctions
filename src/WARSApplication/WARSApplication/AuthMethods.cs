@@ -16,7 +16,7 @@ public static class AuthMethods
         return result.Succeeded ? Results.Ok() : Results.BadRequest(result.Errors);
     }
     
-    public static async Task<IResult> Login (LoginRequest req, UserManager<IdentityUser> userManager, IConfiguration config)
+    public static async Task<IResult> Login(LoginRequest req, UserManager<IdentityUser> userManager, IConfiguration config)
     {
         var user = await userManager.FindByNameAsync(req.UserName);
         if (user is null || !await userManager.CheckPasswordAsync(user, req.Password))

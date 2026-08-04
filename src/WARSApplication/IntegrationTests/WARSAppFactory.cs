@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Time.Testing;
 using WARSApplication.Data.DataModel.Business;
 
@@ -17,6 +19,14 @@ public class TestingWARSAppFactory : WebApplicationFactory<Program>
     
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseEnvironment("Development");
+        builder.ConfigureLogging(logging =>
+        {
+            logging.ClearProviders();
+            logging.AddConsole();
+            logging.SetMinimumLevel(LogLevel.Debug);
+        });
+        
         _dbConnection = new SqliteConnection("Data Source=:memory:;Foreign Keys=True;");
         _dbConnection.Open();
         
@@ -31,7 +41,12 @@ public class TestingWARSAppFactory : WebApplicationFactory<Program>
                 var fakeTimeProvider = new FakeTimeProvider(TestApplicationTime);
                 services.AddSingleton<TimeProvider>(fakeTimeProvider);
                 
-                services.AddAuthentication("Test")
+                services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = "Test";
+                        options.DefaultChallengeScheme = "Test";
+                        options.DefaultScheme = "Test";
+                    })
                     .AddScheme<AuthenticationSchemeOptions, MinimalDummyAuthHandler>("Test", _ => { });
                 
                 var dbDescriptor =

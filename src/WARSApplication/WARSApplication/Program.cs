@@ -16,6 +16,7 @@ var authConnectionString = builder.Configuration.GetConnectionString("Auth") ?? 
 
 builder.Services.AddSqlite<AuthDbContext>(authConnectionString);
 builder.Services.AddSqlite<AuctionDbContext>(connectionString);
+
 builder.Services.AddScoped<IAuctionRepository, AuctionRepository>();
 
 builder.Services.AddIdentityCore<IdentityUser>(
@@ -59,6 +60,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.MapOpenApi();
 }
 
