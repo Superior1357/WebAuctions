@@ -68,24 +68,6 @@ public class TestingWARSAppFactory : WebApplicationFactory<Program>
         );
     }
 
-    public async Task ResetDatabaseAsync()
-    {
-        using var scope = Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
-        
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.EnsureCreatedAsync();
-    }
-    
-    public async Task SeedAsync(Func<AuctionDbContext, Task> seedAction)
-    {
-        using var scope = Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
-    
-        await seedAction(db);
-        await db.SaveChangesAsync();
-    }
-
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);

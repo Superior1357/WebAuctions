@@ -9,6 +9,7 @@ using WARSApplication.Data.APIData.Incoming;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 using System.Net.Http.Json;
+using WARSApplication;
 
 namespace IntegrationTests;
 
@@ -39,25 +40,33 @@ public class MinimalDummyAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions
     }
 }
 
-public class BusinessEndpointFunctionalityTests : IClassFixture<TestingWARSAppFactory>, IAsyncLifetime
+public class BusinessEndpointFunctionalityTests : IAsyncLifetime
 {
-    private readonly TestingWARSAppFactory _factory;
-    private readonly HttpClient _client;
+    private TestingWARSAppFactory _factory;
+    private HttpClient _client;
 
-    public BusinessEndpointFunctionalityTests(TestingWARSAppFactory factory)
+    public async Task InitializeAsync()
     {
-        _factory = factory;
-        _client = factory.CreateClient();
+        _factory = new TestingWARSAppFactory();
+        _client = _factory.CreateClient();
     }
-    
-    public Task InitializeAsync() => Task.CompletedTask;
-    public async Task DisposeAsync() => await _factory.ResetDatabaseAsync();
+
+    public async Task DisposeAsync()
+    {
+        _client.Dispose();
+        await _factory.DisposeAsync();
+    }
 
     [Fact]
     public async Task Sell_Create_ReturnsOkStatusCodeAsync()
     {
         // Arrange
-        await _factory.SeedAsync(async db => db.Users.Add(TestData.DummyUser)); // Add a dummy user to db
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+
+        await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
+        await db.SaveChangesAsync();
+
         var payload = new CreatedAuction
         (
             new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
@@ -65,23 +74,28 @@ public class BusinessEndpointFunctionalityTests : IClassFixture<TestingWARSAppFa
             "flower",
             new DutchAuctionRule(1000)
         );
-        
+
         // Act
         var response = await _client.PostAsJsonAsync("/sell/create", payload);
         var responseBody = await response.Content.ReadAsStringAsync();
-        
+
         // Assert
         Assert.True(
-            response.StatusCode == HttpStatusCode.OK, 
+            response.StatusCode == HttpStatusCode.OK,
             $"Expected OK but got {response.StatusCode}. Response: {responseBody}"
         );
     }
-    
+
     [Fact]
     public async Task Sell_Create_CreatesAuctionAsync()
     {
         // Arrange
-        await _factory.SeedAsync(async db => db.Users.Add(TestData.DummyUser)); // Add a dummy user to db
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+
+        await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
+        await db.SaveChangesAsync();
+
         var payload = new CreatedAuction
         (
             new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
@@ -89,16 +103,240 @@ public class BusinessEndpointFunctionalityTests : IClassFixture<TestingWARSAppFa
             "flower",
             new DutchAuctionRule(1000)
         );
-        
+
         // Act
         var response = await _client.PostAsJsonAsync("/sell/create", payload);
 
         // Assert
-        using var scope = _factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
-        
         Assert.Single(db.Auctions);
     }
+
+    [Fact]
+    public async Task Sell_Update_ReturnsOkStatusCodeWhenValidRequestIdAsync()
+    {
+        // Arrange
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+
+        await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
+
+        var auction = db.Auctions.Add(
+            new Auction
+            {
+                Seller = TestData.DummyUser,
+                StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Description = "flower",
+                Type = AuctionType.Dutch,
+                InitialPrice = 1000
+            }
+        ).Entity;
+
+        await db.SaveChangesAsync();
+
+        // Act
+        var response = await _client.PatchAsJsonAsync("/sell/update",
+            new AuctionUpdateRequest(auction.Id, new DateTimeOffset(2025, 1, 1, 1, 1, 1, TimeSpan.Zero)));
+
+        // Assert
+        Assert.True(response.StatusCode == HttpStatusCode.OK);
+    }
     
-    // TODO: other tests like this (not concrete, just generic tests); but implement this method first so that I see it works
+    [Fact]
+    public async Task Sell_Update_UpdatesDateAsync()
+    {
+        // Arrange
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+
+        await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
+
+        var auction = db.Auctions.Add(
+            new Auction
+            {
+                Seller = TestData.DummyUser,
+                StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Description = "flower",
+                Type = AuctionType.Dutch,
+                InitialPrice = 1000
+            }
+        ).Entity;
+
+        await db.SaveChangesAsync();
+
+        // Act
+        var response = await _client.PatchAsJsonAsync("/sell/update",
+            new AuctionUpdateRequest(auction.Id, new DateTimeOffset(2025, 1, 1, 1, 1, 1, TimeSpan.Zero)));
+
+        // Assert
+
+        var updatedAuction = await db.Auctions.FindAsync(auction.Id);
+
+        Assert.NotNull(updatedAuction);
+        Assert.Equal(2025, updatedAuction.EndTime.Year);
+    }
+
+    [Fact]
+    public async Task Sell_Update_ReturnsNotFoundWhenIdIsNotUsedAsync()
+    {
+        // Arrange
+        // Arrange
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+
+        await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
+
+        var auction = db.Auctions.Add(
+            new Auction
+            {
+                Seller = TestData.DummyUser,
+                StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Description = "flower",
+                Type = AuctionType.Dutch,
+                InitialPrice = 1000
+            }
+        ).Entity;
+
+        await db.SaveChangesAsync();
+
+        // Act
+        var response = await _client.PatchAsJsonAsync("/sell/update",
+            new AuctionUpdateRequest(new AuctionId(auction.Id.Id + 10),
+                new DateTimeOffset(2025, 1, 1, 1, 1, 1, TimeSpan.Zero)));
+
+        // Assert
+        Assert.True(response.StatusCode == HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Sell_List_ReturnsOkStatusCodeAsync()
+    {
+        // Arrange
+        // Arrange
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+
+        await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
+
+        var auction = db.Auctions.Add(
+            new Auction
+            {
+                Seller = TestData.DummyUser,
+                StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Description = "flower",
+                Type = AuctionType.Dutch,
+                InitialPrice = 1000
+            }
+        ).Entity;
+
+        await db.SaveChangesAsync();
+
+        // Act
+        var response = await _client.GetAsync("/sell/list/Pending");
+
+        // Assert
+        Assert.True(response.StatusCode == HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task Sell_List_Pending_Returns_Auctions_EnumerableAsync()
+    {
+        // Arrange
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+
+        await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
+
+        var auction = db.Auctions.Add(
+            new Auction
+            {
+                Seller = TestData.DummyUser,
+                StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Description = "flower",
+                Type = AuctionType.Dutch,
+                InitialPrice = 1000
+            }
+        ).Entity;
+
+        await db.SaveChangesAsync();
+
+        // Act
+        var response = await _client.GetAsync("/sell/list/Pending");
+        
+        // Assert
+        var auctions = await response.Content.ReadFromJsonAsync<IEnumerable<AuctionId>>();
+        
+        Assert.NotNull(auctions);
+        Assert.Single(auctions);
+    }
+
+    [Fact]
+    public async Task Sell_Info_ReturnsOkAsync()
+    {
+        // Arrange
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+
+        await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
+
+        var auction = db.Auctions.Add(
+            new Auction
+            {
+                Seller = TestData.DummyUser,
+                StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Description = "flower",
+                Type = AuctionType.Dutch,
+                InitialPrice = 1000
+            }
+        ).Entity;
+
+        await db.SaveChangesAsync();
+        
+        
+        var query = new List<AuctionId> {new (auction.Id.Id)};
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/sell/info", query);
+
+        // Assert
+        Assert.True(response.StatusCode == HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task Sell_Info_ReturnsNotFoundWhenIdIsNotUsedAsync()
+    {
+        // Arrange
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+
+        await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
+
+        var auction = db.Auctions.Add(
+            new Auction
+            {
+                Seller = TestData.DummyUser,
+                StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Description = "flower",
+                Type = AuctionType.Dutch,
+                InitialPrice = 1000
+            }
+        ).Entity;
+
+        await db.SaveChangesAsync();
+        var query = new List<AuctionId> {new (auction.Id.Id + 10)};
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/sell/info", query);
+
+        // Assert
+        Assert.True(response.StatusCode == HttpStatusCode.NotFound);
+    }
+
+// TODO: other tests like this (not concrete, just generic tests); but implement this method first so that I see it works
 }

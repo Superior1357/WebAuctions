@@ -102,8 +102,8 @@ namespace WARSApplication
                 group.MapPost("/create", SellMethods.CreateAuctionAsync);
                 group.MapPatch("/update", SellMethods.UpdateAuction);
                 
-                group.MapGet("/list/{auctionType}", SellMethods.ListAsync).Produces<IEnumerable<AuctionId>>();
-                group.MapGet("/info", SellMethods.GetInfoAsync).Produces<IEnumerable<SellerAuctionInfo>>();
+                group.MapGet("/list/{status}", SellMethods.ListAsync).Produces<IEnumerable<AuctionId>>();
+                group.MapPost("/info", SellMethods.GetInfoAsync).Produces<IEnumerable<SellerAuctionInfo>>();
                 
                 return group;
             }
