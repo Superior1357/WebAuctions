@@ -82,8 +82,8 @@ namespace WARSApplication
             public RouteGroupBuilder MapBuyApis()
             {
                 group.MapPost("/bid", BuyMethods.BidAsync);
-                group.MapGroup("/list").MapBuyListApis(); // just ids
-                group.MapGet("/info", BuyMethods.GetInfoAsync).Produces<IEnumerable<BuyerAuctionInfo>>(); // information about auctions
+                group.MapGroup("/list").MapBuyListApis(); // TODO: show those who own an active auction only
+                group.MapPost("/info", BuyMethods.GetInfoAsync).Produces<IEnumerable<BuyerAuctionInfo>>(); // information about auctions
                 
                 return group;
             }
@@ -91,7 +91,7 @@ namespace WARSApplication
             private void MapBuyListApis()
             {
                 group.MapGet("/sellers", BuyMethods.ListAllSellersAsync).Produces<IEnumerable<UserId>>();
-                group.MapGet("/{auctionType}", BuyMethods.ListPendingAuctionsAsync).Produces<IEnumerable<AuctionId>>();
+                group.MapGet("/active/{seller}", BuyMethods.ListActiveAuctionsOfAUserAsync).Produces<IEnumerable<AuctionId>>();
                 
                 group.MapGet("/won", BuyMethods.ListWonAuctionsAsync).Produces<IEnumerable<AuctionId>>();
                 group.MapGet("/participated", BuyMethods.ListParticipatedAuctionsAsync).Produces<IEnumerable<AuctionId>>();
