@@ -21,15 +21,21 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 // TODO: auth tests in a separate file
 
-// TODO: everything should be set up correctly now, just implement the business tests (and add a business user id to db)
-
 public static class TestData
 {
     public static readonly string AuthUserId = "woenfon";
-    public static readonly User DummyUser = new()
+    public static User DummyUser { get; private set; } = new()
     {
         IdentityId = AuthUserId
     };
+
+    public static void RefreshUser()
+    {
+        DummyUser = new()
+        {
+            IdentityId = AuthUserId
+        };
+    }
 }
 
 public class MinimalDummyAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> o, ILoggerFactory l, UrlEncoder e)
@@ -52,6 +58,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
     {
         _factory = new TestingWARSAppFactory();
         _client = _factory.CreateClient();
+        TestData.RefreshUser();
     }
 
     public async Task DisposeAsync()
@@ -1099,5 +1106,4 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
-// TODO: other tests like this (not concrete, just generic tests); but implement this method first so that I see it works
 }

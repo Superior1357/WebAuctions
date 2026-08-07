@@ -23,7 +23,7 @@ public sealed class AuctionDbContext(DbContextOptions<AuctionDbContext> options)
     public DbSet<Bid> Bids { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Auction>().Property(a => a.Id).HasConversion(auctionId => auctionId.Id, id => new AuctionId(id));
-        modelBuilder.Entity<User>().Property(a => a.Id).HasConversion(userId => userId.Id, id => new UserId(id));
+        modelBuilder.Entity<Auction>().Property(a => a.Id).HasConversion(auctionId => auctionId.Id, id => new AuctionId(id)).ValueGeneratedOnAdd();
+        modelBuilder.Entity<User>().Property(a => a.Id).HasConversion(userId => userId.Id, id => new UserId(id)).ValueGeneratedOnAdd();
     }
 }
