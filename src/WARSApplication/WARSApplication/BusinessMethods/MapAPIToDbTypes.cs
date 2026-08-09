@@ -6,19 +6,20 @@ namespace WARSApplication.BusinessMethods;
 
 public static class ApiToDbMapper
 {
-    private static (AuctionType, decimal?) MapAuctionRule(AuctionRule rule)
+    private static Price? RuleToPrice(AuctionRule rule)
     {
         return rule switch
         {
-            DutchAuctionRule dutchRule => (AuctionType.Dutch, dutchRule.StartingPrice),
-            EnglishAuctionRule englishRule => (AuctionType.English, englishRule.StartingPrice),
-            FirstTimeSealedBidRule => (AuctionType.FirstTimeSealedBid, null),
+            EnglishAuctionRule r => r.StartingPrice,
+            DutchAuctionRule r => r.StartingPrice,
+            FirstTimeSealedBidRule => null,
             _ => throw new NotImplementedException()
         };
     }
+    
     public static Auction CreateAuction(CreatedAuction auctionApi, User usr)
     {
-        var mappedRule = MapAuctionRule(auctionApi.Rule);
+        var rule = auctionApi.Rule;
         
         return new Auction
         {
@@ -26,8 +27,8 @@ public static class ApiToDbMapper
             StartTime = auctionApi.StartTime,
             EndTime = auctionApi.EndTime,
             Description = auctionApi.Description,
-            Type = mappedRule.Item1,
-            InitialPrice = mappedRule.Item2
+            Type = (AuctionType)rule,
+            InitialPrice = RuleToPrice(rule)
         };
     }
     

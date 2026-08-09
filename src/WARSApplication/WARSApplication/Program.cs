@@ -83,27 +83,27 @@ namespace WARSApplication
             {
                 group.MapPost("/bid", BuyMethods.BidAsync);
                 group.MapGroup("/list").MapBuyListApis(); // TODO: show those who own an active auction only
-                group.MapPost("/info", BuyMethods.GetInfoAsync).Produces<IEnumerable<BuyerAuctionInfo>>(); // information about auctions
+                group.MapPost("/info", BuyMethods.GetInfoAsync); // information about auctions
                 
                 return group;
             }
 
             private void MapBuyListApis()
             {
-                group.MapGet("/sellers", BuyMethods.ListAllSellersAsync).Produces<IEnumerable<UserId>>();
-                group.MapGet("/active/{seller}", BuyMethods.ListActiveAuctionsOfAUserAsync).Produces<IEnumerable<AuctionId>>();
+                group.MapGet("/sellers", BuyMethods.ListAllSellersAsync);
+                group.MapGet("/active/{seller}", BuyMethods.ListActiveAuctionsOfAUserAsync);
                 
-                group.MapGet("/won", BuyMethods.ListWonAuctionsAsync).Produces<IEnumerable<AuctionId>>();
-                group.MapGet("/participated", BuyMethods.ListParticipatedAuctionsAsync).Produces<IEnumerable<AuctionId>>();
+                group.MapGet("/won", BuyMethods.ListWonAuctionsAsync);
+                group.MapGet("/participated", BuyMethods.ListParticipatedAuctionsAsync);
             }
 
             public RouteGroupBuilder MapSellApis()
             {
                 group.MapPost("/create", SellMethods.CreateAuctionAsync);
-                group.MapPatch("/update", SellMethods.UpdateAuction);
+                group.MapPatch("/update", SellMethods.UpdateAuctionAsync);
                 
-                group.MapGet("/list/{status}", SellMethods.ListAsync).Produces<IEnumerable<AuctionId>>();
-                group.MapPost("/info", SellMethods.GetInfoAsync).Produces<IEnumerable<SellerAuctionInfo>>();
+                group.MapGet("/list/{status}", SellMethods.ListAsync);
+                group.MapPost("/info", SellMethods.GetInfoAsync);
                 
                 return group;
             }

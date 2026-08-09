@@ -6,8 +6,20 @@ using System.Text.Json.Serialization;
 [JsonDerivedType(typeof(EnglishAuctionRule), "english")]
 [JsonDerivedType(typeof(DutchAuctionRule), "dutch")]
 [JsonDerivedType(typeof(FirstTimeSealedBidRule), "sealed")]
-public abstract record AuctionRule;
+public abstract record AuctionRule
+{
+    public static explicit operator AuctionType(AuctionRule rule)
+    {
+        return rule switch
+        {
+            EnglishAuctionRule => AuctionType.English,
+            DutchAuctionRule => AuctionType.Dutch,
+            FirstTimeSealedBidRule => AuctionType.FirstTimeSealedBid,
+            _ => throw new NotImplementedException()
+        };
+    }
+}
 
-public record EnglishAuctionRule(decimal StartingPrice) : AuctionRule;
-public record DutchAuctionRule(decimal StartingPrice) : AuctionRule;
+public record EnglishAuctionRule(Price StartingPrice) : AuctionRule;
+public record DutchAuctionRule(Price StartingPrice) : AuctionRule;
 public record FirstTimeSealedBidRule : AuctionRule;

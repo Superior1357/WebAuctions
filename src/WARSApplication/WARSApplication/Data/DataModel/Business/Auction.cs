@@ -9,7 +9,7 @@ public record Auction
     public string Description { get; init; } = string.Empty;
     public required User Seller { get; init; }
     public required AuctionType Type { get; init; }
-    public decimal? InitialPrice { get; init; }
+    public Price? InitialPrice { get; init; }
     public required DateTimeOffset StartTime { get; init; }
     public required DateTimeOffset EndTime { get; init; }
     public Bid? WinningBid { get; init; }
