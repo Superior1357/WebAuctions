@@ -82,7 +82,7 @@ namespace WARSApplication
             public RouteGroupBuilder MapBuyApis()
             {
                 group.MapPost("/bid", BuyMethods.BidAsync);
-                group.MapGroup("/list").MapBuyListApis(); // TODO: show those who own an active auction only
+                group.MapGroup("/list").MapBuyListApis();
                 group.MapPost("/info", BuyMethods.GetInfoAsync); // information about auctions
                 
                 return group;
