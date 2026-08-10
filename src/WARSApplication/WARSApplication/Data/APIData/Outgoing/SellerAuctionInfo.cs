@@ -1,6 +1,5 @@
+using WARSApplication.Data.DataModel.Business;
+
 namespace WARSApplication.Data.APIData.Outgoing;
 
-public record SellerAuctionInfo
-{
-    
-}
+public record struct SellerAuctionInfo(Auction Auction);

@@ -11,6 +11,7 @@ public interface IRepository<T>
 }
 
 public interface IAuctionRepository : IRepository<Auction>;
+public interface IBidRepository : IRepository<Bid>;
 
 public class AuctionRepository(AuctionDbContext db) : IAuctionRepository
 {

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Time.Testing;
 using WARSApplication;
 using WARSApplication.Data.APIData.Incoming;
+using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.ErrorResponses.SellErrorResponses;
@@ -10,7 +11,7 @@ namespace UnitTests;
 using Xunit;
 using WARSApplication.BusinessMethods;
 
-public class Tests
+public class SellMethodsUnitTests
 {
     private readonly TimeProvider _timeProvider = new FakeTimeProvider(
         new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero)
@@ -21,7 +22,7 @@ public class Tests
         Id = new UserId(2),
         IdentityId = "123456789"
     };
-
+    
     private static Auction[] MockRepoContent { get; } =
     [
         new Auction
@@ -326,7 +327,7 @@ public class Tests
         var userAuctionIds = new List<AuctionId> { addedBeforeContent[1].Id, addedBeforeContent[2].Id };
         
         // Act
-        var result = (await SellMethods.ListAsync(user, AuctionStatus.Pending, mockRepo)).ToList();
+        var result = (await SellMethods.ListAsync(user, AuctionStatus.Pending, mockRepo)).Value.ToList();
         
         // Assert
         Assert.Equal(2, result.Count);
@@ -335,9 +336,116 @@ public class Tests
             Assert.Contains(id, result);
         }
     }
+
+    [Fact]
+    public async Task Sell_List_Returns_Users_Active_Auctions_Async()
+    {
+        // Arrange
+        var user = TestUser;
+
+        var listedAuction = new Auction
+        {
+            Id = new AuctionId(7),
+            Seller = user,
+            StartTime = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            Description = "test",
+            Type = AuctionType.English,
+            InitialPrice = 1000,
+            Status = AuctionStatus.Active
+        };
+
+        var addedBeforeContent = MockRepoContent.Append(listedAuction).ToList();
+
+        var mockRepo = new MockAuctionRepository(addedBeforeContent);
+
+        // Act
+        var result = (await SellMethods.ListAsync(user, AuctionStatus.Active, mockRepo)).Value.ToList();
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal(listedAuction.Id, result[0]);
+    }
     
-    // TODO: list tests covering active and finished
-    // TODO: complete sell methods
-    // TODO: complete buy methods
-    // TODO: auth methods? -- last, after everything else is completed
+    [Fact]
+    public async Task Sell_List_Returns_Users_Finished_Auctions_Async()
+    {
+        // Arrange
+        var user = TestUser;
+
+        var listedAuction = new Auction
+        {
+            Id = new AuctionId(7),
+            Seller = user,
+            StartTime = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            EndTime = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            Description = "test",
+            Type = AuctionType.English,
+            InitialPrice = 1000,
+            Status = AuctionStatus.Finished
+        };
+
+        var addedBeforeContent = MockRepoContent.Append(listedAuction).ToList();
+
+        var mockRepo = new MockAuctionRepository(addedBeforeContent);
+
+        // Act
+        var result = (await SellMethods.ListAsync(user, AuctionStatus.Active, mockRepo)).Value.ToList();
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal(listedAuction.Id, result[0]);
+    }
+
+    [Fact]
+    public async Task Sell_Info_Returns_Auctions_Info_Async()
+    {
+        // Arrange
+        var user = TestUser;
+
+        var addedBeforeContent = MockRepoContent;
+        var mockRepo = new MockAuctionRepository(addedBeforeContent);
+        var userAuctionIds = new List<AuctionId> { addedBeforeContent[1].Id, addedBeforeContent[2].Id };
+
+        // Act
+        var response = await SellMethods.GetInfoAsync(user, userAuctionIds, mockRepo);
+        
+        
+        // Assert
+        var result = Assert.IsType<Ok<IEnumerable<SellerAuctionInfo>>>(response.Result).Value.ToList();
+        
+        Assert.Equal(2, result.Count);
+
+        for (int i = 0; i < result.Count; i++)
+        {
+            var a = result[i].Auction;
+            var correspondingOriginal = addedBeforeContent.First(au => au.Id == userAuctionIds[i]);
+            
+            Assert.Equal(correspondingOriginal.Id, a.Id); 
+            Assert.Equal(correspondingOriginal.Description, a.Description);
+            Assert.Equal(correspondingOriginal.StartTime, a.StartTime);
+            Assert.Equal(correspondingOriginal.EndTime, a.EndTime);
+            Assert.Equal(correspondingOriginal.Type, a.Type);
+            Assert.Equal(correspondingOriginal.InitialPrice, a.InitialPrice);
+            Assert.Equal(correspondingOriginal.Seller, a.Seller);
+            Assert.Equal(correspondingOriginal.Status, a.Status);
+        }
+    }
+
+    [Fact]
+    public async Task Sell_Info_Auction_Id_Not_Users_Throws_An_Error_Async()
+    {
+        // Arrange
+        var user = TestUser;
+
+        var addedBeforeContent = MockRepoContent;
+        var mockRepo = new MockAuctionRepository(addedBeforeContent);
+        var userAuctionIds = new List<AuctionId> { addedBeforeContent[1].Id, addedBeforeContent[0].Id };
+
+        // Act
+        var response = await SellMethods.GetInfoAsync(user, userAuctionIds, mockRepo);
+
+        // Assert
+        Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
+    }
 }
