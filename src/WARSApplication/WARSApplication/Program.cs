@@ -5,10 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using WARSApplication.Repository;
 using WARSApplication;
 using WARSApplication.BusinessMethods;
-using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.DataModel.Authentication;
 using WARSApplication.Data.DataModel.Business;
-using WARSApplication.Data.SharedDataProperties;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Auctions") ?? "Data Source=Auctions.db";
@@ -91,7 +89,7 @@ namespace WARSApplication
             private void MapBuyListApis()
             {
                 group.MapGet("/sellers", BuyMethods.ListAllSellersAsync);
-                group.MapGet("/active/{seller}", BuyMethods.ListActiveAuctionsOfAUserAsync);
+                group.MapGet("/not_finished/{seller}", BuyMethods.ListNotFinishedAuctionsOfASellerAsync);
                 
                 group.MapGet("/won", BuyMethods.ListWonAuctionsAsync);
                 group.MapGet("/participated", BuyMethods.ListParticipatedAuctionsAsync);

@@ -5,6 +5,7 @@ using WARSApplication.Data.APIData.Incoming;
 using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
+using WARSApplication.ErrorResponses;
 using WARSApplication.ErrorResponses.SellErrorResponses;
 
 namespace UnitTests;
@@ -17,13 +18,13 @@ public class SellMethodsUnitTests
         new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero)
     );
 
-    private static User TestUser { get; } = new()
+    private static User TestUser => new()
     {
         Id = new UserId(2),
         IdentityId = "123456789"
     };
     
-    private static Auction[] MockRepoContent { get; } =
+    private static Auction[] MockRepoContent =>
     [
         new Auction
         {

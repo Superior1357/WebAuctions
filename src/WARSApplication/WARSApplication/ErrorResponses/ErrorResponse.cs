@@ -1,0 +1,2 @@
+namespace WARSApplication.ErrorResponses;
+public abstract record ErrorResponse;
