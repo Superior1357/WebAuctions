@@ -16,6 +16,7 @@ builder.Services.AddSqlite<AuthDbContext>(authConnectionString);
 builder.Services.AddSqlite<AuctionDbContext>(connectionString);
 
 builder.Services.AddScoped<IAuctionRepository, AuctionRepository>();
+builder.Services.AddScoped<IBidRepository, BidRepository>();
 
 builder.Services.AddIdentityCore<IdentityUser>(
     options =>

@@ -11,7 +11,6 @@ using WARSApplication.Data.SharedDataProperties;
 using System.Net.Http.Json;
 using WARSApplication;
 using WARSApplication.Data.APIData.Outgoing;
-using APIBid = WARSApplication.Data.APIData.Incoming.Bid;
 using DataBid = WARSApplication.Data.DataModel.Business.Bid;
 
 namespace IntegrationTests;
@@ -366,17 +365,19 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             }
         ).Entity;
         
+        
         DataBid previousBid = new()
         {
             Amount = 1000,
             Bidder = TestData.DummyUser,
-            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)
+            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero),
+            Auction = auction
         };
         
         await db.Bids.AddAsync(previousBid);
         await db.SaveChangesAsync();
         
-        var bid = new APIBid
+        var bid = new BidRequest
         {
             AuctionId = auction.Id,
             Amount = 10_000
@@ -413,13 +414,14 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         {
             Amount = 1000,
             Bidder = TestData.DummyUser,
-            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)
+            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero),
+            Auction = auction
         };
         
         await db.Bids.AddAsync(previousBid);
         await db.SaveChangesAsync();
         
-        var bid = new APIBid
+        var bid = new BidRequest
         {
             AuctionId = auction.Id,
             Amount = 10_000
@@ -456,13 +458,14 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         {
             Amount = 1000,
             Bidder = TestData.DummyUser,
-            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)
+            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero),
+            Auction = auction
         };
         
         await db.Bids.AddAsync(previousBid);
         await db.SaveChangesAsync();
         
-        var bid = new APIBid
+        var bid = new BidRequest
         {
             AuctionId = auction.Id + 10,
             Amount = 10_000
@@ -764,15 +767,8 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         
         await db.Users.AddAsync(TestData.DummyUser);
         
-        DataBid winningBid = new()
-        {
-            Amount = 2000,
-            Bidder = TestData.DummyUser,
-            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero)
-        };
         
-        await db.Bids.AddAsync(winningBid);
-        _ = db.Auctions.Add(
+        var auction = db.Auctions.Add(
             new Auction
             {
                 Seller = sellerUser,
@@ -780,11 +776,21 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
                 EndTime = new DateTimeOffset(2021, 2, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
                 Type = AuctionType.English,
-                WinningBid = winningBid, 
                 InitialPrice = 1000
             }
         ).Entity;
         
+        DataBid winningBid = new()
+        {
+            Amount = 2000,
+            Bidder = TestData.DummyUser,
+            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero),
+            Auction = auction
+        };
+        
+        auction.WinningBid = winningBid.Id;
+        
+        await db.Bids.AddAsync(winningBid);
         await db.SaveChangesAsync();
         
         // Act
@@ -808,16 +814,6 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             }
         ).Entity;
         
-        await db.Users.AddAsync(TestData.DummyUser);
-        
-        DataBid winningBid = new()
-        {
-            Amount = 2000,
-            Bidder = TestData.DummyUser,
-            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero)
-        };
-        
-        await db.Bids.AddAsync(winningBid);
         var wonAuction = db.Auctions.Add(
             new Auction
             {
@@ -826,11 +822,21 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
                 EndTime = new DateTimeOffset(2021, 2, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
                 Type = AuctionType.English,
-                WinningBid = winningBid, 
                 InitialPrice = 1000
             }
         ).Entity;
         
+        DataBid winningBid = new()
+        {
+            Amount = 2000,
+            Bidder = TestData.DummyUser,
+            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero),
+            Auction = wonAuction
+        };
+        
+        wonAuction.WinningBid = winningBid.Id;
+        
+        await db.Bids.AddAsync(winningBid);
         await db.SaveChangesAsync();
         
         // Act
@@ -858,15 +864,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         
         await db.Users.AddAsync(TestData.DummyUser);
         
-        DataBid winningBid = new()
-        {
-            Amount = 2000,
-            Bidder = TestData.DummyUser,
-            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero)
-        };
-        
-        await db.Bids.AddAsync(winningBid);
-        _ = db.Auctions.Add(
+        var wonAuction = db.Auctions.Add(
             new Auction
             {
                 Seller = sellerUser,
@@ -874,11 +872,21 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
                 EndTime = new DateTimeOffset(2021, 2, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
                 Type = AuctionType.English,
-                WinningBid = winningBid, 
                 InitialPrice = 1000
             }
         ).Entity;
         
+        DataBid winningBid = new()
+        {
+            Amount = 2000,
+            Bidder = TestData.DummyUser,
+            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero),
+            Auction = wonAuction
+        };
+        
+        wonAuction.WinningBid = winningBid.Id;
+        
+        await db.Bids.AddAsync(winningBid);
         await db.SaveChangesAsync();
         
         // Act
@@ -904,14 +912,6 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         
         await db.Users.AddAsync(TestData.DummyUser);
         
-        DataBid winningBid = new()
-        {
-            Amount = 2000,
-            Bidder = TestData.DummyUser,
-            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero)
-        };
-        
-        await db.Bids.AddAsync(winningBid);
         var wonAuction = db.Auctions.Add(
             new Auction
             {
@@ -920,11 +920,21 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
                 EndTime = new DateTimeOffset(2021, 2, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
                 Type = AuctionType.English,
-                WinningBid = winningBid, 
                 InitialPrice = 1000
             }
         ).Entity;
         
+        DataBid winningBid = new()
+        {
+            Amount = 2000,
+            Bidder = TestData.DummyUser,
+            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero),
+            Auction = wonAuction
+        };
+        
+        wonAuction.WinningBid = winningBid.Id;
+        
+        await db.Bids.AddAsync(winningBid);
         await db.SaveChangesAsync();
         
         // Act

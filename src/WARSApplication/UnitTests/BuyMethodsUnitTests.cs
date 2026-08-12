@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Time.Testing;
 using WARSApplication;
+using WARSApplication.Data.APIData.Incoming;
+using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.ErrorResponses;
@@ -247,7 +249,109 @@ public class BuyMethodsUnitTests
         Assert.IsType<NotFound<UserIdNotFound>>(response.Result);
     }
     
+    [Fact]
+    public async Task Bid_Bids_To_An_Auction_Async()
+    {
+        // Arrange
+        var addedBeforeBidContent = MockBidRepoContent();
+        var addedBeforeAuctionContent = MockAuctionsRepoContent;
+        var mockBidRepo = new MockBidRepository(addedBeforeBidContent);
+        var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
+
+        var bidRequest = new BidRequest
+        {
+            Amount = 10_000,
+            AuctionId = addedBeforeAuctionContent[5].Id
+        };
+        
+        // Act
+        var response = await BuyMethods.BidAsync(TestUser, bidRequest, _timeProvider, mockAuctionRepo, mockBidRepo);
+        
+        // Assert
+        Assert.IsType<Ok>(response.Result);
+        Assert.True(mockBidRepo.AllChangesCommited);
+        Assert.Equal(addedBeforeBidContent.Length + 1, mockBidRepo.CommitedRepoContent.Count);
+        Assert.NotNull(mockBidRepo.CommitedRepoContent.FirstOrDefault(bid => 
+                bid.Auction.Id == addedBeforeAuctionContent[5].Id && bid.Amount == bidRequest.Amount
+            ));
+    }
     
-    // TODO: complete buy methods
+    [Fact]
+    public async Task Bid_Returns_Not_Found_When_Auction_Id_Not_Found_Async()
+    {
+        // Arrange
+        var addedBeforeBidContent = MockBidRepoContent();
+        var addedBeforeAuctionContent = MockAuctionsRepoContent;
+        var mockBidRepo = new MockBidRepository(addedBeforeBidContent);
+        var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
+        
+        var bidRequest = new BidRequest
+        {
+            Amount = 10_000,
+            AuctionId = addedBeforeAuctionContent[5].Id + 10000
+        };
+        
+        // Act
+        var response = await BuyMethods.BidAsync(TestUser, bidRequest, _timeProvider, mockAuctionRepo, mockBidRepo);
+        
+        // Assert
+        Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
+    }
+
+    [Fact]
+    public async Task Info_Returns_Info_About_Auctions_Async()
+    {
+        // Arrange
+        var addedBeforeBidContent = MockBidRepoContent();
+        var addedBeforeAuctionContent = MockAuctionsRepoContent;
+        
+        var mockBidRepo = new MockBidRepository(addedBeforeBidContent);
+        var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
+
+        AuctionId[] requestedIds = [ new (5), new (2), new (1) ];
+        
+        // Act
+        var response = await BuyMethods.GetInfoAsync(requestedIds);
+        
+        // Assert
+        var result = Assert.IsType<Ok<IEnumerable<BuyerAuctionInfo>>>(response.Result).Value.ToList();
+        
+        Assert.Equal(3, result.Count);
+        
+        // numbered by auction id
+        for (int i = 0; i < 3; i++)
+        {
+            var info = result[i];
+            var auction = addedBeforeAuctionContent.First(a => a.Id == requestedIds[i]);
+            
+            Assert.Equal(auction.Id, info.AuctionId);
+            Assert.Equal(auction.Seller.Id, info.SellerId);
+            Assert.Equal(auction.Description, info.Description);
+            Assert.Equal(auction.StartTime, info.StartTime);
+            Assert.Equal(auction.EndTime, info.EndTime);
+            Assert.Equal(auction.Status, info.Status);
+        }
+        
+        _ = Assert.IsType<FirstTimeSealedBidInfo>(response.Result);
+        var info2 = Assert.IsType<DutchAuctionInfo>(response.Result);
+        var info1 = Assert.IsType<EnglishAuctionInfo>(response.Result);
+        
+        Assert.Equal(addedBeforeAuctionContent[2].InitialPrice, info2.CurrentPrice);
+        Assert.Equal(addedBeforeAuctionContent[1].InitialPrice, info1.CurrentBid);
+    }
+    
+    [Fact]
+    public async Task Info_Returns_Info_Returns_Not_Found_When_AuctionId_Nonexistent_Async()
+    {
+        // Arrange
+        AuctionId[] requestedIds = [ new (5), new (2000), new (1) ];
+        
+        // Act
+        var response = await BuyMethods.GetInfoAsync(requestedIds);
+        
+        // Assert
+        Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
+    }
+    
     // TODO: auth methods? -- last, after everything else is completed
 }

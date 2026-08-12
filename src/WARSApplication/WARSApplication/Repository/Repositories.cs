@@ -22,3 +22,26 @@ public class AuctionRepository(AuctionDbContext db) : IAuctionRepository
     public async Task CommitAsync() => await db.SaveChangesAsync();
 }
 
+public class BidRepository : IBidRepository
+{
+    public IAsyncEnumerable<Bid> WhereAsync(Func<Bid, bool> condition)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task AddAsync(Bid entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UpdateAsync(Bid entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task CommitAsync()
+    {
+        throw new NotImplementedException();
+    }
+}
+
