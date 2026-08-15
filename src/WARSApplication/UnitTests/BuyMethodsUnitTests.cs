@@ -19,7 +19,6 @@ public class BuyMethodsUnitTests
     private static User TestUser { get; } = new()
     {
         Id = new UserId(2),
-        IdentityId = "123456789"
     };
     
     private static Auction[] MockAuctionsRepoContent => 
@@ -30,13 +29,11 @@ public class BuyMethodsUnitTests
             Seller = new User
             {
                 Id = TestUser.Id + 1,
-                IdentityId = "AnotherUser"
             },
             StartTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "added_before1",
-            Type = AuctionType.English,
-            InitialPrice = 1000
+            Rules = new EnglishAuctionRules { StartingPrice = 1000 }
         },
 
         new()
@@ -46,8 +43,7 @@ public class BuyMethodsUnitTests
             StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "added_before3",
-            Type = AuctionType.English,
-            InitialPrice = 1000
+            Rules = new EnglishAuctionRules { StartingPrice = 1000 }
         },
         
         new()
@@ -57,8 +53,7 @@ public class BuyMethodsUnitTests
             StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "added_before2",
-            Type = AuctionType.Dutch,
-            InitialPrice = 1000
+            Rules = new DutchAuctionRules { PriceDecrementFrequency = new TimeSpan(0, 0, 1), PriceDecrementRate = 2, StartingPrice = 1000 }
         },
         
         new()
@@ -67,13 +62,11 @@ public class BuyMethodsUnitTests
             Seller = new User
             {
                 Id = TestUser.Id + 1,
-                IdentityId = "AnotherUser"
             },
             StartTime = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "added_before_active_1",
-            Type = AuctionType.English,
-            InitialPrice = 1000,
+            Rules = new EnglishAuctionRules() { StartingPrice = 1000 },
             Status = AuctionStatus.Active
         },
         
@@ -83,12 +76,11 @@ public class BuyMethodsUnitTests
         Seller = new User
         {
             Id = TestUser.Id + 2,
-            IdentityId = "AnotherUser"
         },
         StartTime = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
         EndTime = new DateTimeOffset(2021, 5, 1, 0, 0, 0, TimeSpan.Zero),
         Description = "added_before_active_2",
-        Type = AuctionType.FirstTimeSealedBid,
+        Rules = new FirstTimeSealedBidRules(),
         Status = AuctionStatus.Finished
         },
         
@@ -97,13 +89,12 @@ public class BuyMethodsUnitTests
             Id = new AuctionId(5),
             Seller = new User
             {
-                Id = TestUser.Id + 2,
-                IdentityId = "AnotherUser"
+                Id = TestUser.Id + 2
             },
             StartTime = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "added_before_active_3",
-            Type = AuctionType.FirstTimeSealedBid,
+            Rules = new FirstTimeSealedBidRules(),
             Status = AuctionStatus.Active
         }
     ];
@@ -116,41 +107,40 @@ public class BuyMethodsUnitTests
             new Bid
             {
                 Id = 0,
-                Amount = 1000,
+                Value = 1000,
                 Bidder = TestUser,
                 Time = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero),
-                Auction = auctionContentCopy[3]
+                CorrespondingAuction = auctionContentCopy[3]
             },
             
             new Bid
             {
                 Id = 1,
-                Amount = 1500,
+                Value = 1500,
                 Bidder = new User
                 {
                     Id = TestUser.Id + 2,
-                    IdentityId = "AnotherUser"
                 },
                 Time = new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero),
-                Auction = auctionContentCopy[3]
+                CorrespondingAuction = auctionContentCopy[3]
             },
             
             new Bid
             {
                 Id = 2,
-                Amount = 2000,
+                Value = 2000,
                 Bidder = TestUser,
                 Time = new DateTimeOffset(2021, 3, 1, 1, 1, 2, TimeSpan.Zero),
-                Auction = auctionContentCopy[3]
+                CorrespondingAuction = auctionContentCopy[3]
             },
             
             new Bid
             {
                 Id = 3,
-                Amount = 1000,
+                Value = 1000,
                 Bidder = TestUser,
                 Time = new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero),
-                Auction = auctionContentCopy[4]
+                CorrespondingAuction = auctionContentCopy[4]
             }
         ];
     }
@@ -190,8 +180,8 @@ public class BuyMethodsUnitTests
         
         // Assert
         Assert.Equal(2, result.Count);
-        Assert.Contains(addedBeforeBidContent[3].Auction.Id, result);
-        Assert.Contains(addedBeforeBidContent[4].Auction.Id, result);
+        Assert.Contains(addedBeforeBidContent[3].CorrespondingAuction.Id, result);
+        Assert.Contains(addedBeforeBidContent[4].CorrespondingAuction.Id, result);
     }
     
     [Fact]
@@ -209,7 +199,7 @@ public class BuyMethodsUnitTests
         
         // Assert
         Assert.Single(result);
-        Assert.Contains(addedBeforeBidContent[3].Auction.Id, result);
+        Assert.Contains(addedBeforeBidContent[3].CorrespondingAuction.Id, result);
     }
     
     [Fact]
@@ -229,7 +219,7 @@ public class BuyMethodsUnitTests
         var result = Assert.IsType<Ok<IEnumerable<AuctionId>>>(response.Result).Value.ToList();
                 
         Assert.Single(result);
-        Assert.Contains(addedBeforeBidContent[5].Auction.Id, result);
+        Assert.Contains(addedBeforeBidContent[5].CorrespondingAuction.Id, result);
     }
     
     [Fact]
@@ -272,7 +262,7 @@ public class BuyMethodsUnitTests
         Assert.True(mockBidRepo.AllChangesCommited);
         Assert.Equal(addedBeforeBidContent.Length + 1, mockBidRepo.CommitedRepoContent.Count);
         Assert.NotNull(mockBidRepo.CommitedRepoContent.FirstOrDefault(bid => 
-                bid.Auction.Id == addedBeforeAuctionContent[5].Id && bid.Amount == bidRequest.Amount
+                bid.CorrespondingAuction.Id == addedBeforeAuctionContent[5].Id && bid.Value == bidRequest.Amount
             ));
     }
     
@@ -336,8 +326,11 @@ public class BuyMethodsUnitTests
         var info2 = Assert.IsType<DutchAuctionInfo>(response.Result);
         var info1 = Assert.IsType<EnglishAuctionInfo>(response.Result);
         
-        Assert.Equal(addedBeforeAuctionContent[2].InitialPrice, info2.CurrentPrice);
-        Assert.Equal(addedBeforeAuctionContent[1].InitialPrice, info1.CurrentBid);
+        var rules2 = (DutchAuctionRules)addedBeforeAuctionContent[2].Rules;
+        var rules1 = (EnglishAuctionRules)addedBeforeAuctionContent[1].Rules;
+        
+        Assert.Equal(rules2.StartingPrice, info2.CurrentPrice);
+        Assert.Equal(rules1.StartingPrice, info1.CurrentBid);
     }
     
     [Fact]
@@ -354,4 +347,5 @@ public class BuyMethodsUnitTests
     }
     
     // TODO: auth methods? -- last, after everything else is completed
+    // TODO: compare records with normal equality (records are not compare by reference but member-wise) 
 }

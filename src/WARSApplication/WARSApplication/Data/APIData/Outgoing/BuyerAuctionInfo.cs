@@ -3,7 +3,7 @@ using WARSApplication.Data.SharedDataProperties;
 namespace WARSApplication.Data.APIData.Outgoing;
 public record struct BuyerAuctionInfo(
         AuctionId AuctionId, string Description, UserId SellerId, 
-        DateTimeOffset StartTime, DateTimeOffset EndTime, AuctionStatus Status, TypeSpecificAuctionInfo InfoData 
+        DateTimeOffset StartTime, DateTimeOffset EndTime, AuctionStatus Status, AuctionTypeSpecificRules InfoData 
     );
 
 public abstract record TypeSpecificAuctionInfo; 

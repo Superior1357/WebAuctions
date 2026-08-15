@@ -14,11 +14,11 @@ public class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
         throw new NotImplementedException();
     }
 
-    public Task AddAsync(T item)
+    public Task<T> AddAsync(T item)
     {
         AllChangesCommited = false;
         _repoContent.Add(item);
-        return Task.CompletedTask;
+        return Task.FromResult(item);
     }
     
 
@@ -36,5 +36,5 @@ public class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
     }
 }
 
-public class MockAuctionRepository(ICollection<Auction> repoItems) : MockRepository<Auction>(repoItems), IAuctionRepository;
-public class MockBidRepository(ICollection<Bid> repoItems) : MockRepository<Bid>(repoItems), IBidRepository;
+public class MockAuctionRepository(ICollection<Auction> repoItems) : MockRepository<Auction>(repoItems);
+public class MockBidRepository(ICollection<Bid> repoItems) : MockRepository<Bid>(repoItems);

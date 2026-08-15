@@ -15,8 +15,11 @@ var authConnectionString = builder.Configuration.GetConnectionString("Auth") ?? 
 builder.Services.AddSqlite<AuthDbContext>(authConnectionString);
 builder.Services.AddSqlite<AuctionDbContext>(connectionString);
 
-builder.Services.AddScoped<IAuctionRepository, AuctionRepository>();
+// TODO: register repository services
+/*
+builder.Services.AddScoped<IRepository<Auction>, AuctionRepository>();
 builder.Services.AddScoped<IBidRepository, BidRepository>();
+*/
 
 builder.Services.AddIdentityCore<IdentityUser>(
     options =>

@@ -20,47 +20,44 @@ public class SellMethodsUnitTests
 
     private static User TestUser => new()
     {
-        Id = new UserId(2),
-        IdentityId = "123456789"
+        Id = new UserId(2)
     };
     
     private static Auction[] MockRepoContent =>
     [
-        new Auction
+        new()
         {
             Id = new AuctionId(3),
             Seller = new User
             {
-                Id = TestUser.Id + 1,
-                IdentityId = "AnotherUser"
+                Id = TestUser.Id + 1
             },
             StartTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "added_before1",
-            Type = AuctionType.English,
-            InitialPrice = 1000
+            Rules = new EnglishAuctionRules {StartingPrice = 1000},
+            Status = AuctionStatus.Pending
         },
 
-        new Auction
+        new()
         {
             Id = new AuctionId(6),
             Seller = TestUser,
             StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "added_before2",
-            Type = AuctionType.Dutch,
-            InitialPrice = 1000
+            Rules = new DutchAuctionRules { PriceDecrementFrequency = new TimeSpan(0, 1, 0), PriceDecrementRate = 2, StartingPrice = 1000},
+            Status = AuctionStatus.Pending
         },
 
-        new Auction
+        new()
         {
             Id = new AuctionId(5),
             Seller = TestUser,
             StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "added_before3",
-            Type = AuctionType.English,
-            InitialPrice = 1000
+            Rules = new EnglishAuctionRules {StartingPrice = 1000},
         }
     ];
     
@@ -76,7 +73,7 @@ public class SellMethodsUnitTests
             new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             "test",
-            new EnglishAuctionRule(initialPrice)
+            new EnglishAuctionRules {StartingPrice = initialPrice}
         );
 
         var mockRepo = new MockAuctionRepository(MockRepoContent);
@@ -100,7 +97,7 @@ public class SellMethodsUnitTests
             new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             "created",
-            new EnglishAuctionRule(initialPrice)
+            new EnglishAuctionRules { StartingPrice = initialPrice }
         );
 
         var mockRepo = new MockAuctionRepository(MockRepoContent);
@@ -119,8 +116,7 @@ public class SellMethodsUnitTests
                     Assert.Equal(createdAuction.Description, a.Description);
                     Assert.Equal(createdAuction.StartTime, a.StartTime);
                     Assert.Equal(createdAuction.EndTime, a.EndTime);
-                    Assert.Equal((AuctionType)createdAuction.Rule, a.Type);
-                    Assert.Equal(initialPrice, a.InitialPrice);
+                    Assert.Equal(createdAuction.Rules, a.Rules);
                     Assert.Equal(user, a.Seller);
                 }
                 else // check whether all info stayed the same
@@ -128,8 +124,7 @@ public class SellMethodsUnitTests
                     var correspondingOriginal = addedBeforeContent.First(x => x.Description == a.Description);
                     Assert.Equal(correspondingOriginal.StartTime, a.StartTime);
                     Assert.Equal(correspondingOriginal.EndTime, a.EndTime);
-                    Assert.Equal(correspondingOriginal.Type, a.Type);
-                    Assert.Equal(correspondingOriginal.InitialPrice, a.InitialPrice);
+                    Assert.Equal(createdAuction.Rules, a.Rules);
                     Assert.Equal(correspondingOriginal.Seller, a.Seller);
                 }
             }
@@ -148,7 +143,7 @@ public class SellMethodsUnitTests
             new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             "test",
-            new EnglishAuctionRule(initialPrice)
+            new EnglishAuctionRules { StartingPrice = initialPrice }
             );
 
         var mockRepo = new MockAuctionRepository(MockRepoContent);
@@ -172,7 +167,7 @@ public class SellMethodsUnitTests
             new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
             "test",
-            new EnglishAuctionRule(initialPrice)
+            new EnglishAuctionRules { StartingPrice = initialPrice }
         );
 
         var mockRepo = new MockAuctionRepository(MockRepoContent);
@@ -197,8 +192,7 @@ public class SellMethodsUnitTests
             StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "test",
-            Type = AuctionType.English,
-            InitialPrice = 1000
+            Rules = new EnglishAuctionRules {StartingPrice = 1000}
         };
         
         var mockRepo = new MockAuctionRepository(MockRepoContent.Append(existingAuction).ToList());
@@ -224,8 +218,7 @@ public class SellMethodsUnitTests
             StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "test",
-            Type = AuctionType.English,
-            InitialPrice = 1000
+            Rules = new EnglishAuctionRules {StartingPrice = 1000}
         };
         
         var mockRepo = new MockAuctionRepository(MockRepoContent.Append(existingAuction).ToList());
@@ -244,16 +237,14 @@ public class SellMethodsUnitTests
                 Assert.Equal(existingAuction.Description, a.Description);
                 Assert.Equal(existingAuction.StartTime, a.StartTime);
                 Assert.Equal(updateRequest.NewEnd, a.EndTime);
-                Assert.Equal(existingAuction.Type, a.Type);
-                Assert.Equal(existingAuction.InitialPrice, a.InitialPrice);
+                Assert.Equal(existingAuction.Rules, a.Rules);
             }
             else
             {
                 var correspondingOriginal = addedBeforeContent.First(x => x.Description == a.Description);
                 Assert.Equal(correspondingOriginal.StartTime, a.StartTime);
                 Assert.Equal(correspondingOriginal.EndTime, a.EndTime);
-                Assert.Equal(correspondingOriginal.Type, a.Type);
-                Assert.Equal(correspondingOriginal.InitialPrice, a.InitialPrice);
+                Assert.Equal(correspondingOriginal.Rules, a.Rules);
                 Assert.Equal(correspondingOriginal.Seller, a.Seller);
             }
         });
@@ -272,8 +263,7 @@ public class SellMethodsUnitTests
             StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "test",
-            Type = AuctionType.English,
-            InitialPrice = 1000
+            Rules = new EnglishAuctionRules {StartingPrice = 1000}
         };
         
         var addedBeforeContent = MockRepoContent;
@@ -301,8 +291,7 @@ public class SellMethodsUnitTests
             StartTime = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "test",
-            Type = AuctionType.English,
-            InitialPrice = 1000,
+            Rules = new EnglishAuctionRules {StartingPrice = 1000},
             Status = AuctionStatus.Active
         };
         
@@ -351,8 +340,7 @@ public class SellMethodsUnitTests
             StartTime = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "test",
-            Type = AuctionType.English,
-            InitialPrice = 1000,
+            Rules = new EnglishAuctionRules {StartingPrice = 1000},
             Status = AuctionStatus.Active
         };
 
@@ -381,8 +369,7 @@ public class SellMethodsUnitTests
             StartTime = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Description = "test",
-            Type = AuctionType.English,
-            InitialPrice = 1000,
+            Rules = new EnglishAuctionRules {StartingPrice = 1000},
             Status = AuctionStatus.Finished
         };
 
@@ -426,8 +413,7 @@ public class SellMethodsUnitTests
             Assert.Equal(correspondingOriginal.Description, a.Description);
             Assert.Equal(correspondingOriginal.StartTime, a.StartTime);
             Assert.Equal(correspondingOriginal.EndTime, a.EndTime);
-            Assert.Equal(correspondingOriginal.Type, a.Type);
-            Assert.Equal(correspondingOriginal.InitialPrice, a.InitialPrice);
+            Assert.Equal(correspondingOriginal.Rules, a.Rules);
             Assert.Equal(correspondingOriginal.Seller, a.Seller);
             Assert.Equal(correspondingOriginal.Status, a.Status);
         }
