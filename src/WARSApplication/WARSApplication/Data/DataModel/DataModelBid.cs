@@ -5,7 +5,8 @@ namespace WARSApplication.Data.DataModel;
 
 public record DataModelBid
 {
-    public BidId Id { get; init; } 
+    public BidId Id { get; init; }
+    public AuctionId AuctionId { get; init; }
     public required DataModelAuction ModelAuction { get; init; }
     public required DataModelUser Bidder { get; init; }
     public required Price Value { get; init; }

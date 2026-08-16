@@ -10,7 +10,8 @@ public record DataModelAuction
     public required DateTimeOffset StartTime { get; init; }
     public required DateTimeOffset EndTime { get; set; }
     public required DataModelUser Seller { get; init; }
-    public required AuctionTypeSpecificRules Rules { get; init; }
+    public required AuctionTypeSpecificRules Rules { get; init; } // TODO: remove this, make DataModelAuction abstract and introduce new types that contain the corresponding fields, then use the TPH pattern
     [ConcurrencyCheck]
-    public DataModelBid? LastPlacedBid { get; set; }
+    public BidId? LastPlacedBid { get; set; }
+    public ICollection<DataModelBid> Bids { get; set; } = new List<DataModelBid>();
 }

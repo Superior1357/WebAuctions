@@ -406,9 +406,8 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
                 }
             }
         ).Entity;
-
-
-        DataModelBid previousBid = new DataModelBid
+        
+        var previousBid = new DataModelBid
         {
             Bidder = TestData.DummyUser,
             ModelAuction = auction,
@@ -846,7 +845,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             Value = 2000,
         };
         
-        auction.LastPlacedBid = winningBid;
+        auction.LastPlacedBid = winningBid.Id;
         
         await db.Bids.AddAsync(winningBid);
         await db.SaveChangesAsync();
@@ -893,7 +892,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             Value = 2000,
         };
         
-        auction.LastPlacedBid = winningBid;
+        auction.LastPlacedBid = winningBid.Id;
         
         await db.Bids.AddAsync(winningBid);
         await db.SaveChangesAsync();
@@ -942,7 +941,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             Value = 2000,
         };
         
-        auction.LastPlacedBid = winningBid;
+        auction.LastPlacedBid = winningBid.Id;
         
         await db.Bids.AddAsync(winningBid);
         await db.SaveChangesAsync();
@@ -989,7 +988,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             Value = 2000,
         };
         
-        auction.LastPlacedBid = winningBid;
+        auction.LastPlacedBid = winningBid.Id;
         
         await db.Bids.AddAsync(winningBid);
         await db.SaveChangesAsync();
