@@ -7,10 +7,10 @@ using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.ErrorResponses;
 using WARSApplication.ErrorResponses.SellErrorResponses;
-
-namespace UnitTests;
 using Xunit;
 using WARSApplication.BusinessMethods;
+
+namespace UnitTests;
 
 public class SellMethodsUnitTests
 {
@@ -25,7 +25,7 @@ public class SellMethodsUnitTests
     
     private static Auction[] MockRepoContent =>
     [
-        new()
+        new TestingAuction()
         {
             Id = new AuctionId(3),
             Seller = new User
@@ -39,7 +39,7 @@ public class SellMethodsUnitTests
             Status = AuctionStatus.Pending
         },
 
-        new()
+        new TestingAuction()
         {
             Id = new AuctionId(6),
             Seller = TestUser,
@@ -50,7 +50,7 @@ public class SellMethodsUnitTests
             Status = AuctionStatus.Pending
         },
 
-        new()
+        new TestingAuction()
         {
             Id = new AuctionId(5),
             Seller = TestUser,
@@ -185,7 +185,7 @@ public class SellMethodsUnitTests
         // Arrange
         var user = TestUser;
 
-        var existingAuction = new Auction
+        var existingAuction = new TestingAuction
         {
             Id = new AuctionId(4),
             Seller = user,
@@ -211,7 +211,7 @@ public class SellMethodsUnitTests
         // Arrange
         var user = TestUser;
 
-        var existingAuction = new Auction
+        var existingAuction = new TestingAuction
         {
             Id = new AuctionId(4),
             Seller = user,
@@ -256,7 +256,7 @@ public class SellMethodsUnitTests
         // Arrange
         var user = TestUser;
 
-        var existingAuction = new Auction
+        var existingAuction = new TestingAuction
         {
             Id = new AuctionId(4),
             Seller = user,
@@ -284,7 +284,7 @@ public class SellMethodsUnitTests
         // Arrange
         var user = TestUser;
         
-        var existingAuction = new Auction
+        var existingAuction = new TestingAuction
         {
             Id = new AuctionId(4),
             Seller = user,
@@ -333,7 +333,7 @@ public class SellMethodsUnitTests
         // Arrange
         var user = TestUser;
 
-        var listedAuction = new Auction
+        var listedAuction = new TestingAuction
         {
             Id = new AuctionId(7),
             Seller = user,
@@ -362,7 +362,7 @@ public class SellMethodsUnitTests
         // Arrange
         var user = TestUser;
 
-        var listedAuction = new Auction
+        var listedAuction = new TestingAuction
         {
             Id = new AuctionId(7),
             Seller = user,

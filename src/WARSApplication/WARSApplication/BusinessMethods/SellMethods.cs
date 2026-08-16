@@ -25,6 +25,6 @@ public static class SellMethods
     }
     
     public static Task<Results<Ok, NotFound<AuctionIdNotFound>, BadRequest<InvalidAuctionParameters>>> UpdateAuctionAsync(User user, AuctionUpdateRequest r, TimeProvider timeProvider, IRepository<Auction> repository) => throw new NotImplementedException();
-    public static Task<Ok<IEnumerable<AuctionId>>> ListAsync(User user, [FromRoute] AuctionStatus status) => throw new NotImplementedException();
-    public static Task<Results<Ok<IEnumerable<SellerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(User user, IEnumerable<AuctionId> auctionIds) => throw new NotImplementedException();
+    public static Task<Ok<IEnumerable<AuctionId>>> ListAsync(User user, [FromRoute] AuctionStatus status, IRepository<Auction> repository) => throw new NotImplementedException();
+    public static Task<Results<Ok<IEnumerable<SellerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(User user, IEnumerable<AuctionId> auctionIds, IRepository<Auction> repository) => throw new NotImplementedException();
 } 

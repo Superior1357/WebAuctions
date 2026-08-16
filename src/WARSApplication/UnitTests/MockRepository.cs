@@ -37,4 +37,3 @@ public class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
 }
 
 public class MockAuctionRepository(ICollection<Auction> repoItems) : MockRepository<Auction>(repoItems);
-public class MockBidRepository(ICollection<Bid> repoItems) : MockRepository<Bid>(repoItems);
