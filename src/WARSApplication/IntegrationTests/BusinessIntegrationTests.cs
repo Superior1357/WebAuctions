@@ -9,14 +9,12 @@ using WARSApplication.Data.APIData.Incoming;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 using System.Net.Http.Json;
-using WARSApplication;
 using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.DataModel;
 
 namespace IntegrationTests;
 
 using Xunit;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 // TODO: auth tests in a separate file
 
@@ -140,18 +138,15 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
 
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new DutchDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new DutchAuctionRules
-                {
-                    PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                    PriceDecrementRate = 2,
-                    StartingPrice = 1000,
-                }
+                PriceDecrementFrequency = new TimeSpan(0, 0, 1),
+                PriceDecrementRate = 2,
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -175,18 +170,15 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
         
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new DutchDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new DutchAuctionRules
-                {
-                    PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                    PriceDecrementRate = 2,
-                    StartingPrice = 1000,
-                }
+                PriceDecrementFrequency = new TimeSpan(0, 0, 1),
+                PriceDecrementRate = 2,
+                StartingPrice = 1000,
             }
         ).Entity;
 
@@ -214,18 +206,15 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
 
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new DutchDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new DutchAuctionRules
-                {
                     PriceDecrementFrequency = new TimeSpan(0, 0, 1),
                     PriceDecrementRate = 2,
-                    StartingPrice = 1000,
-                }
+                    StartingPrice = 1000
             }
         ).Entity;
 
@@ -250,18 +239,15 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
 
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new DutchDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new DutchAuctionRules
-                {
-                    PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                    PriceDecrementRate = 2,
-                    StartingPrice = 1000,
-                }
+                PriceDecrementFrequency = new TimeSpan(0, 0, 1),
+                PriceDecrementRate = 2,
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -284,18 +270,15 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
 
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new DutchDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new DutchAuctionRules
-                {
-                    PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                    PriceDecrementRate = 2,
-                    StartingPrice = 1000,
-                }
+                PriceDecrementFrequency = new TimeSpan(0, 0, 1),
+                PriceDecrementRate = 2,
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -321,18 +304,15 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
 
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new DutchDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new DutchAuctionRules
-                {
-                    PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                    PriceDecrementRate = 2,
-                    StartingPrice = 1000,
-                }
+                PriceDecrementFrequency = new TimeSpan(0, 0, 1),
+                PriceDecrementRate = 2,
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -358,18 +338,15 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
 
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new DutchDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new DutchAuctionRules
-                {
-                    PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                    PriceDecrementRate = 2,
-                    StartingPrice = 1000,
-                }
+                PriceDecrementFrequency = new TimeSpan(0, 0, 1),
+                PriceDecrementRate = 2,
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -392,18 +369,15 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
         
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new DutchDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new DutchAuctionRules
-                {
-                    PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                    PriceDecrementRate = 2,
-                    StartingPrice = 1000,
-                }
+                PriceDecrementFrequency = new TimeSpan(0, 0, 1),
+                PriceDecrementRate = 2,
+                StartingPrice = 1000
             }
         ).Entity;
         
@@ -432,7 +406,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
     }
     
     [Fact]
-    public async Task Buy_Bid_Adds_BidAsync()
+    public async Task Buy_Bid_Adds_Bid_Async()
     {
         // Arrange
         using var scope = _factory.Services.CreateScope();
@@ -440,18 +414,15 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
         
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new DutchDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new DutchAuctionRules
-                {
-                    PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                    PriceDecrementRate = 2,
-                    StartingPrice = 1000,
-                }
+                PriceDecrementFrequency = new TimeSpan(0, 0, 1),
+                PriceDecrementRate = 2,
+                StartingPrice = 1000,
             }
         ).Entity;
 
@@ -489,18 +460,15 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
         
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new DutchDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new DutchAuctionRules
-                {
-                    PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                    PriceDecrementRate = 2,
-                    StartingPrice = 1000,
-                }
+                PriceDecrementFrequency = new TimeSpan(0, 0, 1),
+                PriceDecrementRate = 2,
+                StartingPrice = 1000,
             }
         ).Entity;
 
@@ -548,30 +516,24 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddRangeAsync(sellerUser, noSellerUser, TestData.DummyUser);
         
         _ = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = sellerUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules
-                {
-                    StartingPrice = 1000
-                }
+                StartingPrice = 1000
             }
         ).Entity;
         
         _ = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules
-                {
-                    StartingPrice = 1000
-                }
+                StartingPrice = 1000
             }
         ).Entity;
         
@@ -606,27 +568,24 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddRangeAsync(noSellerUser, TestData.DummyUser);
         
         _ = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = sellerUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules()
-                {
-                     StartingPrice = 1000,
-                }
+                StartingPrice = 1000
             }
         ).Entity;
         
         _ = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
         
@@ -664,27 +623,24 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddRangeAsync(noSellerUser, TestData.DummyUser);
         
         _ = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = sellerUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules()
-                {
-                    StartingPrice = 1000,
-                }
+                StartingPrice = 1000
             }
         ).Entity;
         
         _ = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -719,27 +675,24 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddRangeAsync(noSellerUser, TestData.DummyUser);
         
         var sellerAuction = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = sellerUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules()
-                {
-                    StartingPrice = 1000,
-                }
+                StartingPrice = 1000
             }
         ).Entity;
         
         _ = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -777,27 +730,24 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddRangeAsync(noSellerUser, TestData.DummyUser);
         
         _ = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = sellerUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules()
-                {
-                    StartingPrice = 1000,
-                }
+                StartingPrice = 1000
             }
         ).Entity;
         
         _ = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -827,13 +777,13 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser);
         
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = sellerUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2021, 2, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -874,13 +824,13 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser);
         
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = sellerUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2021, 2, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -923,13 +873,13 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser);
         
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = sellerUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2021, 2, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -970,13 +920,13 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser);
         
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = sellerUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2021, 2, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -1024,24 +974,24 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddRangeAsync(noSellerUser, TestData.DummyUser);
         
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = sellerUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
         
         _ = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -1079,24 +1029,24 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddRangeAsync(noSellerUser, TestData.DummyUser);
         
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = sellerUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
         
         _ = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
 
@@ -1134,24 +1084,24 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddRangeAsync(noSellerUser, TestData.DummyUser);
         
         var auction = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = sellerUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
         
         _ = db.Auctions.Add(
-            new DataModelAuction
+            new EnglishDataModelAuction
             {
                 Seller = TestData.DummyUser,
                 StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 Description = "flower",
-                Rules = new EnglishAuctionRules { StartingPrice = 1000 }
+                StartingPrice = 1000
             }
         ).Entity;
 
