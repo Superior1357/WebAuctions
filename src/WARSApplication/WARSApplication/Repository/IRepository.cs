@@ -2,7 +2,7 @@ namespace WARSApplication.Repository;
 
 public interface IRepository<T>
 {
-    public IAsyncEnumerable<T> WhereAsync(Func<T, bool> condition);
+    public Task<IEnumerable<T>> ListAsync();
     /// <summary>
     /// Adds entity to the repository. Returns created entity with id parameterized.
     /// </summary>

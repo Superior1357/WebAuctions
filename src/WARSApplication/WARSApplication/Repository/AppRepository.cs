@@ -1,9 +1,9 @@
 using WARSApplication.Data.DataModel.Business;
 namespace WARSApplication.Repository;
 
-public class AppRepository(AuctionDbContext dbContext) : IRepository<Auction>
+public sealed class AppRepository(AuctionDbContext dbContext, TimeProvider timeProvider) : IRepository<Auction>
 {
-    public IAsyncEnumerable<Auction> WhereAsync(Func<Auction, bool> condition)
+    public Task<IEnumerable<Auction>> ListAsync()
     {
         throw new NotImplementedException();
     }
@@ -13,9 +13,17 @@ public class AppRepository(AuctionDbContext dbContext) : IRepository<Auction>
         throw new NotImplementedException();
     }
 
-    Task IRepository<Auction>.CommitAsync()
+    Task IRepository<Auction>.CommitAsync() // TODO: handle when cannot commit in the internal database
     {
         throw new NotImplementedException();
     }
-}
 
+    private record RepoAuction(AppRepository CorrespondingRepository) : Auction
+    {
+        public override required DateTimeOffset EndTime { get; set; }
+        public override IEnumerable<Bid> GetBids()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

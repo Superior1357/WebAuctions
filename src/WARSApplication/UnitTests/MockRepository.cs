@@ -8,8 +8,8 @@ public class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
     private ICollection<T> _repoContent = repoItems.ToList();
     public ICollection<T> CommitedRepoContent { get; private set; } = repoItems.ToList();
     public bool AllChangesCommited { get; private set; }
-    
-    public IAsyncEnumerable<T> WhereAsync(Func<T, bool> condition)
+
+    public Task<IEnumerable<T>> ListAsync()
     {
         throw new NotImplementedException();
     }
