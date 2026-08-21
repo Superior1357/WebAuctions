@@ -3,6 +3,7 @@ namespace WARSApplication.Repository;
 public interface IRepository<T>
 {
     public Task<IEnumerable<T>> ListAsync();
+    public Task UpdateAsync(T entity);
     /// <summary>
     /// Adds entity to the repository. Returns created entity with id parameterized.
     /// </summary>

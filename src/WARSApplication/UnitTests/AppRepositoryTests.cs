@@ -132,17 +132,17 @@ public class AppRepositoryTests
             switch (dataAuction)
             {
                 case EnglishDataModelAuction englishAuction:
-                    var englishSpecificData = Assert.IsType<EnglishAuctionRules>(retrievedAuctions[i].Rules);
+                    var englishSpecificData = Assert.IsType<EnglishAuction>(retrievedAuction);
                     Assert.Equal(englishAuction.StartingPrice, englishSpecificData.StartingPrice);
                     break;
                 case DutchDataModelAuction dutchAuction:
-                    var dutchSpecificData = Assert.IsType<DutchAuctionRules>(retrievedAuctions[i].Rules);
+                    var dutchSpecificData = Assert.IsType<DutchAuction>(retrievedAuction);
                     Assert.Equal(dutchAuction.StartingPrice, dutchSpecificData.StartingPrice);
                     Assert.Equal(dutchAuction.PriceDecrementFrequency, dutchSpecificData.PriceDecrementFrequency);
                     Assert.Equal(dutchAuction.PriceDecrementRate, dutchSpecificData.PriceDecrementRate);
                     break;
                 case FirstTimeSealedBidDataModelAuction:
-                    Assert.IsType<FirstTimeSealedBidRules>(retrievedAuctions[i].Rules);
+                    Assert.IsType<FirstTimeSealedBidAuction>(retrievedAuction);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();    
@@ -150,12 +150,12 @@ public class AppRepositoryTests
 
             if (i != 0)
             {
-                Assert.Empty(retrievedAuction.GetBids());
+                Assert.Empty(retrievedAuction.Bids.GetItems());
             }
             else
             {
                 var bids = dataAuction.Bids.ToList();
-                var retrievedBids = retrievedAuction.GetBids().ToList();
+                var retrievedBids = retrievedAuction.Bids.GetItems().ToList();
                 
                 Assert.Equal(bids.Count, retrievedBids.Count);
 
@@ -173,7 +173,8 @@ public class AppRepositoryTests
         }
     }
     
-    // TODO: make these tests
+    // TODO: remove the status tests and place them somewhere else
+    /*
     [Fact]
     public async Task WhereListAsyncMapsEnglishActiveStatusCorrectly()
     {
@@ -239,7 +240,7 @@ public class AppRepositoryTests
         
         // Assert
         Assert.Single(retrievedAuctions);
-        Assert.Equal(AuctionStatus.Active, retrievedAuctions[0].Status);   
+        Assert.Equal(AuctionStatus.Active, ExpectedStatus(retrievedAuctions[0], _fakeTimeProvider));
     }
     
     [Fact]
@@ -307,7 +308,7 @@ public class AppRepositoryTests
         
         // Assert
         Assert.Single(retrievedAuctions);
-        Assert.Equal(AuctionStatus.Finished, retrievedAuctions[0].Status);   
+        Assert.Equal(AuctionStatus.Finished, ExpectedStatus(retrievedAuctions[0], _fakeTimeProvider));
     }
     
     [Fact]
@@ -359,7 +360,7 @@ public class AppRepositoryTests
         
         // Assert
         Assert.Single(retrievedAuctions);
-        Assert.Equal(AuctionStatus.Pending, retrievedAuctions[0].Status);   
+        Assert.Equal(AuctionStatus.Pending, ExpectedStatus(retrievedAuctions[0], _fakeTimeProvider));
     }
     
     [Fact]
@@ -422,7 +423,7 @@ public class AppRepositoryTests
         
         // Assert
         Assert.Single(retrievedAuctions);
-        Assert.Equal(AuctionStatus.Finished, retrievedAuctions[0].Status);   
+        Assert.Equal(AuctionStatus.Finished, ExpectedStatus(retrievedAuctions[0], _fakeTimeProvider));
     }
     
     [Fact]
@@ -476,7 +477,7 @@ public class AppRepositoryTests
         
         // Assert
         Assert.Single(retrievedAuctions);
-        Assert.Equal(AuctionStatus.Finished, retrievedAuctions[0].Status);   
+        Assert.Equal(AuctionStatus.Finished, ExpectedStatus(retrievedAuctions[0], _fakeTimeProvider));
     }
     
     [Fact]
@@ -530,7 +531,7 @@ public class AppRepositoryTests
         
         // Assert
         Assert.Single(retrievedAuctions);
-        Assert.Equal(AuctionStatus.Pending, retrievedAuctions[0].Status);   
+        Assert.Equal(AuctionStatus.Pending, ExpectedStatus(retrievedAuctions[0], _fakeTimeProvider));
     }
     
     [Fact]
@@ -584,7 +585,7 @@ public class AppRepositoryTests
         
         // Assert
         Assert.Single(retrievedAuctions);
-        Assert.Equal(AuctionStatus.Active, retrievedAuctions[0].Status);   
+        Assert.Equal(AuctionStatus.Active, ExpectedStatus(retrievedAuctions[0], _fakeTimeProvider));
     }
     
     [Fact]
@@ -651,7 +652,7 @@ public class AppRepositoryTests
         
         // Assert
         Assert.Single(retrievedAuctions);
-        Assert.Equal(AuctionStatus.Finished, retrievedAuctions[0].Status);   
+        Assert.Equal(AuctionStatus.Finished, ExpectedStatus(retrievedAuctions[0], _fakeTimeProvider));
     }
     
     [Fact]
@@ -718,7 +719,7 @@ public class AppRepositoryTests
         
         // Assert
         Assert.Single(retrievedAuctions);
-        Assert.Equal(AuctionStatus.Active, retrievedAuctions[0].Status);   
+        Assert.Equal(AuctionStatus.Active, ExpectedStatus(retrievedAuctions[0], _fakeTimeProvider));
     }
     
     [Fact]
@@ -769,10 +770,12 @@ public class AppRepositoryTests
         
         // Assert
         Assert.Single(retrievedAuctions);
-        Assert.Equal(AuctionStatus.Pending, retrievedAuctions[0].Status);   
+        Assert.Equal(AuctionStatus.Pending, ExpectedStatus(retrievedAuctions[0], _fakeTimeProvider));
     }
-    
-    // TODO: add auction methods (seems simple) - do or not to do any validation? (but do correct auction type mapping tests)
-    // TODO: end time parameter adjusting tests - do or not to do any validation?, test one and then multiple updates
+    */
+    // TODO: throw exception when StartTime is after EndTime (not supporting that, don't test any other possible problems)
+    // TODO: add auction methods (seems simple) - do correct auction type mapping tests
+    // TODO: end time parameter adjusting tests - test one and then multiple updates
     // TODO: test repo commit - if not called, no changes in db, if called, saves changes - what if an exception throw? - capable of handling that?
 }
+

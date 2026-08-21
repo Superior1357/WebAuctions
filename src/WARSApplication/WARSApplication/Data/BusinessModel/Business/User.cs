@@ -7,7 +7,8 @@ namespace WARSApplication.Data.DataModel.Business;
 
 public record User
 {
-    public UserId Id { get; init; }
+    public UserId Id { get; private init; }
+    public static User Restore(UserId id) => new() { Id = id };
     
     public static async ValueTask<User?> BindAsync(HttpContext context, ParameterInfo parameter)
     {

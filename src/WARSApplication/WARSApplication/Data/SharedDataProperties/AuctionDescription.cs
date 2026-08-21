@@ -1,4 +1,4 @@
-namespace WARSApplication.Data.DataModel;
+namespace WARSApplication.Data.SharedDataProperties;
 
 public readonly record struct AuctionDescription(string Description)
 {

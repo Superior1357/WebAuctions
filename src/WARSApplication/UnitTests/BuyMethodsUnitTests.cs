@@ -16,205 +16,156 @@ public class BuyMethodsUnitTests
         new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero)
     );
 
-    private static User TestUser { get; } = new()
-    {
-        Id = new UserId(2),
-    };
-    
-    private static Auction[] MockAuctionsRepoContent => 
-    [
-        new TestingAuction
-        {
-            Id = new AuctionId(0),
-            Seller = new User
-            {
-                Id = TestUser.Id + 1,
-            },
-            StartTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            EndTime = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            Description = "added_before1",
-            Rules = new EnglishAuctionRules { StartingPrice = 1000 }
-        },
+    private static User TestUser { get; } = User.Restore(new UserId(2));
 
-        new TestingAuction
-        {
-            Id = new AuctionId(1),
-            Seller = TestUser,
-            StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            Description = "added_before3",
-            Rules = new EnglishAuctionRules { StartingPrice = 1000 }
-        },
-        
-        new TestingAuction
-        {
-            Id = new AuctionId(2),
-            Seller = TestUser,
-            StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            Description = "added_before2",
-            Rules = new DutchAuctionRules { PriceDecrementFrequency = new TimeSpan(0, 0, 1), PriceDecrementRate = 2, StartingPrice = 1000 }
-        },
-        
-        new TestingAuction([
-            new Bid
-        {
-            Id = 0,
-            Value = 1000,
-            Bidder = TestUser,
-            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)
-        }, new Bid
-        {
-            Id = 1,
-            Value = 1500,
-            Bidder = new User { Id = TestUser.Id + 2 },
-            Time = new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero)
-        }, new Bid
-            {
-                Id = 2,
-                Value = 2000,
-                Bidder = TestUser,
-                Time = new DateTimeOffset(2021, 3, 1, 1, 1, 2, TimeSpan.Zero)
-            }
-        ])
-        {
-            Id = new AuctionId(3),
-            Seller = new User
-            {
-                Id = TestUser.Id + 1,
-            },
-            StartTime = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            EndTime = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            Description = "added_before_active_1",
-            Rules = new EnglishAuctionRules() { StartingPrice = 1000 },
-            Status = AuctionStatus.Active
-        },
-        
-        new TestingAuction([new Bid
-        {
-            Id = 3,
-            Value = 1000,
-            Bidder = TestUser,
-            Time = new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero),
-        }])
-        {
-        Id = new AuctionId(4),
-        Seller = new User
-        {
-            Id = TestUser.Id + 2,
-        },
-        StartTime = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
-        EndTime = new DateTimeOffset(2021, 5, 1, 0, 0, 0, TimeSpan.Zero),
-        Description = "added_before_active_2",
-        Rules = new FirstTimeSealedBidRules(),
-        Status = AuctionStatus.Finished
-        },
-        
-        new TestingAuction
-        {
-            Id = new AuctionId(5),
-            Seller = new User
-            {
-                Id = TestUser.Id + 2
-            },
-            StartTime = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            EndTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            Description = "added_before_active_3",
-            Rules = new FirstTimeSealedBidRules(),
-            Status = AuctionStatus.Active
-        }
-    ];
+    private static User MakeUser(int id) => User.Restore(new UserId(id));
+
+    private static Bid MakeBid(int id, decimal value, User bidder, DateTimeOffset time) =>
+        Bid.Restore(id, bidder, value, time);
     
+    private static Auction[] MockAuctionsRepoContent
+    {
+        get
+        {
+            var auction0 = EnglishAuction.Restore(
+                new AuctionId(0),
+                "added_before1",
+                MakeUser(TestUser.Id.Id + 1),
+                new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new TestAddOnlyCollection<Bid>([]),
+                1000
+            );
+
+            var auction1 = EnglishAuction.Restore(
+                new AuctionId(1),
+                "added_before3",
+                TestUser,
+                new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new TestAddOnlyCollection<Bid>([]),
+                1000
+            );
+
+            var auction2 = DutchAuction.Restore(
+                new AuctionId(2),
+                "added_before2",
+                TestUser,
+                new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new TestAddOnlyCollection<Bid>([]),
+                1000,
+                2,
+                new TimeSpan(0, 0, 1)
+            );
+
+            var auction3 = EnglishAuction.Restore(
+                new AuctionId(3),
+                "added_before_active_1",
+                MakeUser(TestUser.Id.Id + 1),
+                new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new TestAddOnlyCollection<Bid>(
+                    [
+                        MakeBid(0, 1000, TestUser, new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)), 
+                        MakeBid(1, 1500, MakeUser(TestUser.Id.Id + 2), new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero)),
+                        MakeBid(2, 2000, TestUser, new DateTimeOffset(2021, 3, 1, 1, 1, 2, TimeSpan.Zero))]
+                    ),
+                1000
+            );
+
+            var auction4 = FirstTimeSealedBidAuction.Restore(
+                new AuctionId(4),
+                "added_before_active_2",
+                MakeUser(TestUser.Id.Id + 2),
+                new TestAddOnlyCollection<Bid>([MakeBid(3, 1000, TestUser, new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero))]),
+                new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2021, 5, 1, 0, 0, 0, TimeSpan.Zero)
+            );
+
+            var auction5 = FirstTimeSealedBidAuction.Restore(
+                new AuctionId(5),
+                "added_before_active_3",
+                MakeUser(TestUser.Id.Id + 2),
+                new TestAddOnlyCollection<Bid>([]),
+                new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero)
+            );
+
+            return [auction0, auction1, auction2, auction3, auction4, auction5];
+        }
+    }
+
     [Fact]
     public async Task List_Sellers_Lists_All_Users_Who_Created_Auctions_Async()
     {
-        // Arrange
         var addedBeforeContent = MockAuctionsRepoContent;
         var mockRepo = new MockAuctionRepository(addedBeforeContent);
-    
+
         List<UserId> sellerIds = [addedBeforeContent[0].Seller.Id, addedBeforeContent[1].Seller.Id];
-        
-        // Act
+
         var result = (await BuyMethods.ListAllSellersAsync(mockRepo)).Value.ToList();
-        
-        // Assert
+
         Assert.Equal(2, result.Count);
         foreach (var id in sellerIds)
         {
             Assert.Contains(id, result);
         }
     }
-    
+
     [Fact]
     public async Task List_Participated_Lists_All_Auctions_That_User_Participated_In_Async()
     {
-        // Arrange
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
-        
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
-        
-        // Act
+
         var result = (await BuyMethods.ListParticipatedAuctionsAsync(TestUser, mockAuctionRepo)).Value.ToList();
-        
-        // Assert
+
         Assert.Equal(2, result.Count);
         Assert.Contains(addedBeforeAuctionContent[3].Id, result);
         Assert.Contains(addedBeforeAuctionContent[4].Id, result);
     }
-    
+
     [Fact]
     public async Task List_Won_Lists_All_Auctions_That_User_Won_Async()
     {
-        // Arrange
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
-        
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
-        
-        // Act
+
         var result = (await BuyMethods.ListWonAuctionsAsync(TestUser, mockAuctionRepo)).Value.ToList();
-        
-        // Assert
+
         Assert.Single(result);
         Assert.Contains(addedBeforeAuctionContent[3].Id, result);
     }
-    
+
     [Fact]
     public async Task List_Non_Finished_Auctions_Lists_All_Non_Finished_Auctions_Of_A_Seller_Async()
     {
-        // Arrange
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
-        
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
-        
-        // Act
+
         var response = await BuyMethods.ListNotFinishedAuctionsOfASellerAsync(addedBeforeAuctionContent[4].Seller.Id, mockAuctionRepo);
-        
-        // Assert
+
         var result = Assert.IsType<Ok<IEnumerable<AuctionId>>>(response.Result).Value.ToList();
-                
+
         Assert.Single(result);
         Assert.Contains(addedBeforeAuctionContent[5].Id, result);
     }
-    
+
     [Fact]
     public async Task List_Non_Finished_Auctions_Returns_Error_If_User_ID_Does_Not_Exist_Async()
     {
-        // Arrange
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
-        
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
-        
-        // Act
+
         var response = await BuyMethods.ListNotFinishedAuctionsOfASellerAsync(addedBeforeAuctionContent[4].Seller.Id + 1000, mockAuctionRepo);
-        
-        // Assert
+
         Assert.IsType<NotFound<UserIdNotFound>>(response.Result);
     }
-    
+
     [Fact]
     public async Task Bid_Bids_To_An_Auction_Async()
     {
-        // Arrange
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
 
@@ -223,98 +174,84 @@ public class BuyMethodsUnitTests
             Amount = 10_000,
             AuctionId = addedBeforeAuctionContent[5].Id
         };
-        
-        // Act
+
         var response = await BuyMethods.BidAsync(TestUser, bidRequest, _timeProvider, mockAuctionRepo);
-        
-        // Assert
+
         Assert.IsType<Ok>(response.Result);
         Assert.True(mockAuctionRepo.AllChangesCommited);
 
         var repoContent = mockAuctionRepo.CommitedRepoContent;
         var correspondingAuction = repoContent.First(a => a.Id == addedBeforeAuctionContent[5].Id);
-        Assert.Contains(correspondingAuction.GetBids(),
+        Assert.Contains(correspondingAuction.Bids.GetItems(),
             bid => bid.Bidder.Id == TestUser.Id && bid.Value == bidRequest.Amount);
     }
-    
+
     [Fact]
     public async Task Bid_Returns_Not_Found_When_Auction_Id_Not_Found_Async()
     {
-        // Arrange
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
-        
+
         var bidRequest = new BidRequest
         {
             Amount = 10_000,
             AuctionId = addedBeforeAuctionContent[5].Id + 10000
         };
-        
-        // Act
+
         var response = await BuyMethods.BidAsync(TestUser, bidRequest, _timeProvider, mockAuctionRepo);
-        
-        // Assert
+
         Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
     }
 
     [Fact]
     public async Task Info_Returns_Info_About_Auctions_Async()
     {
-        // Arrange
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
-        
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
 
-        AuctionId[] requestedIds = [ new (5), new (2), new (1) ];
-        
-        // Act
+        AuctionId[] requestedIds = [new(5), new(2), new(1)];
+
         var response = await BuyMethods.GetInfoAsync(requestedIds, mockAuctionRepo);
-        
-        // Assert
+
         var result = Assert.IsType<Ok<IEnumerable<BuyerAuctionInfo>>>(response.Result).Value.ToList();
-        
+
         Assert.Equal(3, result.Count);
-        
-        // numbered by auction id
+
         for (int i = 0; i < 3; i++)
         {
             var info = result[i];
             var auction = addedBeforeAuctionContent.First(a => a.Id == requestedIds[i]);
-            
+
             Assert.Equal(auction.Id, info.AuctionId);
             Assert.Equal(auction.Seller.Id, info.SellerId);
             Assert.Equal(auction.Description, info.Description);
             Assert.Equal(auction.StartTime, info.StartTime);
             Assert.Equal(auction.EndTime, info.EndTime);
-            Assert.Equal(auction.Status, info.Status);
         }
-        
-        _ = Assert.IsType<FirstTimeSealedBidInfo>(response.Result);
-        var info2 = Assert.IsType<DutchAuctionInfo>(response.Result);
-        var info1 = Assert.IsType<EnglishAuctionInfo>(response.Result);
-        
-        var rules2 = (DutchAuctionRules)addedBeforeAuctionContent[2].Rules;
-        var rules1 = (EnglishAuctionRules)addedBeforeAuctionContent[1].Rules;
-        
+
+        Assert.IsType<FirstTimeSealedBidInfo>(result[0].InfoData);
+        var info2 = Assert.IsType<DutchAuctionInfo>(result[1].InfoData);
+        var info1 = Assert.IsType<EnglishAuctionInfo>(result[2].InfoData);
+
+        var rules2 = Assert.IsType<DutchAuction>(addedBeforeAuctionContent[2]);
+        var rules1 = Assert.IsType<EnglishAuction>(addedBeforeAuctionContent[1]);
+
         Assert.Equal(rules2.StartingPrice, info2.CurrentPrice);
         Assert.Equal(rules1.StartingPrice, info1.CurrentBid);
     }
-    
+
     [Fact]
     public async Task Info_Returns_Info_Returns_Not_Found_When_AuctionId_Nonexistent_Async()
     {
-        // Arrange
-        AuctionId[] requestedIds = [ new (5), new (2000), new (1) ];
+        AuctionId[] requestedIds = [new(5), new(2000), new(1)];
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
-        
-        // Act
+
         var response = await BuyMethods.GetInfoAsync(requestedIds, mockAuctionRepo);
-        
-        // Assert
+
         Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
     }
-    
+
     // TODO: auth methods? -- last, after everything else is completed
-    // TODO: compare records with normal equality (records are not compare by reference but member-wise) 
+    // TODO: compare records with normal equality (records are not compare by reference but member-wise)
 }
