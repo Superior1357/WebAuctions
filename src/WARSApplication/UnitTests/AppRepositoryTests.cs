@@ -8,15 +8,15 @@ using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.Repository;
 
 namespace UnitTests;
-
+// TODO: throw exception when StartTime is after EndTime (not supporting that, don't test any other possible problems)
+// TODO: add auction methods (seems simple) - do correct auction type mapping tests
+// TODO: end time parameter adjusting tests - test one and then multiple updates
+// TODO: test repo commit - if not called, no changes in db, if called, saves changes - what if an exception throw? - capable of handling that?
 public class AppRepositoryTests
 {
     private readonly SqliteConnection _connection;
     private readonly DbContextOptions<AuctionDbContext> _contextOptions;
-
-    private readonly TimeProvider _fakeTimeProvider = new FakeTimeProvider(
-        new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero)
-    );
+    private readonly TimeProvider _fakeTimeProvider = new FakeTimeProvider(new DateTimeOffset(2022, 1, 1, 1, 1, 1, TimeSpan.Zero));
     
     public AppRepositoryTests()
     {
@@ -31,20 +31,139 @@ public class AppRepositoryTests
         context.Database.EnsureCreated();
     }
     
+    private static void AssertAuctionMatches(Auction expected, Auction actual)
+    {
+        Assert.Equal(expected.Id, actual.Id);
+        Assert.Equal(expected.Description, actual.Description);
+        Assert.Equal(expected.StartTime, actual.StartTime);
+        Assert.Equal(expected.EndTime, actual.EndTime);
+        Assert.Equal(expected.Seller, actual.Seller);
+        
+        switch (expected)
+        {
+            case EnglishAuction englishExpected:
+            {
+                var englishActual = Assert.IsType<EnglishAuction>(actual);
+                Assert.Equal(englishExpected.StartingPrice, englishActual.StartingPrice);
+                break;
+            }
+            case DutchAuction dutchExpected:
+            {
+                var dutchActual = Assert.IsType<DutchAuction>(actual);
+                Assert.Equal(dutchExpected.StartingPrice, dutchActual.StartingPrice);
+                Assert.Equal(dutchExpected.PriceDecrementRate, dutchActual.PriceDecrementRate);
+                Assert.Equal(dutchExpected.PriceDecrementFrequency, dutchActual.PriceDecrementFrequency);
+                break;
+            }
+            case FirstTimeSealedBidAuction:
+                Assert.IsType<FirstTimeSealedBidAuction>(actual);
+                break;
+        }
+    }
+
+    private static void AssertDataModelBusinessModelAuctionsMatch(DataModelAuction dataAuction, Auction businessAuction)
+    {
+        Assert.Equal(dataAuction.Id, businessAuction.Id);
+        Assert.Equal(dataAuction.Description, businessAuction.Description);
+        Assert.Equal(dataAuction.StartTime, businessAuction.StartTime);
+        Assert.Equal(dataAuction.EndTime, businessAuction.EndTime);
+        Assert.Equal(dataAuction.Seller.Id, businessAuction.Seller.Id);
+            
+        switch (dataAuction)
+        {
+            case EnglishDataModelAuction englishAuction:
+                var englishSpecificData = Assert.IsType<EnglishAuction>(businessAuction);
+                Assert.Equal(englishAuction.StartingPrice, englishSpecificData.StartingPrice);
+                break;
+            case DutchDataModelAuction dutchAuction:
+                var dutchSpecificData = Assert.IsType<DutchAuction>(businessAuction);
+                Assert.Equal(dutchAuction.StartingPrice, dutchSpecificData.StartingPrice);
+                Assert.Equal(dutchAuction.PriceDecrementFrequency, dutchSpecificData.PriceDecrementFrequency);
+                Assert.Equal(dutchAuction.PriceDecrementRate, dutchSpecificData.PriceDecrementRate);
+                break;
+            case FirstTimeSealedBidDataModelAuction:
+                Assert.IsType<FirstTimeSealedBidAuction>(businessAuction);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        
+        var bids = dataAuction.Bids.ToList();
+        var retrievedBids = businessAuction.Bids.GetItems().ToList();
+            
+        Assert.Equal(bids.Count, retrievedBids.Count);
+
+        for (int j = 0; j < bids.Count; j++)
+        {
+            var dataBid = bids[j];
+            var retrievedBid = retrievedBids[j];
+                
+            Assert.Equal(dataBid.Bidder.Id, retrievedBid.Bidder.Id);
+            Assert.Equal(dataBid.Value, retrievedBid.Value);
+            Assert.Equal(dataBid.Timestamp, retrievedBid.Time);
+            Assert.Equal(dataBid.Id, retrievedBid.Id);
+        }
+    }
+
+    private static void AssertDataModelAuctionsMatch(DataModelAuction expected, DataModelAuction actual)
+    {
+        Assert.Equal(expected.Id, actual.Id);
+        Assert.Equal(expected.Description, actual.Description);
+        Assert.Equal(expected.StartTime, actual.StartTime);
+        Assert.Equal(expected.EndTime, actual.EndTime);
+        Assert.Equal(expected.Seller, actual.Seller);
+        Assert.Equal(expected.LastPlacedBid, actual.LastPlacedBid);
+        
+        switch (expected)
+        {
+            case EnglishDataModelAuction englishAuction:
+                var englishSpecificData = Assert.IsType<EnglishAuction>(actual);
+                Assert.Equal(englishAuction.StartingPrice, englishSpecificData.StartingPrice);
+                break;
+            case DutchDataModelAuction dutchAuction:
+                var dutchSpecificData = Assert.IsType<DutchAuction>(actual);
+                Assert.Equal(dutchAuction.StartingPrice, dutchSpecificData.StartingPrice);
+                Assert.Equal(dutchAuction.PriceDecrementFrequency, dutchSpecificData.PriceDecrementFrequency);
+                Assert.Equal(dutchAuction.PriceDecrementRate, dutchSpecificData.PriceDecrementRate);
+                break;
+            case FirstTimeSealedBidDataModelAuction:
+                Assert.IsType<FirstTimeSealedBidAuction>(actual);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();    
+        }
+        
+        var expectedBids = expected.Bids.ToList();
+        var actualBids = actual.Bids.ToList();
+            
+        Assert.Equal(expectedBids.Count, actualBids.Count);
+
+        for (int j = 0; j < expectedBids.Count; j++)
+        {
+            var expectedBid = expectedBids[j];
+            var actualBid = actualBids[j];
+                
+            Assert.Equal(expectedBid.Bidder.Id, actualBid.Bidder.Id);
+            Assert.Equal(expectedBid.Value, actualBid.Value);
+            Assert.Equal(expectedBid.Timestamp, actualBid.Timestamp);
+            Assert.Equal(expectedBid.Id, actualBid.Id);
+        }
+    }
+    
     // TODO: make these tests
     [Fact]
-    public async Task WhereListAsyncMapsDirectlyMappablePropertiesCorrectly()
+    public async Task WhereListAsyncMapsAuctionsCorrectly()
     {
         // Arrange
         var users = new List<DataModelUser>
         {
             new()
             {
-                IdentityId = "0",
+                IdentityId = "0"
             }, 
             new()
             {
-                IdentityId = "1",
+                IdentityId = "1"
             }, 
             new()
             {
@@ -112,7 +231,7 @@ public class AppRepositoryTests
         List<Auction> retrievedAuctions;
         await using (var context = new AuctionDbContext(_contextOptions))
         {
-            var repo = new AppRepository(context, _fakeTimeProvider);
+            var repo = new AppRepository(context);
             retrievedAuctions = (await repo.ListAsync()).ToList();
         }
         
@@ -122,58 +241,246 @@ public class AppRepositoryTests
         {
             var dataAuction = dataAuctions[i];
             var retrievedAuction = retrievedAuctions[i];
-            
-            Assert.Equal(dataAuction.Id, retrievedAuction.Id);
-            Assert.Equal(dataAuction.Description, retrievedAuction.Description);
-            Assert.Equal(dataAuction.StartTime, retrievedAuction.StartTime);
-            Assert.Equal(dataAuction.EndTime, retrievedAuction.EndTime);
-            Assert.Equal(dataAuction.Seller.Id, retrievedAuction.Seller.Id);
-            
-            switch (dataAuction)
-            {
-                case EnglishDataModelAuction englishAuction:
-                    var englishSpecificData = Assert.IsType<EnglishAuction>(retrievedAuction);
-                    Assert.Equal(englishAuction.StartingPrice, englishSpecificData.StartingPrice);
-                    break;
-                case DutchDataModelAuction dutchAuction:
-                    var dutchSpecificData = Assert.IsType<DutchAuction>(retrievedAuction);
-                    Assert.Equal(dutchAuction.StartingPrice, dutchSpecificData.StartingPrice);
-                    Assert.Equal(dutchAuction.PriceDecrementFrequency, dutchSpecificData.PriceDecrementFrequency);
-                    Assert.Equal(dutchAuction.PriceDecrementRate, dutchSpecificData.PriceDecrementRate);
-                    break;
-                case FirstTimeSealedBidDataModelAuction:
-                    Assert.IsType<FirstTimeSealedBidAuction>(retrievedAuction);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();    
-            }
-
-            if (i != 0)
-            {
-                Assert.Empty(retrievedAuction.Bids.GetItems());
-            }
-            else
-            {
-                var bids = dataAuction.Bids.ToList();
-                var retrievedBids = retrievedAuction.Bids.GetItems().ToList();
-                
-                Assert.Equal(bids.Count, retrievedBids.Count);
-
-                for (int j = 0; j < bids.Count; j++)
-                {
-                    var dataBid = bids[0];
-                    var retrievedBid = retrievedBids[j];
-                    
-                    Assert.Equal(dataBid.Bidder.Id, retrievedBid.Bidder.Id);
-                    Assert.Equal(dataBid.Value, retrievedBid.Value);
-                    Assert.Equal(dataBid.Timestamp, retrievedBid.Time);
-                    Assert.Equal(dataBid.Id, retrievedBid.Id);
-                }
-            }
+            AssertDataModelBusinessModelAuctionsMatch(dataAuction, retrievedAuction);
         }
     }
+
+    [Fact]
+    public async Task AddAsyncAddsAuctionWhenCommitCalled()
+    {
+        // Arrange
+        var users = new List<DataModelUser>
+        {
+            new()
+            {
+                IdentityId = "0"
+            }, 
+            new()
+            {
+                IdentityId = "1"
+            }, 
+            new()
+            {
+                IdentityId = "2"
+            }
+        };
+
+        var lastBid = new DataModelBid
+        {
+            Bidder = users[2],
+            Value = 2000,
+            Timestamp = new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero)
+        };
+            
+            
+        var dataAuctions = new List<DataModelAuction>
+        {
+            new EnglishDataModelAuction
+            {
+                Description = "English auction",
+                StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Seller = users[0],
+                StartingPrice = 1000,
+                Bids = new List<DataModelBid>
+                {
+                    new()
+                    {
+                        Bidder = users[1],
+                        Value = 1000,
+                        Timestamp = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)
+                    },
+                    
+                    lastBid
+                },
+                LastPlacedBid = lastBid.Id
+            },
+            new DutchDataModelAuction
+            {
+                Description = "Dutch auction",
+                StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Seller = users[0],
+                StartingPrice = 1000,
+                PriceDecrementFrequency = new TimeSpan(0, 1, 0),
+                PriceDecrementRate = 2
+            },
+            new FirstTimeSealedBidDataModelAuction
+            {
+                Description = "First time sealed bid",
+                StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2025, 2,2,2,2,2,TimeSpan.FromHours(2)),
+                Seller = users[2]
+            }
+        };
+
+        await using (var arrangeContext = new AuctionDbContext(_contextOptions))
+        {
+            await arrangeContext.AddRangeAsync(users);
+            await arrangeContext.AddRangeAsync(dataAuctions);
+            await arrangeContext.SaveChangesAsync();
+        }
+
+        var addedAuction = new DutchAuction(_fakeTimeProvider.GetLocalNow(),
+            new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero))
+        {
+            Description = "new dutch",
+            PriceDecrementFrequency = new TimeSpan(0, 1, 0),
+            PriceDecrementRate = 1,
+            StartingPrice = 1000,
+            Seller = User.Restore(users[2].Id)
+        };
+
+        var expectedRespectiveData = new DutchDataModelAuction
+        {
+            Description = addedAuction.Description,
+            StartTime = addedAuction.StartTime,
+            EndTime = addedAuction.EndTime,
+            Seller = users[2],
+            StartingPrice = addedAuction.StartingPrice,
+            PriceDecrementFrequency = addedAuction.PriceDecrementFrequency,
+            PriceDecrementRate = addedAuction.PriceDecrementRate
+        };
+        
+        // Act
+        await using (var context = new AuctionDbContext(_contextOptions))
+        {
+            var repo = new AppRepository(context);
+            await repo.AddAsync(addedAuction);
+            await repo.CommitAsync();
+        }
+        
+        // Assert
+        await using (var context = new AuctionDbContext(_contextOptions))
+        {
+            var auctions = context.Auctions.ToList();
+            Assert.Equal(4, auctions.Count);
+            for (int i = 0; i < 3; i++)
+                AssertDataModelAuctionsMatch(dataAuctions[i], auctions[i]);
+            
+            AssertDataModelAuctionsMatch(expectedRespectiveData, auctions[3]);
+        }
+    } 
     
-    // TODO: remove the status tests and place them somewhere else
+    [Fact]
+    public async Task AddAsyncDoesNotAddAuctionWhenCommitNotCalled()
+    {
+        // Arrange
+        var users = new List<DataModelUser>
+        {
+            new()
+            {
+                IdentityId = "0"
+            }, 
+            new()
+            {
+                IdentityId = "1"
+            }, 
+            new()
+            {
+                IdentityId = "2"
+            }
+        };
+
+        var lastBid = new DataModelBid
+        {
+            Bidder = users[2],
+            Value = 2000,
+            Timestamp = new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero)
+        };
+            
+            
+        var dataAuctions = new List<DataModelAuction>
+        {
+            new EnglishDataModelAuction
+            {
+                Description = "English auction",
+                StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Seller = users[0],
+                StartingPrice = 1000,
+                Bids = new List<DataModelBid>
+                {
+                    new()
+                    {
+                        Bidder = users[1],
+                        Value = 1000,
+                        Timestamp = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)
+                    },
+                    
+                    lastBid
+                },
+                LastPlacedBid = lastBid.Id
+            },
+            new DutchDataModelAuction
+            {
+                Description = "Dutch auction",
+                StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Seller = users[0],
+                StartingPrice = 1000,
+                PriceDecrementFrequency = new TimeSpan(0, 1, 0),
+                PriceDecrementRate = 2
+            },
+            new FirstTimeSealedBidDataModelAuction
+            {
+                Description = "First time sealed bid",
+                StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2025, 2,2,2,2,2,TimeSpan.FromHours(2)),
+                Seller = users[2]
+            }
+        };
+
+        await using (var arrangeContext = new AuctionDbContext(_contextOptions))
+        {
+            await arrangeContext.AddRangeAsync(users);
+            await arrangeContext.AddRangeAsync(dataAuctions);
+            await arrangeContext.SaveChangesAsync();
+        }
+
+        var addedAuction = new DutchAuction(_fakeTimeProvider.GetLocalNow(),
+            new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero))
+        {
+            Description = "new dutch",
+            PriceDecrementFrequency = new TimeSpan(0, 1, 0),
+            PriceDecrementRate = 1,
+            StartingPrice = 1000,
+            Seller = User.Restore(users[2].Id)
+        };
+
+        var expectedRespectiveData = new DutchDataModelAuction
+        {
+            Description = addedAuction.Description,
+            StartTime = addedAuction.StartTime,
+            EndTime = addedAuction.EndTime,
+            Seller = users[2],
+            StartingPrice = addedAuction.StartingPrice,
+            PriceDecrementFrequency = addedAuction.PriceDecrementFrequency,
+            PriceDecrementRate = addedAuction.PriceDecrementRate
+        };
+        
+        // Act
+        await using (var context = new AuctionDbContext(_contextOptions))
+        {
+            var repo = new AppRepository(context);
+            await repo.AddAsync(addedAuction);
+            await repo.CommitAsync();
+        }
+        
+        // Assert
+        await using (var context = new AuctionDbContext(_contextOptions))
+        {
+            var auctions = context.Auctions.ToList();
+            Assert.Equal(3, auctions.Count);
+            for (int i = 0; i < 3; i++)
+                AssertDataModelAuctionsMatch(dataAuctions[i], auctions[i]);
+        }
+    } 
+    
+    // TODO: update tests
+    // TODO: commit tests (included in the previous two, test that when nothing called, the database is left untouched)
+    
+    // TODO: remove the status tests and place them somewhere else (delegate the responsibility to something else)
     /*
     [Fact]
     public async Task WhereListAsyncMapsEnglishActiveStatusCorrectly()
@@ -773,9 +1080,6 @@ public class AppRepositoryTests
         Assert.Equal(AuctionStatus.Pending, ExpectedStatus(retrievedAuctions[0], _fakeTimeProvider));
     }
     */
-    // TODO: throw exception when StartTime is after EndTime (not supporting that, don't test any other possible problems)
-    // TODO: add auction methods (seems simple) - do correct auction type mapping tests
-    // TODO: end time parameter adjusting tests - test one and then multiple updates
-    // TODO: test repo commit - if not called, no changes in db, if called, saves changes - what if an exception throw? - capable of handling that?
+    
 }
 

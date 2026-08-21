@@ -14,7 +14,7 @@ public class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
         throw new NotImplementedException();
     }
 
-    public Task<T> AddAsync(T item)
+    public Task AddAsync(T item)
     {
         AllChangesCommited = false;
         _repoContent.Add(item);

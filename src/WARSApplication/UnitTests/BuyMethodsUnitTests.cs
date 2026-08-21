@@ -253,5 +253,5 @@ public class BuyMethodsUnitTests
     }
 
     // TODO: auth methods? -- last, after everything else is completed
-    // TODO: compare records with normal equality (records are not compare by reference but member-wise)
+    // TODO: add tests for edge cases like bidding to a pending auction
 }

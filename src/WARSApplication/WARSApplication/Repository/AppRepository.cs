@@ -1,7 +1,7 @@
 using WARSApplication.Data.DataModel.Business;
 namespace WARSApplication.Repository;
 
-public sealed class AppRepository(AuctionDbContext dbContext, TimeProvider timeProvider) : IRepository<Auction>
+public sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Auction>
 {
     public Task<IEnumerable<Auction>> ListAsync()
     {
@@ -13,12 +13,12 @@ public sealed class AppRepository(AuctionDbContext dbContext, TimeProvider timeP
         throw new NotImplementedException();
     }
 
-    public Task<Auction> AddAsync(Auction entity)
+    public Task AddAsync(Auction entity)
     {
         throw new NotImplementedException();
     }
 
-    Task IRepository<Auction>.CommitAsync() // TODO: handle when cannot commit in the internal database
+    public Task CommitAsync() // TODO: handle when cannot commit in the internal database
     {
         throw new NotImplementedException();
     }

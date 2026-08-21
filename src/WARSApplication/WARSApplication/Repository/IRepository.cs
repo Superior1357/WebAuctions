@@ -9,7 +9,7 @@ public interface IRepository<T>
     /// </summary>
     /// <param name="entity">Added entity</param>
     /// <returns></returns>
-    public Task<T> AddAsync(T entity);
+    public Task AddAsync(T entity);
     public Task CommitAsync();
 }
 // TODO: maybe refactor (tests are too dependent on the data model) 
