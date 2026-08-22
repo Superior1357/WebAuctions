@@ -17,7 +17,77 @@ public class AppRepositoryTests
     private readonly SqliteConnection _connection;
     private readonly DbContextOptions<AuctionDbContext> _contextOptions;
     private readonly TimeProvider _fakeTimeProvider = new FakeTimeProvider(new DateTimeOffset(2022, 1, 1, 1, 1, 1, TimeSpan.Zero));
-    
+
+    private static (List<DataModelUser>, List<DataModelAuction>) _databaseInitialContent()
+    {
+        var users = new List<DataModelUser>
+        {
+            new()
+            {
+                IdentityId = "0"
+            }, 
+            new()
+            {
+                IdentityId = "1"
+            }, 
+            new()
+            {
+                IdentityId = "2"
+            }
+        };
+        
+        var lastBid = new DataModelBid
+        {
+            Bidder = users[2],
+            Value = 2000,
+            Timestamp = new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero)
+        };
+        
+        List<DataModelAuction> auctions =
+        [
+
+            new EnglishDataModelAuction
+            {
+                Description = "English auction",
+                StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Seller = users[0],
+                StartingPrice = 1000,
+                Bids = new List<DataModelBid>
+                {
+                    new()
+                    {
+                        Bidder = users[1],
+                        Value = 1000,
+                        Timestamp = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)
+                    },
+
+                    lastBid
+                },
+                LastPlacedBid = lastBid.Id
+            },
+            new DutchDataModelAuction
+            {
+                Description = "Dutch auction",
+                StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                Seller = users[0],
+                StartingPrice = 1000,
+                PriceDecrementFrequency = new TimeSpan(0, 1, 0),
+                PriceDecrementRate = 2
+            },
+            new FirstTimeSealedBidDataModelAuction
+            {
+                Description = "First time sealed bid",
+                StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2025, 2, 2, 2, 2, 2, TimeSpan.FromHours(2)),
+                Seller = users[2]
+            }
+        ];
+
+        return (users, auctions);
+    }
+
     public AppRepositoryTests()
     {
         _connection = new SqliteConnection("DataSource=:memory:");
@@ -150,7 +220,6 @@ public class AppRepositoryTests
         }
     }
     
-    // TODO: make these tests
     [Fact]
     public async Task WhereListAsyncMapsAuctionsCorrectly()
     {
@@ -477,9 +546,110 @@ public class AppRepositoryTests
         }
     } 
     
-    // TODO: update tests
-    // TODO: commit tests (included in the previous two, test that when nothing called, the database is left untouched)
+    [Fact]
+    public async Task UpdateAsyncUpdatesAuctionWhenCommitCalled()
+    {
+        // Arrange
+        var (users, dataAuctions) = _databaseInitialContent();
+
+        await using (var arrangeContext = new AuctionDbContext(_contextOptions))
+        {
+            await arrangeContext.AddRangeAsync(users);
+            await arrangeContext.AddRangeAsync(dataAuctions);
+            await arrangeContext.SaveChangesAsync();
+        }
+        
+        // Act
+        List<DataModelAuction> previousDatabaseContent;
+        
+        await using (var context = new AuctionDbContext(_contextOptions))
+        {
+            previousDatabaseContent = context.Auctions.ToList();
+            
+            var repo = new AppRepository(context);
+            var retrievedAuctions = (await repo.ListAsync()).ToList();
+            
+            var updatedAuction = retrievedAuctions.First(a => a is FirstTimeSealedBidAuction);
+            updatedAuction.EndTime = new DateTimeOffset(2026, 1, 1, 1, 1, 1, TimeSpan.Zero);
+            
+            await repo.UpdateAsync(updatedAuction);
+            await repo.CommitAsync();
+        }
+        
+        // Assert
+        await using (var context = new AuctionDbContext(_contextOptions))
+        {
+            var updatedDatabaseContent = context.Auctions.Include(dataModelAuction => dataModelAuction.Seller).ToList();
+            Assert.Equal(3, updatedDatabaseContent.Count);
+            
+            for (int i = 0; i < 3; i++)
+            {
+                var previousDataAuction = previousDatabaseContent[i];
+                var updatedDataAuction = updatedDatabaseContent[i];
+
+                if (i == 2)
+                {
+                    var firstTimeSealedBidDataAuction = Assert.IsType<FirstTimeSealedBidDataModelAuction>(updatedDataAuction);
+                    
+                    Assert.Equal(previousDataAuction.Id, updatedDataAuction.Id);
+                    Assert.Equal(firstTimeSealedBidDataAuction.Description, updatedDataAuction.Description);
+                    Assert.Equal(firstTimeSealedBidDataAuction.StartTime, updatedDataAuction.StartTime);
+                    Assert.Equal(new DateTimeOffset(2026, 1, 1, 1, 1, 1, TimeSpan.Zero), updatedDataAuction.EndTime);
+                    Assert.Equal(firstTimeSealedBidDataAuction.Seller, updatedDataAuction.Seller);
+                }
+                else
+                    AssertDataModelAuctionsMatch(previousDataAuction, updatedDataAuction);
+            }
+        }
+    }
     
+    [Fact]
+    public async Task UpdateAsyncUpdatesNothingWhenCommitNotCalled()
+    {
+        // Arrange
+        var (users, dataAuctions) = _databaseInitialContent();
+
+        await using (var arrangeContext = new AuctionDbContext(_contextOptions))
+        {
+            await arrangeContext.AddRangeAsync(users);
+            await arrangeContext.AddRangeAsync(dataAuctions);
+            await arrangeContext.SaveChangesAsync();
+        }
+        
+        // Act
+        List<DataModelAuction> previousDatabaseContent;
+        
+        await using (var context = new AuctionDbContext(_contextOptions))
+        {
+            previousDatabaseContent = context.Auctions.ToList();
+            
+            var repo = new AppRepository(context);
+            var retrievedAuctions = (await repo.ListAsync()).ToList();
+            
+            var updatedAuction = retrievedAuctions.First(a => a is FirstTimeSealedBidAuction);
+            updatedAuction.EndTime = new DateTimeOffset(2026, 1, 1, 1, 1, 1, TimeSpan.Zero);
+            
+            await repo.UpdateAsync(updatedAuction);
+        }
+        
+        // Assert
+        await using (var context = new AuctionDbContext(_contextOptions))
+        {
+            var updatedDatabaseContent = context.Auctions.Include(dataModelAuction => dataModelAuction.Seller).ToList();
+            Assert.Equal(3, updatedDatabaseContent.Count);
+            
+            for (int i = 0; i < 3; i++)
+            {
+                var previousDataAuction = previousDatabaseContent[i];
+                var updatedDataAuction = updatedDatabaseContent[i];
+                
+                AssertDataModelAuctionsMatch(previousDataAuction, updatedDataAuction);
+            }
+        }
+    }
+    
+    
+    // TODO: combined tests (e.g. add + update) -> if makes sense to combine them? (but do not overthink this)
     // TODO: remove the status tests and place them somewhere else (delegate the responsibility to something else)
     /*
     [Fact]
@@ -1082,4 +1252,7 @@ public class AppRepositoryTests
     */
     
 }
+
+
+
 
