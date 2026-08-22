@@ -75,7 +75,7 @@ public class BuyMethodsUnitTests
                 1000
             );
 
-            var auction4 = FirstTimeSealedBidAuction.Restore(
+            var auction4 = FirstPriceSealedBidAuction.Restore(
                 new AuctionId(4),
                 "added_before_active_2",
                 MakeUser(TestUser.Id.Id + 2),
@@ -84,7 +84,7 @@ public class BuyMethodsUnitTests
                 new DateTimeOffset(2021, 5, 1, 0, 0, 0, TimeSpan.Zero)
             );
 
-            var auction5 = FirstTimeSealedBidAuction.Restore(
+            var auction5 = FirstPriceSealedBidAuction.Restore(
                 new AuctionId(5),
                 "added_before_active_3",
                 MakeUser(TestUser.Id.Id + 2),
@@ -273,7 +273,9 @@ public class BuyMethodsUnitTests
 
         Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
     }
-
+    
+    // TODO: make it forbidden to bid to finished auctions, first-time sealed bid auctions twice and so on
+    
     // TODO: auth methods? -- last, after everything else is completed
     // TODO: add tests for edge cases like bidding to a pending auction
 }

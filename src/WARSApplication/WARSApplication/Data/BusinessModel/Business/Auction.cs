@@ -62,10 +62,10 @@ public sealed record DutchAuction(DateTimeOffset StartTime, DateTimeOffset EndTi
     };
 }
 
-public sealed record FirstTimeSealedBidAuction(DateTimeOffset StartTime, DateTimeOffset EndTime)
+public sealed record FirstPriceSealedBidAuction(DateTimeOffset StartTime, DateTimeOffset EndTime)
     : Auction(StartTime, EndTime)
 {
-    public static FirstTimeSealedBidAuction Restore(
+    public static FirstPriceSealedBidAuction Restore(
         AuctionId id, 
         AuctionDescription description,
         User seller, 

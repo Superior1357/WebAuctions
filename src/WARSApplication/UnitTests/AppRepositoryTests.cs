@@ -127,8 +127,8 @@ public class AppRepositoryTests
                 Assert.Equal(dutchExpected.PriceDecrementFrequency, dutchActual.PriceDecrementFrequency);
                 break;
             }
-            case FirstTimeSealedBidAuction:
-                Assert.IsType<FirstTimeSealedBidAuction>(actual);
+            case FirstPriceSealedBidAuction:
+                Assert.IsType<FirstPriceSealedBidAuction>(actual);
                 break;
         }
     }
@@ -154,7 +154,7 @@ public class AppRepositoryTests
                 Assert.Equal(dutchAuction.PriceDecrementRate, dutchSpecificData.PriceDecrementRate);
                 break;
             case FirstTimeSealedBidDataModelAuction:
-                Assert.IsType<FirstTimeSealedBidAuction>(businessAuction);
+                Assert.IsType<FirstPriceSealedBidAuction>(businessAuction);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -199,7 +199,7 @@ public class AppRepositoryTests
                 Assert.Equal(dutchAuction.PriceDecrementRate, dutchSpecificData.PriceDecrementRate);
                 break;
             case FirstTimeSealedBidDataModelAuction:
-                Assert.IsType<FirstTimeSealedBidAuction>(actual);
+                Assert.IsType<FirstPriceSealedBidAuction>(actual);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();    
@@ -571,7 +571,7 @@ public class AppRepositoryTests
             var repo = new AppRepository(context);
             var retrievedAuctions = (await repo.ListAsync()).ToList();
             
-            var updatedAuction = retrievedAuctions.First(a => a is FirstTimeSealedBidAuction);
+            var updatedAuction = retrievedAuctions.First(a => a is FirstPriceSealedBidAuction);
             updatedAuction.EndTime = new DateTimeOffset(2026, 1, 1, 1, 1, 1, TimeSpan.Zero);
             
             await repo.UpdateAsync(updatedAuction);
@@ -628,7 +628,7 @@ public class AppRepositoryTests
             var repo = new AppRepository(context);
             var retrievedAuctions = (await repo.ListAsync()).ToList();
             
-            var updatedAuction = retrievedAuctions.First(a => a is FirstTimeSealedBidAuction);
+            var updatedAuction = retrievedAuctions.First(a => a is FirstPriceSealedBidAuction);
             updatedAuction.EndTime = new DateTimeOffset(2026, 1, 1, 1, 1, 1, TimeSpan.Zero);
             
             await repo.UpdateAsync(updatedAuction);

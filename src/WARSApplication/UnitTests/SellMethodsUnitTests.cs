@@ -46,8 +46,8 @@ public class SellMethodsUnitTests
                 Assert.Equal(dutchExpected.PriceDecrementFrequency, dutchActual.PriceDecrementFrequency);
                 break;
             }
-            case FirstTimeSealedBidAuction:
-                Assert.IsType<FirstTimeSealedBidAuction>(actual);
+            case FirstPriceSealedBidAuction:
+                Assert.IsType<FirstPriceSealedBidAuction>(actual);
                 break;
         }
     }
