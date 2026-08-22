@@ -9,10 +9,7 @@ public class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
     public ICollection<T> CommitedRepoContent { get; private set; } = repoItems.ToList();
     public bool AllChangesCommited { get; private set; }
 
-    public Task<IEnumerable<T>> ListAsync()
-    {
-        throw new NotImplementedException();
-    }
+    public Task<IEnumerable<T>> ListAsync() => Task.FromResult(CommitedRepoContent.AsEnumerable());
 
     public Task AddAsync(T item)
     {

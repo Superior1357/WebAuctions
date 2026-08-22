@@ -1,5 +1,5 @@
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Time.Testing;
 using WARSApplication;
 using WARSApplication.BusinessMethods;
 using WARSApplication.Data.APIData.Incoming;
@@ -8,13 +8,13 @@ using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.ErrorResponses;
 using WARSApplication.ErrorResponses.SellErrorResponses;
-using Xunit;
+using WARSApplication.Utils;
 
 namespace UnitTests;
-
+[TestSubject(typeof(SellMethods))]
 public class SellMethodsUnitTests
 {
-    private readonly TimeProvider _timeProvider = new FakeTimeProvider(
+    private readonly ICurrentTime _currentTime = new MockCurrentTime(
         new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero)
     );
 
@@ -100,7 +100,7 @@ public class SellMethodsUnitTests
 
         var mockRepo = new MockAuctionRepository(MockRepoContent);
 
-        var result = await SellMethods.CreateAuctionAsync(user, createdAuction, _timeProvider, mockRepo);
+        var result = await SellMethods.CreateAuctionAsync(user, createdAuction, _currentTime, mockRepo);
 
         Assert.IsType<Ok>(result.Result);
     }
@@ -120,7 +120,7 @@ public class SellMethodsUnitTests
 
         var mockRepo = new MockAuctionRepository(MockRepoContent);
 
-        _ = await SellMethods.CreateAuctionAsync(user, createdAuction, _timeProvider, mockRepo);
+        _ = await SellMethods.CreateAuctionAsync(user, createdAuction, _currentTime, mockRepo);
 
         var addedBeforeContent = MockRepoContent;
         Assert.Collection(mockRepo.CommitedRepoContent,
@@ -158,7 +158,7 @@ public class SellMethodsUnitTests
 
         var mockRepo = new MockAuctionRepository(MockRepoContent);
 
-        var result = await SellMethods.CreateAuctionAsync(user, createdAuction, _timeProvider, mockRepo);
+        var result = await SellMethods.CreateAuctionAsync(user, createdAuction, _currentTime, mockRepo);
 
         Assert.IsType<BadRequest<InvalidAuctionParameters>>(result.Result);
     }
@@ -178,7 +178,7 @@ public class SellMethodsUnitTests
 
         var mockRepo = new MockAuctionRepository(MockRepoContent);
 
-        var result = await SellMethods.CreateAuctionAsync(user, createdAuction, _timeProvider, mockRepo);
+        var result = await SellMethods.CreateAuctionAsync(user, createdAuction, _currentTime, mockRepo);
 
         Assert.IsType<BadRequest<InvalidAuctionParameters>>(result.Result);
     }
@@ -201,7 +201,7 @@ public class SellMethodsUnitTests
         var mockRepo = new MockAuctionRepository(MockRepoContent.Append(existingAuction).ToList());
         var updateRequest = new AuctionUpdateRequest(existingAuction.Id, new DateTimeOffset(2025, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _timeProvider, mockRepo);
+        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _currentTime, mockRepo);
 
         Assert.IsType<Ok>(result.Result);
     }
@@ -224,7 +224,7 @@ public class SellMethodsUnitTests
         var mockRepo = new MockAuctionRepository(MockRepoContent.Append(existingAuction).ToList());
         var updateRequest = new AuctionUpdateRequest(existingAuction.Id, new DateTimeOffset(2025, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _timeProvider, mockRepo);
+        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _currentTime, mockRepo);
 
         var addedBeforeContent = MockRepoContent;
         Assert.True(mockRepo.AllChangesCommited);
@@ -265,7 +265,7 @@ public class SellMethodsUnitTests
 
         var updateRequest = new AuctionUpdateRequest(addedBeforeContent[0].Id, new DateTimeOffset(2027, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _timeProvider, mockRepo);
+        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _currentTime, mockRepo);
 
         Assert.IsType<NotFound<AuctionIdNotFound>>(result.Result);
     }
@@ -289,7 +289,7 @@ public class SellMethodsUnitTests
         var mockRepo = new MockAuctionRepository(addedBeforeContent.Append(existingAuction).ToList());
         var updateRequest = new AuctionUpdateRequest(existingAuction.Id, new DateTimeOffset(2023, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _timeProvider, mockRepo);
+        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _currentTime, mockRepo);
 
         Assert.IsType<BadRequest<InvalidAuctionParameters>>(result.Result);
     }

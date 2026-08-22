@@ -7,12 +7,13 @@ using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.ErrorResponses;
 using WARSApplication.ErrorResponses.SellErrorResponses;
 using WARSApplication.Repository;
+using WARSApplication.Utils;
 
 namespace WARSApplication.BusinessMethods;
 
 public static class SellMethods
 {
-    public static async Task<Results<Ok, BadRequest<InvalidAuctionParameters>>> CreateAuctionAsync(User user, CreatedAuction auctionApi, TimeProvider timeProvider, IRepository<Auction> repository)
+    public static async Task<Results<Ok, BadRequest<InvalidAuctionParameters>>> CreateAuctionAsync(User user, CreatedAuction auctionApi, ICurrentTime currentTime, IRepository<Auction> repository)
     {
         throw new NotImplementedException();
         /*
@@ -24,7 +25,7 @@ public static class SellMethods
         */
     }
     
-    public static Task<Results<Ok, NotFound<AuctionIdNotFound>, BadRequest<InvalidAuctionParameters>>> UpdateAuctionAsync(User user, AuctionUpdateRequest r, TimeProvider timeProvider, IRepository<Auction> repository) => throw new NotImplementedException();
+    public static Task<Results<Ok, NotFound<AuctionIdNotFound>, BadRequest<InvalidAuctionParameters>>> UpdateAuctionAsync(User user, AuctionUpdateRequest r, ICurrentTime currentTime, IRepository<Auction> repository) => throw new NotImplementedException();
     public static Task<Ok<IEnumerable<AuctionId>>> ListAsync(User user, [FromRoute] AuctionStatus status, IRepository<Auction> repository) => throw new NotImplementedException();
     public static Task<Results<Ok<IEnumerable<SellerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(User user, IEnumerable<AuctionId> auctionIds, IRepository<Auction> repository) => throw new NotImplementedException();
 } 

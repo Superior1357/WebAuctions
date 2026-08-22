@@ -1,20 +1,21 @@
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Time.Testing;
 using WARSApplication;
+using WARSApplication.AuctionEvaluation;
 using WARSApplication.Data.APIData.Incoming;
 using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.ErrorResponses;
+using WARSApplication.Utils;
 using BuyMethods = WARSApplication.BusinessMethods.BuyMethods;
 
 namespace UnitTests;
-
+[TestSubject(typeof(BuyMethods))]
 public class BuyMethodsUnitTests
 {
-    private readonly TimeProvider _timeProvider = new FakeTimeProvider(
-        new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero)
-    );
+    private readonly ICurrentTime _currentTime = new MockCurrentTime(
+        new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero));
 
     private static User TestUser { get; } = User.Restore(new UserId(2));
 
@@ -96,6 +97,27 @@ public class BuyMethodsUnitTests
         }
     }
 
+    private static IAuctionEvaluator MockAuctionEvaluator => new MockAuctionEvaluator(
+            new Dictionary<AuctionId, AuctionStatus>
+            {
+                [new AuctionId(0)] = AuctionStatus.Pending,
+                [new AuctionId(1)] = AuctionStatus.Pending,
+                [new AuctionId(2)] = AuctionStatus.Pending,
+                [new AuctionId(3)] = AuctionStatus.Active,
+                [new AuctionId(4)] = AuctionStatus.Finished,
+                [new AuctionId(5)] = AuctionStatus.Active
+            },
+            new Dictionary<AuctionId, User?>
+            {
+                [new AuctionId(0)] = null,
+                [new AuctionId(1)] = null,
+                [new AuctionId(2)] = null,
+                [new AuctionId(3)] = null,
+                [new AuctionId(4)] = TestUser,
+                [new AuctionId(5)] = null
+            }
+        );
+
     [Fact]
     public async Task List_Sellers_Lists_All_Users_Who_Created_Auctions_Async()
     {
@@ -106,7 +128,7 @@ public class BuyMethodsUnitTests
 
         var result = (await BuyMethods.ListAllSellersAsync(mockRepo)).Value.ToList();
 
-        Assert.Equal(2, result.Count);
+        Assert.Equal(3, result.Count);
         foreach (var id in sellerIds)
         {
             Assert.Contains(id, result);
@@ -132,7 +154,7 @@ public class BuyMethodsUnitTests
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
 
-        var result = (await BuyMethods.ListWonAuctionsAsync(TestUser, mockAuctionRepo)).Value.ToList();
+        var result = (await BuyMethods.ListWonAuctionsAsync(TestUser, mockAuctionRepo, MockAuctionEvaluator)).Value.ToList();
 
         Assert.Single(result);
         Assert.Contains(addedBeforeAuctionContent[3].Id, result);
@@ -144,7 +166,7 @@ public class BuyMethodsUnitTests
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
 
-        var response = await BuyMethods.ListNotFinishedAuctionsOfASellerAsync(addedBeforeAuctionContent[4].Seller.Id, mockAuctionRepo);
+        var response = await BuyMethods.ListNotFinishedAuctionsOfASellerAsync(addedBeforeAuctionContent[4].Seller.Id, mockAuctionRepo, MockAuctionEvaluator);
 
         var result = Assert.IsType<Ok<IEnumerable<AuctionId>>>(response.Result).Value.ToList();
 
@@ -158,7 +180,7 @@ public class BuyMethodsUnitTests
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
 
-        var response = await BuyMethods.ListNotFinishedAuctionsOfASellerAsync(addedBeforeAuctionContent[4].Seller.Id + 1000, mockAuctionRepo);
+        var response = await BuyMethods.ListNotFinishedAuctionsOfASellerAsync(addedBeforeAuctionContent[4].Seller.Id + 1000, mockAuctionRepo, MockAuctionEvaluator);
 
         Assert.IsType<NotFound<UserIdNotFound>>(response.Result);
     }
@@ -175,7 +197,7 @@ public class BuyMethodsUnitTests
             AuctionId = addedBeforeAuctionContent[5].Id
         };
 
-        var response = await BuyMethods.BidAsync(TestUser, bidRequest, _timeProvider, mockAuctionRepo);
+        var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
 
         Assert.IsType<Ok>(response.Result);
         Assert.True(mockAuctionRepo.AllChangesCommited);
@@ -198,7 +220,7 @@ public class BuyMethodsUnitTests
             AuctionId = addedBeforeAuctionContent[5].Id + 10000
         };
 
-        var response = await BuyMethods.BidAsync(TestUser, bidRequest, _timeProvider, mockAuctionRepo);
+        var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
 
         Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
     }
