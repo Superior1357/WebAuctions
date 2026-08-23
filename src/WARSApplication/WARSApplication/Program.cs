@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using WARSApplication.Repository;
 using WARSApplication;
+using WARSApplication.AuctionEvaluation;
 using WARSApplication.BusinessMethods;
 using WARSApplication.Data.DataModel.Authentication;
 using WARSApplication.Data.DataModel.Business;
+using WARSApplication.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Auctions") ?? "Data Source=Auctions.db";
@@ -16,6 +18,8 @@ builder.Services.AddSqlite<AuthDbContext>(authConnectionString);
 builder.Services.AddSqlite<AuctionDbContext>(connectionString);
 
 builder.Services.AddScoped<IRepository<Auction>, AppRepository>();
+builder.Services.AddScoped<ICurrentTime, CurrentTime>();
+builder.Services.AddScoped<IAuctionEvaluator, AuctionEvaluator>();
 
 builder.Services.AddIdentityCore<IdentityUser>(
     options =>
