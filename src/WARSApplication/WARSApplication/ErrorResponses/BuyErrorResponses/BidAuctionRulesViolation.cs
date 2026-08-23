@@ -1,0 +1,3 @@
+namespace WARSApplication.ErrorResponses.BuyErrorResponses;
+
+public record BidAuctionRulesViolationResponse : ErrorResponse;

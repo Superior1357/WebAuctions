@@ -1,3 +1,0 @@
-namespace WARSApplication.ErrorResponses.BuyErrorResponses;
-
-public record BidToInactiveAuctionResponse : ErrorResponse;

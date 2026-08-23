@@ -244,11 +244,79 @@ public class BuyMethodsUnitTests
         };
         
         var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
-        Assert.IsType<UnprocessableEntity<BidToInactiveAuctionResponse>>(response.Result);
+        Assert.IsType<UnprocessableEntity<BidAuctionRulesViolationResponse>>(response.Result);
+    }
+
+    public static IEnumerable<object[]> ActiveAuctions() => new List<object[]>
+    {
+        new object[]
+        {
+            new EnglishAuction(new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero), new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero))
+            {
+                Description = "English active",
+                Seller = User.Restore(new UserId(100)),
+                StartingPrice = 1000
+            }
+        },
+
+        new object[]
+        {
+            new DutchAuction(new DateTimeOffset(2021, 12, 30, 0, 0, 0, TimeSpan.Zero), new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero))
+            {
+                Description = "Dutch active",
+                Seller = User.Restore(new UserId(199)),
+                StartingPrice = 1_000_000,
+                PriceDecrementFrequency = new TimeSpan(1, 0, 0),
+                PriceDecrementRate = 1
+            }
+        } 
+        
+    };
+        
+    [Theory]
+    [MemberData(nameof(ActiveAuctions))]
+    public async Task Bid_Returns_Error_When_Bid_Price_Too_Low_Dutch_English_Auctions_Async(Auction activeAuction)
+    {
+        var mockAuctionRepo = new MockAuctionRepository([activeAuction]);
+        
+        var bidRequest = new BidRequest
+        {
+            Amount = 1,
+            AuctionId = activeAuction.Id
+        };
+        
+        var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
+        Assert.IsType<UnprocessableEntity<BidAuctionRulesViolationResponse>>(response.Result);
     }
     
-    // TODO: returns error when bid too little (for dutch and english auctions)
+    [Fact]
+    public async Task Bid_Returns_Error_When_Bidding_Twice_To_First_Price_Sealed_Bid_Async()
+    {
+        var repoContent = FirstPriceSealedBidAuction.Restore(
+            new AuctionId(5),
+            "added_before_active_3",
+            MakeUser(TestUser.Id.Id + 2),
+            new TestAddOnlyCollection<Bid>([
+                MakeBid(100, 10, TestUser, new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero))
+            ]),
+            new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero)
+        );
+        
+        var bidRequest = new BidRequest
+        {
+            Amount = 1000,
+            AuctionId = repoContent.Id
+        };
+        
+        var mockRepo = new MockAuctionRepository([repoContent]);
+        var response = await BuyMethods.BidAsync(
+                TestUser, bidRequest, _currentTime, mockRepo, MockAuctionEvaluator
+            );
 
+        Assert.IsType<UnprocessableEntity<BidAuctionRulesViolationResponse>>(response.Result);
+    }
+    
     [Fact]
     public async Task Info_Returns_Info_About_Auctions_Async()
     {
