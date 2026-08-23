@@ -5,6 +5,7 @@ using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.ErrorResponses;
+using WARSApplication.ErrorResponses.BuyErrorResponses;
 using WARSApplication.Repository;
 using WARSApplication.Utils;
 
@@ -35,6 +36,6 @@ public static class BuyMethods
     }
     
     public static Task<Results<Ok<IEnumerable<AuctionId>>, NotFound<UserIdNotFound>>> ListNotFinishedAuctionsOfASellerAsync(UserId seller, IRepository<Auction> auctionRepository, IAuctionEvaluator auctionEvaluator) => throw new NotImplementedException();
-    public static Task<Results<Ok, NotFound<AuctionIdNotFound>>> BidAsync(User usr, BidRequest bidRequest, ICurrentTime now, IRepository<Auction> auctionRepository, IAuctionEvaluator auctionEvaluator) => throw new NotImplementedException();
+    public static Task<Results<Ok, NotFound<AuctionIdNotFound>, UnprocessableEntity<BidToInactiveAuctionResponse>>> BidAsync(User usr, BidRequest bidRequest, ICurrentTime now, IRepository<Auction> auctionRepository, IAuctionEvaluator auctionEvaluator) => throw new NotImplementedException();
     public static Task<Results<Ok<IEnumerable<BuyerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(IEnumerable<AuctionId> auctionIds, IRepository<Auction> auctionRepository) => throw new NotImplementedException();
 }

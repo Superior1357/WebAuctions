@@ -7,6 +7,7 @@ using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.ErrorResponses;
+using WARSApplication.ErrorResponses.BuyErrorResponses;
 using WARSApplication.Utils;
 using BuyMethods = WARSApplication.BusinessMethods.BuyMethods;
 
@@ -220,10 +221,33 @@ public class BuyMethodsUnitTests
             AuctionId = addedBeforeAuctionContent[5].Id + 10000
         };
 
-        var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
+        var response =
+            await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
 
         Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
     }
+    
+    public static IEnumerable<object[]> InactiveAuctions() => MockAuctionsRepoContent.Where(
+            a => MockAuctionEvaluator.EvaluateStatus(a) != AuctionStatus.Active
+        ).Select(a => new object[] {a});  
+    
+    [Theory]
+    [MemberData(nameof(InactiveAuctions))]
+    public async Task Bid_Returns_Error_When_Auction_Inactive_Async(Auction repoAuction)
+    {
+        var mockAuctionRepo = new MockAuctionRepository([repoAuction]);
+        
+        var bidRequest = new BidRequest
+        {
+            Amount = 10_000,
+            AuctionId = repoAuction.Id
+        };
+        
+        var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
+        Assert.IsType<UnprocessableEntity<BidToInactiveAuctionResponse>>(response.Result);
+    }
+    
+    // TODO: returns error when bid too little (for dutch and english auctions)
 
     [Fact]
     public async Task Info_Returns_Info_About_Auctions_Async()
@@ -275,6 +299,7 @@ public class BuyMethodsUnitTests
     }
     
     // TODO: make it forbidden to bid to finished auctions, first-time sealed bid auctions twice and so on
+    // TODO: a validator? or sth
     
     // TODO: auth methods? -- last, after everything else is completed
     // TODO: add tests for edge cases like bidding to a pending auction
