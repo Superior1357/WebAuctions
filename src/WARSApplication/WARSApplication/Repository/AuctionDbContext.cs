@@ -21,12 +21,12 @@ public sealed class AuctionDbContext(DbContextOptions<AuctionDbContext> options)
             WithOne(b => b.ModelAuction).
             HasForeignKey(b => b.AuctionId).
             IsRequired();
-        
+
         
         modelBuilder.Entity<DataModelAuction>().HasDiscriminator<string>("auction_type").
             HasValue<EnglishDataModelAuction>("english").
             HasValue<DutchDataModelAuction>("dutch").
-            HasValue<FirstTimeSealedBidDataModelAuction>("first_time_sealed");
+            HasValue<FirstPriceSealedBidDataModelAuction>("first_time_sealed");
         
         modelBuilder.Entity<DataModelAuction>().Property(a => a.Description)
             .HasConversion(a => a.Description, d => new AuctionDescription(d));

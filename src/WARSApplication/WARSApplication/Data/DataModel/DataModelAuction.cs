@@ -12,12 +12,12 @@ public abstract record DataModelAuction
     public required DataModelUser Seller { get; init; }
     [ConcurrencyCheck]
     public BidId? LastPlacedBid { get; set; }
-    public ICollection<DataModelBid> Bids { get; set; } = new List<DataModelBid>();
+    public ICollection<DataModelBid> Bids { get; init; } = new List<DataModelBid>();
 }
 
 public sealed record EnglishDataModelAuction : DataModelAuction
 {
-    public Price StartingPrice { get; set; }
+    public Price StartingPrice { get; init; }
 }
 
 public sealed record DutchDataModelAuction : DataModelAuction
@@ -27,4 +27,4 @@ public sealed record DutchDataModelAuction : DataModelAuction
     public required TimeSpan PriceDecrementFrequency { get; init; }
 }
 
-public sealed record FirstTimeSealedBidDataModelAuction : DataModelAuction;
+public sealed record FirstPriceSealedBidDataModelAuction : DataModelAuction;

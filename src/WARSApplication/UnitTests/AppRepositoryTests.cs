@@ -78,7 +78,7 @@ public class AppRepositoryTests
                 PriceDecrementFrequency = new TimeSpan(0, 1, 0),
                 PriceDecrementRate = 2
             },
-            new FirstTimeSealedBidDataModelAuction
+            new FirstPriceSealedBidDataModelAuction
             {
                 Description = "First time sealed bid",
                 StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
@@ -153,7 +153,7 @@ public class AppRepositoryTests
                 Assert.Equal(dutchAuction.PriceDecrementFrequency, dutchSpecificData.PriceDecrementFrequency);
                 Assert.Equal(dutchAuction.PriceDecrementRate, dutchSpecificData.PriceDecrementRate);
                 break;
-            case FirstTimeSealedBidDataModelAuction:
+            case FirstPriceSealedBidDataModelAuction:
                 Assert.IsType<FirstPriceSealedBidAuction>(businessAuction);
                 break;
             default:
@@ -189,17 +189,17 @@ public class AppRepositoryTests
         switch (expected)
         {
             case EnglishDataModelAuction englishAuction:
-                var englishSpecificData = Assert.IsType<EnglishAuction>(actual);
+                var englishSpecificData = Assert.IsType<EnglishDataModelAuction>(actual);
                 Assert.Equal(englishAuction.StartingPrice, englishSpecificData.StartingPrice);
                 break;
             case DutchDataModelAuction dutchAuction:
-                var dutchSpecificData = Assert.IsType<DutchAuction>(actual);
+                var dutchSpecificData = Assert.IsType<DutchDataModelAuction>(actual);
                 Assert.Equal(dutchAuction.StartingPrice, dutchSpecificData.StartingPrice);
                 Assert.Equal(dutchAuction.PriceDecrementFrequency, dutchSpecificData.PriceDecrementFrequency);
                 Assert.Equal(dutchAuction.PriceDecrementRate, dutchSpecificData.PriceDecrementRate);
                 break;
-            case FirstTimeSealedBidDataModelAuction:
-                Assert.IsType<FirstPriceSealedBidAuction>(actual);
+            case FirstPriceSealedBidDataModelAuction:
+                Assert.IsType<FirstPriceSealedBidDataModelAuction>(actual);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();    
@@ -282,7 +282,7 @@ public class AppRepositoryTests
                 PriceDecrementFrequency = new TimeSpan(0, 1, 0),
                 PriceDecrementRate = 2
             },
-            new FirstTimeSealedBidDataModelAuction
+            new FirstPriceSealedBidDataModelAuction
             {
                 Description = "First time sealed bid",
                 StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
@@ -307,6 +307,7 @@ public class AppRepositoryTests
         }
         
         // Assert
+        dataAuctions = dataAuctions.OrderBy(dataAuction => dataAuction.Id.Id).ToList();
         Assert.Equal(3, retrievedAuctions.Count);
         for (int i = 0; i < 3; i++)
         {
@@ -376,7 +377,7 @@ public class AppRepositoryTests
                 PriceDecrementFrequency = new TimeSpan(0, 1, 0),
                 PriceDecrementRate = 2
             },
-            new FirstTimeSealedBidDataModelAuction
+            new FirstPriceSealedBidDataModelAuction
             {
                 Description = "First time sealed bid",
                 StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
@@ -401,17 +402,6 @@ public class AppRepositoryTests
             StartingPrice = 1000,
             Seller = User.Restore(users[2].Id)
         };
-
-        var expectedRespectiveData = new DutchDataModelAuction
-        {
-            Description = addedAuction.Description,
-            StartTime = addedAuction.StartTime,
-            EndTime = addedAuction.EndTime,
-            Seller = users[2],
-            StartingPrice = addedAuction.StartingPrice,
-            PriceDecrementFrequency = addedAuction.PriceDecrementFrequency,
-            PriceDecrementRate = addedAuction.PriceDecrementRate
-        };
         
         // Act
         await using (var context = new AuctionDbContext(_contextOptions))
@@ -424,10 +414,24 @@ public class AppRepositoryTests
         // Assert
         await using (var context = new AuctionDbContext(_contextOptions))
         {
-            var auctions = context.Auctions.ToList();
+            var auctions = context.Auctions.Include(a => a.Bids).ThenInclude(b => b.Bidder).Include(a => a.Seller).ToList();
+            dataAuctions = dataAuctions.OrderBy(dataAuction => dataAuction.Id.Id).ToList();
+            
             Assert.Equal(4, auctions.Count);
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++) 
                 AssertDataModelAuctionsMatch(dataAuctions[i], auctions[i]);
+            
+            var expectedRespectiveData = new DutchDataModelAuction
+            {
+                Id = auctions[3].Id,
+                Description = addedAuction.Description,
+                StartTime = addedAuction.StartTime,
+                EndTime = addedAuction.EndTime,
+                Seller = users[2],
+                StartingPrice = addedAuction.StartingPrice,
+                PriceDecrementFrequency = addedAuction.PriceDecrementFrequency,
+                PriceDecrementRate = addedAuction.PriceDecrementRate
+            };
             
             AssertDataModelAuctionsMatch(expectedRespectiveData, auctions[3]);
         }
@@ -493,7 +497,7 @@ public class AppRepositoryTests
                 PriceDecrementFrequency = new TimeSpan(0, 1, 0),
                 PriceDecrementRate = 2
             },
-            new FirstTimeSealedBidDataModelAuction
+            new FirstPriceSealedBidDataModelAuction
             {
                 Description = "First time sealed bid",
                 StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
@@ -542,6 +546,7 @@ public class AppRepositoryTests
         await using (var context = new AuctionDbContext(_contextOptions))
         {
             var auctions = context.Auctions.ToList();
+            dataAuctions = dataAuctions.OrderBy(dataAuction => dataAuction.Id.Id).ToList();
             Assert.Equal(3, auctions.Count);
             for (int i = 0; i < 3; i++)
                 AssertDataModelAuctionsMatch(dataAuctions[i], auctions[i]);
@@ -591,7 +596,7 @@ public class AppRepositoryTests
 
                 if (i == 2)
                 {
-                    var firstTimeSealedBidDataAuction = Assert.IsType<FirstTimeSealedBidDataModelAuction>(updatedDataAuction);
+                    var firstTimeSealedBidDataAuction = Assert.IsType<FirstPriceSealedBidDataModelAuction>(updatedDataAuction);
                     
                     Assert.Equal(previousDataAuction.Id, updatedDataAuction.Id);
                     Assert.Equal(firstTimeSealedBidDataAuction.Description, updatedDataAuction.Description);
@@ -654,7 +659,5 @@ public class AppRepositoryTests
     // TODO: combined tests (e.g. add + update) -> if makes sense to combine them? (but do not overthink this)
     // TODO: remove the status tests and place them somewhere else (delegate the responsibility to something else)
 }
-
-
 
 

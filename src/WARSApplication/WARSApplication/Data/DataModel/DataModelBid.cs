@@ -10,5 +10,5 @@ public record DataModelBid
     public DataModelAuction ModelAuction { get; init; } = null!;
     public required DataModelUser Bidder { get; init; }
     public required Price Value { get; init; }
-    public required DateTimeOffset Timestamp;
+    public required DateTimeOffset Timestamp { get; init; }
 }

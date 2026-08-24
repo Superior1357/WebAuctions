@@ -32,10 +32,51 @@ public static class BuyMethods
 
     public static async Task<Ok<IEnumerable<AuctionId>>> ListWonAuctionsAsync(User usr, IRepository<Auction> repository, IAuctionEvaluator auctionEvaluator)
     {
-        throw new NotImplementedException();
+        var auctions = await repository.ListAsync();
+        var wonIds = auctions.Where(a => auctionEvaluator.EvaluateWinner(a) == usr).Select(a => a.Id);
+        
+        return TypedResults.Ok(wonIds);
     }
-    
-    public static Task<Results<Ok<IEnumerable<AuctionId>>, NotFound<UserIdNotFound>>> ListNotFinishedAuctionsOfASellerAsync(UserId seller, IRepository<Auction> auctionRepository, IAuctionEvaluator auctionEvaluator) => throw new NotImplementedException();
-    public static Task<Results<Ok, NotFound<AuctionIdNotFound>, UnprocessableEntity<BidAuctionRulesViolationResponse>>> BidAsync(User usr, BidRequest bidRequest, ICurrentTime now, IRepository<Auction> auctionRepository, IAuctionEvaluator auctionEvaluator) => throw new NotImplementedException();
-    public static Task<Results<Ok<IEnumerable<BuyerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(IEnumerable<AuctionId> auctionIds, IRepository<Auction> auctionRepository) => throw new NotImplementedException();
+
+    public static async Task<Results<Ok<IEnumerable<AuctionId>>, NotFound<UserIdNotFound>>>
+        ListNotFinishedAuctionsOfASellerAsync(UserId seller, IRepository<Auction> auctionRepository,
+            IAuctionEvaluator auctionEvaluator) // TODO: checks somewhere else? - e.g add a foreign user?
+    {
+        var auctions = await auctionRepository.ListAsync();
+        var notFinished = auctions.Where(a => auctionEvaluator.EvaluateStatus(a) != AuctionStatus.Finished && a.Seller.Id == seller);
+        
+        return TypedResults.Ok(notFinished.Select(a => a.Id));
+    }
+
+    public static async Task<Results<Ok, NotFound<AuctionIdNotFound>, UnprocessableEntity<BidAuctionRulesViolationResponse>>>
+        BidAsync(User usr, BidRequest bidRequest, ICurrentTime now, IRepository<Auction> auctionRepository,
+            IAuctionEvaluator auctionEvaluator)
+    {
+        var auctions = await auctionRepository.ListAsync();
+        var auction = auctions.FirstOrDefault(a => a.Id == bidRequest.AuctionId);
+
+        if (auction is null)
+        {
+            return TypedResults.NotFound(new AuctionIdNotFound());
+        }
+        
+        var bid = new Bid
+        {
+            Bidder = usr,
+            Time = now.Now,
+            Value = bidRequest.Amount,
+        };
+        
+        auction.Bids.Add(bid);
+        await auctionRepository.UpdateAsync(auction);
+        await auctionRepository.CommitAsync();
+
+        return TypedResults.Ok();
+    }
+
+    public static Task<Results<Ok<IEnumerable<BuyerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(
+        IEnumerable<AuctionId> auctionIds, IRepository<Auction> auctionRepository)
+    {
+        throw new NotImplementedException(); // TODO: change BuyerAuctionInfo API
+    }
 }
