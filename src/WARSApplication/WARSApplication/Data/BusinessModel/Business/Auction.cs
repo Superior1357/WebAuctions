@@ -9,11 +9,11 @@ public abstract record Auction(DateTimeOffset StartTime, DateTimeOffset EndTime)
     public required User Seller { get; init; }
     public DateTimeOffset StartTime { get; } = StartTime;
     public DateTimeOffset EndTime { get; set; } = EndTime;
-    public IAddOnlyCollection<Bid> Bids { get; protected init; } = new AddOnlyCollection<Bid>();
 }
 
 public sealed record EnglishAuction(DateTimeOffset StartTime, DateTimeOffset EndTime) : Auction(StartTime, EndTime)
 {
+    public IAddOnlyCollection<Bid> Bids { get; init; } = new AddOnlyCollection<Bid>();
     public required Price StartingPrice { get; init; }
     
     public static EnglishAuction Restore(
@@ -39,14 +39,27 @@ public sealed record DutchAuction(DateTimeOffset StartTime, DateTimeOffset EndTi
     public required Price StartingPrice { get; init; }
     public required Price PriceDecrementRate { get; init; }
     public required TimeSpan PriceDecrementFrequency { get; init; }
-    
+    public Bid? Bid
+    {
+        get;
+        set
+        {
+            if (Bid != null)
+            {
+                throw new InvalidOperationException("Bid already set");
+            }
+            
+            field = value;
+        }
+    }
+
     public static DutchAuction Restore(
         AuctionId id,
         AuctionDescription description,
         User seller,
         DateTimeOffset startTime,
         DateTimeOffset endTime,
-        IAddOnlyCollection<Bid> bids,
+        Bid? bid,
         Price startingPrice,
         Price priceDecrementRate,
         TimeSpan priceDecrementFrequency
@@ -55,7 +68,7 @@ public sealed record DutchAuction(DateTimeOffset StartTime, DateTimeOffset EndTi
         Id = id,
         Description = description,
         Seller = seller,
-        Bids = bids,
+        Bid = bid,
         StartingPrice = startingPrice,
         PriceDecrementRate = priceDecrementRate, 
         PriceDecrementFrequency = priceDecrementFrequency
@@ -79,4 +92,6 @@ public sealed record FirstPriceSealedBidAuction(DateTimeOffset StartTime, DateTi
             Seller = seller,
             Bids = bids
         };
+    
+    public IAddOnlyCollection<Bid> Bids { get; init; } = new AddOnlyCollection<Bid>();
 }

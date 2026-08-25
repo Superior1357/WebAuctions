@@ -75,19 +75,16 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
 
         await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
         await db.SaveChangesAsync();
-
-        var payload = new CreatedAuction
-        (
-            new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
-            new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
-            "flower",
-            new DutchAuctionRules
-            {
-                PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                PriceDecrementRate = 2,
-                StartingPrice = 1000,
-            }
-        );
+        
+        var payload = new DutchCreatedAuction
+        {
+            StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+            EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+            Description = "flower",
+            PriceDecrementFrequency = new TimeSpan(0, 0, 1),
+            PriceDecrementRate = 2,
+            StartingPrice = 1000
+        };
 
         // Act
         var response = await _client.PostAsJsonAsync("/sell/create", payload);
@@ -110,18 +107,15 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
         await db.SaveChangesAsync();
 
-        var payload = new CreatedAuction
-        (
-            new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
-            new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
-            "flower",
-            new DutchAuctionRules
-            {
-                PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                PriceDecrementRate = 2,
-                StartingPrice = 1000,
-            }
-        );
+        var payload = new DutchCreatedAuction
+        {
+            StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+            EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+            Description = "flower",
+            PriceDecrementFrequency = new TimeSpan(0, 0, 1),
+            PriceDecrementRate = 2,
+            StartingPrice = 1000
+        };
 
         // Act
         var response = await _client.PostAsJsonAsync("/sell/create", payload);

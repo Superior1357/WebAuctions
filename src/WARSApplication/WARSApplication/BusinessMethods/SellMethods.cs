@@ -16,13 +16,6 @@ public static class SellMethods
     public static async Task<Results<Ok, BadRequest<InvalidAuctionParameters>>> CreateAuctionAsync(User user, CreatedAuction auctionApi, ICurrentTime currentTime, IRepository<Auction> repository)
     {
         throw new NotImplementedException();
-        /*
-        var auction = ApiToDbMapper.CreateAuction(auctionApi, user);
-        await repository.AddAsync(auction);
-        await repository.CommitAsync();
-
-        return TypedResults.Ok();
-        */
     }
     
     public static Task<Results<Ok, NotFound<AuctionIdNotFound>, BadRequest<InvalidAuctionParameters>>> UpdateAuctionAsync(User user, AuctionUpdateRequest r, ICurrentTime currentTime, IRepository<Auction> repository) => throw new NotImplementedException();

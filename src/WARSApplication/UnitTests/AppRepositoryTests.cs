@@ -133,6 +133,25 @@ public class AppRepositoryTests
         }
     }
 
+    private static void AssertBidsEquivalency(IEnumerable<DataModelBid> expectedBids, IEnumerable<Bid> actualBids)
+    {
+        var bids = expectedBids.ToList();
+        var retrievedBids = actualBids.ToList();
+
+        Assert.Equal(bids.Count, retrievedBids.Count);
+        
+        for (int j = 0; j < bids.Count; j++)
+        {
+            var dataBid = bids[j];
+            var retrievedBid = retrievedBids[j];
+                
+            Assert.Equal(dataBid.Bidder.Id, retrievedBid.Bidder.Id);
+            Assert.Equal(dataBid.Value, retrievedBid.Value);
+            Assert.Equal(dataBid.Timestamp, retrievedBid.Time);
+            Assert.Equal(dataBid.Id, retrievedBid.Id);
+        }
+    }
+    
     private static void AssertDataModelBusinessModelAuctionsMatch(DataModelAuction dataAuction, Auction businessAuction)
     {
         Assert.Equal(dataAuction.Id, businessAuction.Id);
@@ -146,35 +165,34 @@ public class AppRepositoryTests
             case EnglishDataModelAuction englishAuction:
                 var englishSpecificData = Assert.IsType<EnglishAuction>(businessAuction);
                 Assert.Equal(englishAuction.StartingPrice, englishSpecificData.StartingPrice);
+                AssertBidsEquivalency(dataAuction.Bids, englishSpecificData.Bids);
                 break;
             case DutchDataModelAuction dutchAuction:
                 var dutchSpecificData = Assert.IsType<DutchAuction>(businessAuction);
                 Assert.Equal(dutchAuction.StartingPrice, dutchSpecificData.StartingPrice);
                 Assert.Equal(dutchAuction.PriceDecrementFrequency, dutchSpecificData.PriceDecrementFrequency);
                 Assert.Equal(dutchAuction.PriceDecrementRate, dutchSpecificData.PriceDecrementRate);
+
+                if (dataAuction.Bids.Count != 0)
+                {
+                    Assert.NotNull(dutchSpecificData.Bid);
+                    AssertBidsEquivalency(dataAuction.Bids, [dutchSpecificData.Bid]);
+                }
+                else
+                {
+                    Assert.Null(dutchSpecificData.Bid);
+                }
+                
                 break;
             case FirstPriceSealedBidDataModelAuction:
-                Assert.IsType<FirstPriceSealedBidAuction>(businessAuction);
+                var businessAuctionData = Assert.IsType<FirstPriceSealedBidAuction>(businessAuction);
+                AssertBidsEquivalency(dataAuction.Bids, businessAuctionData.Bids);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
         
-        var bids = dataAuction.Bids.ToList();
-        var retrievedBids = businessAuction.Bids.GetItems().ToList();
-            
-        Assert.Equal(bids.Count, retrievedBids.Count);
-
-        for (int j = 0; j < bids.Count; j++)
-        {
-            var dataBid = bids[j];
-            var retrievedBid = retrievedBids[j];
-                
-            Assert.Equal(dataBid.Bidder.Id, retrievedBid.Bidder.Id);
-            Assert.Equal(dataBid.Value, retrievedBid.Value);
-            Assert.Equal(dataBid.Timestamp, retrievedBid.Time);
-            Assert.Equal(dataBid.Id, retrievedBid.Id);
-        }
+        
     }
 
     private static void AssertDataModelAuctionsMatch(DataModelAuction expected, DataModelAuction actual)

@@ -22,7 +22,7 @@ public sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Auct
                 dataAuction.EndTime, bidsCollection, englishDataAuction.StartingPrice),
             
             DutchDataModelAuction dutchDataAuction => DutchAuction.Restore(dataAuction.Id, dataAuction.Description,
-                User.Restore(dataAuction.Seller.Id), dataAuction.StartTime, dataAuction.EndTime, bidsCollection,
+                User.Restore(dataAuction.Seller.Id), dataAuction.StartTime, dataAuction.EndTime, bidsCollection.FirstOrDefault(),
                 dutchDataAuction.StartingPrice, dutchDataAuction.PriceDecrementRate,
                 dutchDataAuction.PriceDecrementFrequency),
             

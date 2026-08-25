@@ -10,7 +10,7 @@ namespace UnitTests;
 [TestSubject(typeof(AuctionEvaluator))]
 public class AuctionEvaluatorTest
 {
-    private readonly ICurrentTime _currentTime = new MockCurrentTime(new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero));
+    private readonly ICurrentTime _currentTime = new MockCurrentTime(new DateTimeOffset(2022, 1, 1, 1, 1, 1, TimeSpan.Zero));
     private AuctionEvaluator Evaluator => new(_currentTime);
 
     private static User MakeUser(int id) => User.Restore(new UserId(id));
@@ -85,10 +85,7 @@ public class AuctionEvaluatorTest
             MakeUser(0),
             new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
             new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
-            new TestAddOnlyCollection<Bid>(
-                [
-                    MakeBid(0, 1000, MakeUser(1), new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero))
-                ]),
+            MakeBid(0, 1000, MakeUser(1), new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)),
             1000,
             2,
             new TimeSpan(0, 1, 0)
@@ -106,7 +103,7 @@ public class AuctionEvaluatorTest
             MakeUser(0),
             new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
             new DateTimeOffset(2021, 2, 1, 1, 1, 1, TimeSpan.Zero),
-            NoBids,
+            null,
             1000,
             2,
             new TimeSpan(0, 1, 0)
@@ -124,7 +121,7 @@ public class AuctionEvaluatorTest
             MakeUser(0),
             new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
             new DateTimeOffset(2024, 2, 1, 1, 1, 1, TimeSpan.Zero),
-            NoBids,
+            null,
             1000,
             2,
             new TimeSpan(0, 1, 0)
@@ -142,7 +139,7 @@ public class AuctionEvaluatorTest
             MakeUser(0),
             new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
             new DateTimeOffset(2024, 2, 1, 1, 1, 1, TimeSpan.Zero),
-            NoBids,
+            null,
             1000,
             2,
             new TimeSpan(0, 1, 0)
@@ -240,7 +237,7 @@ public class AuctionEvaluatorTest
                     MakeUser(0),
                     new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     new DateTimeOffset(2024, 2, 1, 1, 1, 1, TimeSpan.Zero),
-                    NoBids,
+                    null,
                     1000,
                     2,
                     new TimeSpan(0, 1, 0)
@@ -255,7 +252,7 @@ public class AuctionEvaluatorTest
                 MakeUser(0),
                 new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 new DateTimeOffset(2021, 2, 1, 1, 1, 1, TimeSpan.Zero),
-                NoBids,
+                null,
                 1000,
                 2,
                 new TimeSpan(0, 1, 0))
@@ -269,7 +266,7 @@ public class AuctionEvaluatorTest
                 MakeUser(0),
                 new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
                 new DateTimeOffset(2024, 2, 1, 1, 1, 1, TimeSpan.Zero),
-                NoBids,
+                null,
                 1000,
                 2,
                 new TimeSpan(0, 1, 0))
@@ -283,7 +280,7 @@ public class AuctionEvaluatorTest
                     MakeUser(0),
                     new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     new DateTimeOffset(2024, 2, 1, 1, 1, 1, TimeSpan.Zero),
-                    NoBids,
+                    null,
                     1000,
                     2,
                     new TimeSpan(0, 1, 0)
@@ -350,7 +347,7 @@ public class AuctionEvaluatorTest
                     MakeUser(0),
                     new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     new DateTimeOffset(2021, 2, 1, 1, 1, 1, TimeSpan.Zero),
-                    NoBids,
+                    null,
                     1000,
                     2,
                     new TimeSpan(0, 1, 0)
@@ -414,10 +411,7 @@ public class AuctionEvaluatorTest
                             MakeUser(0),
                             new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                             new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
-                            new TestAddOnlyCollection<Bid>(
-                            [
-                                MakeBid(0, 1000, winner2, new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero))
-                            ]),
+                            MakeBid(0, 1000, winner2, new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)),
                             1000,
                             2,
                             new TimeSpan(0, 1, 0)

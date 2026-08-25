@@ -69,7 +69,7 @@ public class SellMethodsUnitTests
             TestUser,
             new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            new TestAddOnlyCollection<Bid>([]),
+            null,
             1000,
             2,
             new TimeSpan(0, 1, 0)
@@ -91,12 +91,12 @@ public class SellMethodsUnitTests
         var user = TestUser;
 
         var initialPrice = 1000;
-        var createdAuction = new CreatedAuction(
-            new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            "test",
-            new EnglishAuctionRules { StartingPrice = initialPrice }
-        );
+        var createdAuction = new EnglishCreatedAuction {
+            StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            Description = "test",
+            StartingPrice = initialPrice
+        };
 
         var mockRepo = new MockAuctionRepository(MockRepoContent);
 
@@ -111,12 +111,12 @@ public class SellMethodsUnitTests
         var user = TestUser;
 
         var initialPrice = 1000;
-        var createdAuction = new CreatedAuction(
-            new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            "created",
-            new EnglishAuctionRules { StartingPrice = initialPrice }
-        );
+        var createdAuction = new EnglishCreatedAuction {
+            StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            Description = "created",
+            StartingPrice = initialPrice
+        };
 
         var mockRepo = new MockAuctionRepository(MockRepoContent);
 
@@ -149,12 +149,12 @@ public class SellMethodsUnitTests
         var user = TestUser;
 
         var initialPrice = 1000;
-        var createdAuction = new CreatedAuction(
-            new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            "test",
-            new EnglishAuctionRules { StartingPrice = initialPrice }
-        );
+        var createdAuction = new EnglishCreatedAuction {
+            StartTime = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            Description = "test",
+            StartingPrice = initialPrice
+        };
 
         var mockRepo = new MockAuctionRepository(MockRepoContent);
 
@@ -169,12 +169,12 @@ public class SellMethodsUnitTests
         var user = TestUser;
 
         var initialPrice = 1000;
-        var createdAuction = new CreatedAuction(
-            new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            "test",
-            new EnglishAuctionRules { StartingPrice = initialPrice }
-        );
+        var createdAuction = new EnglishCreatedAuction {
+            StartTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            EndTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            Description = "test",
+            StartingPrice = initialPrice
+        };
 
         var mockRepo = new MockAuctionRepository(MockRepoContent);
 

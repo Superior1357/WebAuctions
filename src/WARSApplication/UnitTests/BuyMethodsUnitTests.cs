@@ -55,7 +55,7 @@ public class BuyMethodsUnitTests
                 TestUser,
                 new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
                 new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
-                new TestAddOnlyCollection<Bid>([]),
+                null,
                 1000,
                 2,
                 new TimeSpan(0, 0, 1)
@@ -205,7 +205,9 @@ public class BuyMethodsUnitTests
 
         var repoContent = mockAuctionRepo.CommitedRepoContent;
         var correspondingAuction = repoContent.First(a => a.Id == addedBeforeAuctionContent[5].Id);
-        Assert.Contains(correspondingAuction.Bids.GetItems(),
+        
+        var firstPriceCorrespondingAuction = Assert.IsType<FirstPriceSealedBidAuction>(correspondingAuction);
+        Assert.Contains(firstPriceCorrespondingAuction.Bids,
             bid => bid.Bidder.Id == TestUser.Id && bid.Value == bidRequest.Amount);
     }
 

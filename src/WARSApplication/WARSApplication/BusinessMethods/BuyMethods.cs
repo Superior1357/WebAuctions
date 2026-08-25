@@ -25,7 +25,16 @@ public static class BuyMethods
         IRepository<Auction> repository)
     {
         var auctions = await repository.ListAsync();
-        var participated = auctions.Where(a => a.Bids.GetItems().Any(b => b.Bidder == usr));
+        var participated = auctions.Where(auction =>
+        {
+            return auction switch
+            {
+                EnglishAuction a => a.Bids.Any(b => b.Bidder == usr),
+                FirstPriceSealedBidAuction a => a.Bids.Any(b => b.Bidder == usr),
+                DutchAuction a => a.Bid is not null && a.Bid.Bidder == usr,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        });
         
         return TypedResults.Ok(participated.Select(a => a.Id));
     }
@@ -64,10 +73,25 @@ public static class BuyMethods
         {
             Bidder = usr,
             Time = now.Now,
-            Value = bidRequest.Amount,
+            Value = bidRequest.Amount
         };
         
-        auction.Bids.Add(bid);
+        switch (auction)
+        {
+            case EnglishAuction englishAuction:
+                englishAuction.Bids.Add(bid);
+                break;
+            case DutchAuction dutchAuction:
+                if (dutchAuction.Bid is not null)
+                    dutchAuction.Bid = bid;
+                break;
+            case FirstPriceSealedBidAuction firstPriceSealedBidAuction:
+                firstPriceSealedBidAuction.Bids.Add(bid);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        
         await auctionRepository.UpdateAsync(auction);
         await auctionRepository.CommitAsync();
 
