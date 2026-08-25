@@ -297,14 +297,31 @@ public class SellMethodsUnitTests
     [Fact]
     public async Task Sell_List_Returns_Users_Pending_Auctions_Async()
     {
+        // Arrange
         var user = TestUser;
 
         var addedBeforeContent = MockRepoContent;
         var mockRepo = new MockAuctionRepository(addedBeforeContent);
         var userAuctionIds = new List<AuctionId> { addedBeforeContent[1].Id, addedBeforeContent[2].Id };
 
-        var result = (await SellMethods.ListAsync(user, AuctionStatus.Pending, mockRepo)).Value.ToList();
-
+        var evaluator = new MockAuctionEvaluator(
+                new Dictionary<AuctionId, AuctionStatus>
+                {
+                    { addedBeforeContent[0].Id, AuctionStatus.Finished },
+                    { addedBeforeContent[1].Id, AuctionStatus.Pending },
+                    { addedBeforeContent[2].Id, AuctionStatus.Pending }
+                },
+                new Dictionary<AuctionId, User?>
+                {
+                    { addedBeforeContent[0].Id, null },
+                    { addedBeforeContent[1].Id, null },
+                    { addedBeforeContent[2].Id, null }
+                } 
+            );
+        // Act
+        var result = (await SellMethods.ListAsync(user, AuctionStatus.Pending, evaluator, mockRepo)).Value.ToList();
+        
+        // Arrange
         Assert.Equal(2, result.Count);
         foreach (var id in userAuctionIds)
         {
@@ -315,6 +332,7 @@ public class SellMethodsUnitTests
     [Fact]
     public async Task Sell_List_Returns_Users_Active_Auctions_Async()
     {
+        // Arrange
         var user = TestUser;
 
         var listedAuction = EnglishAuction.Restore(
@@ -329,9 +347,29 @@ public class SellMethodsUnitTests
 
         var addedBeforeContent = MockRepoContent.Append(listedAuction).ToList();
         var mockRepo = new MockAuctionRepository(addedBeforeContent);
-
-        var result = (await SellMethods.ListAsync(user, AuctionStatus.Finished, mockRepo)).Value.ToList();
-
+        
+        var evaluator = new MockAuctionEvaluator(
+            new Dictionary<AuctionId, AuctionStatus>
+            {
+                { addedBeforeContent[0].Id, AuctionStatus.Finished },
+                { addedBeforeContent[1].Id, AuctionStatus.Pending },
+                { addedBeforeContent[2].Id, AuctionStatus.Pending },
+                { listedAuction.Id, AuctionStatus.Active }
+            },
+            
+            new Dictionary<AuctionId, User?>
+            {
+                { addedBeforeContent[0].Id, null },
+                { addedBeforeContent[1].Id, null },
+                { addedBeforeContent[2].Id, null },
+                { listedAuction.Id, null }
+            } 
+        );
+        
+        // Act
+        var result = (await SellMethods.ListAsync(user, AuctionStatus.Finished, evaluator, mockRepo)).Value.ToList();
+        
+        // Assert
         Assert.Single(result);
         Assert.Equal(listedAuction.Id, result[0]);
     }
@@ -339,6 +377,7 @@ public class SellMethodsUnitTests
     [Fact]
     public async Task Sell_List_Returns_Users_Finished_Auctions_Async()
     {
+        // Arrange
         var user = TestUser;
 
         var listedAuction = EnglishAuction.Restore(
@@ -353,9 +392,29 @@ public class SellMethodsUnitTests
 
         var addedBeforeContent = MockRepoContent.Append(listedAuction).ToList();
         var mockRepo = new MockAuctionRepository(addedBeforeContent);
-
-        var result = (await SellMethods.ListAsync(user, AuctionStatus.Active, mockRepo)).Value.ToList();
-
+        
+        var evaluator = new MockAuctionEvaluator(
+            new Dictionary<AuctionId, AuctionStatus>
+            {
+                { addedBeforeContent[0].Id, AuctionStatus.Finished },
+                { addedBeforeContent[1].Id, AuctionStatus.Pending },
+                { addedBeforeContent[2].Id, AuctionStatus.Pending },
+                { listedAuction.Id, AuctionStatus.Active }
+            },
+            
+            new Dictionary<AuctionId, User?>
+            {
+                { addedBeforeContent[0].Id, null },
+                { addedBeforeContent[1].Id, null },
+                { addedBeforeContent[2].Id, null },
+                { listedAuction.Id, null }
+            } 
+        );
+        
+        // Act
+        var result = (await SellMethods.ListAsync(user, AuctionStatus.Active, evaluator, mockRepo)).Value.ToList();
+        
+        // Assert
         Assert.Single(result);
         Assert.Equal(listedAuction.Id, result[0]);
     }
