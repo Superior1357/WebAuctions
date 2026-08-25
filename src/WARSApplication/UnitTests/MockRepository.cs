@@ -5,7 +5,7 @@ namespace UnitTests;
 
 public class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
 {
-    private ICollection<T> _repoContent = repoItems.ToList();
+    private readonly ICollection<T> _repoContent = repoItems.ToList();
     public ICollection<T> CommitedRepoContent { get; private set; } = repoItems.ToList();
     public bool AllChangesCommited { get; private set; }
 
@@ -17,12 +17,12 @@ public class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
         _repoContent.Add(item);
         return Task.FromResult(item);
     }
-    
 
     public Task UpdateAsync(T item)
     {
         AllChangesCommited = false;
-        throw new NotImplementedException();
+        CommitedRepoContent = _repoContent.ToList();
+        return Task.CompletedTask;
     }
 
     public Task CommitAsync()
