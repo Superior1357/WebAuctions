@@ -77,7 +77,7 @@ public sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Auct
     
     public async Task<IEnumerable<Auction>> ListAsync()
     {
-        var dataAuctions = dbContext.Auctions.AsAsyncEnumerable();
+        var dataAuctions = dbContext.Auctions.Include(a => a.Bids).ThenInclude(b => b.Bidder).Include(a => a.Seller).AsAsyncEnumerable();
         var businessAuctions = new List<Auction>();
 
         await foreach (var dataAuction in dataAuctions)

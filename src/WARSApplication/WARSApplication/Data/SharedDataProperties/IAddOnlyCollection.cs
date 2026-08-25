@@ -8,13 +8,8 @@ public interface IAddOnlyCollection<T>
 
 public class AddOnlyCollection<T>(IEnumerable<T>? initialItems = null) : IAddOnlyCollection<T>
 {
-    public void Add(T item)
-    {
-        throw new NotImplementedException();
-    }
+    private readonly List<T> _items = [..initialItems ?? []];
+    public void Add(T item) => _items.Add(item);
 
-    public IEnumerable<T> GetItems()
-    {
-        throw new NotImplementedException();
-    }
+    public IEnumerable<T> GetItems() => _items;
 }

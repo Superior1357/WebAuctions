@@ -539,13 +539,12 @@ public class AppRepositoryTests
         {
             var repo = new AppRepository(context);
             await repo.AddAsync(addedAuction);
-            await repo.CommitAsync();
         }
         
         // Assert
         await using (var context = new AuctionDbContext(_contextOptions))
         {
-            var auctions = context.Auctions.ToList();
+            var auctions = context.Auctions.Include(a => a.Bids).ThenInclude(b => b.Bidder).Include(a => a.Seller).ToList();
             dataAuctions = dataAuctions.OrderBy(dataAuction => dataAuction.Id.Id).ToList();
             Assert.Equal(3, auctions.Count);
             for (int i = 0; i < 3; i++)
@@ -576,6 +575,7 @@ public class AppRepositoryTests
             var repo = new AppRepository(context);
             var retrievedAuctions = (await repo.ListAsync()).ToList();
             
+            Assert.Contains(retrievedAuctions, a => a is FirstPriceSealedBidAuction);
             var updatedAuction = retrievedAuctions.First(a => a is FirstPriceSealedBidAuction);
             updatedAuction.EndTime = new DateTimeOffset(2026, 1, 1, 1, 1, 1, TimeSpan.Zero);
             
@@ -586,7 +586,7 @@ public class AppRepositoryTests
         // Assert
         await using (var context = new AuctionDbContext(_contextOptions))
         {
-            var updatedDatabaseContent = context.Auctions.Include(dataModelAuction => dataModelAuction.Seller).ToList();
+            var updatedDatabaseContent = context.Auctions.Include(a => a.Bids).ThenInclude(b => b.Bidder).Include(a => a.Seller).ToList();
             Assert.Equal(3, updatedDatabaseContent.Count);
             
             for (int i = 0; i < 3; i++)
@@ -623,13 +623,17 @@ public class AppRepositoryTests
             await arrangeContext.SaveChangesAsync();
         }
         
-        // Act
         List<DataModelAuction> previousDatabaseContent;
+        await using (var context = new AuctionDbContext(_contextOptions))
+        {
+            previousDatabaseContent = context.Auctions.Include(a => a.Bids).ThenInclude(b => b.Bidder)
+                .Include(a => a.Seller).ToList();
+        }
+        
+        // Act
         
         await using (var context = new AuctionDbContext(_contextOptions))
         {
-            previousDatabaseContent = context.Auctions.ToList();
-            
             var repo = new AppRepository(context);
             var retrievedAuctions = (await repo.ListAsync()).ToList();
             
@@ -642,7 +646,7 @@ public class AppRepositoryTests
         // Assert
         await using (var context = new AuctionDbContext(_contextOptions))
         {
-            var updatedDatabaseContent = context.Auctions.Include(dataModelAuction => dataModelAuction.Seller).ToList();
+            var updatedDatabaseContent = context.Auctions.Include(a => a.Bids).ThenInclude(b => b.Bidder).Include(a => a.Seller).ToList();
             Assert.Equal(3, updatedDatabaseContent.Count);
             
             for (int i = 0; i < 3; i++)
