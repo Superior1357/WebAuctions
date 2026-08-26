@@ -123,24 +123,25 @@ public class SellMethodsUnitTests
         _ = await SellMethods.CreateAuctionAsync(user, createdAuction, _currentTime, mockRepo);
 
         var addedBeforeContent = MockRepoContent;
-        Assert.Collection(mockRepo.CommitedRepoContent,
-            a =>
+
+        Assert.Equal(4, mockRepo.CommitedRepoContent.Count);
+
+        foreach (var a in mockRepo.CommitedRepoContent)
+        {
+            if (!a.Description.Description.StartsWith("added_before"))
             {
-                if (!a.Description.Description.StartsWith("added_before"))
-                {
-                    Assert.Equal(createdAuction.Description, a.Description);
-                    Assert.Equal(createdAuction.StartTime, a.StartTime);
-                    Assert.Equal(createdAuction.EndTime, a.EndTime);
-                    Assert.IsType<EnglishAuction>(a);
-                    Assert.Equal(user, a.Seller);
-                }
-                else
-                {
-                    var correspondingOriginal = addedBeforeContent.First(x => x.Description == a.Description);
-                    AssertAuctionMatches(correspondingOriginal, a);
-                }
+                Assert.Equal(createdAuction.Description, a.Description);
+                Assert.Equal(createdAuction.StartTime, a.StartTime);
+                Assert.Equal(createdAuction.EndTime, a.EndTime);
+                Assert.IsType<EnglishAuction>(a);
+                Assert.Equal(user, a.Seller);
             }
-        );
+            else
+            {
+                var correspondingOriginal = addedBeforeContent.First(x => x.Description == a.Description);
+                AssertAuctionMatches(correspondingOriginal, a);
+            }
+        }
     }
 
     [Fact]

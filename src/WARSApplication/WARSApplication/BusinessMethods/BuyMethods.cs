@@ -143,12 +143,14 @@ public static class BuyMethods
     }
 
     public static async Task<Results<Ok<IEnumerable<BuyerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(
-        IEnumerable<AuctionId> auctionIds, IAuctionEvaluator auctionEvaluator, IRepository<Auction> auctionRepository)
+        IReadOnlyCollection<AuctionId> auctionIds, IAuctionEvaluator auctionEvaluator, IRepository<Auction> auctionRepository)
     {
         var auctions = await auctionRepository.ListAsync();
         var requestedAuctions = auctions.IntersectBy(auctionIds, a => a.Id);
 
         var info = requestedAuctions.Select(a => BusinessToApiAuctionInfo(a, auctionEvaluator));
-        return TypedResults.Ok(info);
+        var correctOrderInfo = auctionIds.Join(info, a => a, i => i.AuctionId, (_, i) => i);
+        
+        return TypedResults.Ok(correctOrderInfo);
     }
 }

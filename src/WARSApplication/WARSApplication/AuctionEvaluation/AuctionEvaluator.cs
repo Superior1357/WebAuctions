@@ -74,7 +74,9 @@ public class AuctionEvaluator(ICurrentTime time) : IAuctionEvaluator
                     return englishAuction.StartingPrice;
                 
                 // status == AuctionStatus.Active
-                return englishAuction.Bids.MaxBy(b => b.Value.Value)?.Value ?? englishAuction.StartingPrice;
+
+                var lastBid = englishAuction.Bids.MaxBy(b => b.Value.Value)?.Value;
+                return lastBid is not null ? new Price(lastBid.Value.Value + 1) : englishAuction.StartingPrice;
             case DutchAuction dutchAuction:
                 if (status == AuctionStatus.Pending)
                     return dutchAuction.StartingPrice;

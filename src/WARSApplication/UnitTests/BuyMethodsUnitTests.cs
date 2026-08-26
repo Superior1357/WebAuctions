@@ -168,7 +168,7 @@ public class BuyMethodsUnitTests
         var result = (await BuyMethods.ListWonAuctionsAsync(TestUser, mockAuctionRepo, MockAuctionEvaluator)).Value.ToList();
 
         Assert.Single(result);
-        Assert.Contains(addedBeforeAuctionContent[3].Id, result);
+        Assert.Contains(addedBeforeAuctionContent[4].Id, result);
     }
 
     [Fact]
@@ -353,17 +353,37 @@ public class BuyMethodsUnitTests
             Assert.Equal(auction.Description, info.Description);
             Assert.Equal(auction.StartTime, info.StartTime);
             Assert.Equal(auction.EndTime, info.EndTime);
+            Assert.Equal(MockAuctionEvaluator.EvaluateStatus(auction), info.Status);
         }
-
+        
+        var english = Assert.IsType<EnglishAuctionInfo>(result[2]);
+        var dutch = Assert.IsType<DutchAuctionInfo>(result[1]);
         Assert.IsType<FirstPriceSealedBidInfo>(result[0]);
-        var info2 = Assert.IsType<DutchAuctionInfo>(result[1]);
-        var info1 = Assert.IsType<EnglishAuctionInfo>(result[2]);
+        
+        Assert.Equal(1000, english.CurrentMinimumBid);
+        Assert.Equal(1000, dutch.CurrentPrice);
+    }
+    
+    [Fact]
+    public async Task Info_Returns_Info_About_Auctions_Different_Request_Permutation_Ids_Order_Correct_Async()
+    {
+        var addedBeforeAuctionContent = MockAuctionsRepoContent;
+        var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
 
-        var rules2 = Assert.IsType<DutchAuction>(addedBeforeAuctionContent[2]);
-        var rules1 = Assert.IsType<EnglishAuction>(addedBeforeAuctionContent[1]);
+        AuctionId[] requestedIds = [new(2), new(5), new(1)];
+        
+        var response = await BuyMethods.GetInfoAsync(requestedIds, MockAuctionEvaluator, mockAuctionRepo);
+        var result = Assert.IsType<Ok<IEnumerable<BuyerAuctionInfo>>>(response.Result).Value.ToList();
 
-        Assert.Equal(rules2.StartingPrice, info2.CurrentPrice);
-        Assert.Equal(rules1.StartingPrice, info1.CurrentMinimumBid);
+        Assert.Equal(3, result.Count);
+
+        for (int i = 0; i < 3; i++)
+        {
+            var info = result[i];
+            var auction = addedBeforeAuctionContent.First(a => a.Id == requestedIds[i]);
+
+            Assert.Equal(auction.Id, info.AuctionId);
+        }
     }
 
     [Fact]
