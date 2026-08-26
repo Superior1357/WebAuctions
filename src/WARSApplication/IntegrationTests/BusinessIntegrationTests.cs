@@ -405,46 +405,52 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
     public async Task Buy_Bid_Adds_Bid_Async()
     {
         // Arrange
-        using var scope = _factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
-        await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
-        
-        var auction = db.Auctions.Add(
-            new DutchDataModelAuction
-            {
-                Seller = TestData.DummyUser,
-                StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
-                EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
-                Description = "flower",
-                PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                PriceDecrementRate = 2,
-                StartingPrice = 1000,
-            }
-        ).Entity;
-
-
-        DataModelBid previousBid = new DataModelBid
+        using (var scope = _factory.Services.CreateScope())
         {
-            Bidder = TestData.DummyUser,
-            ModelAuction = auction,
-            Timestamp = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero),
-            Value = 1000,
-        };
-        
-        await db.Bids.AddAsync(previousBid);
-        await db.SaveChangesAsync();
-        
-        var bid = new BidRequest
-        {
-            AuctionId = auction.Id,
-            Amount = 10_000
-        };
+            var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+            await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
+
+            _ = await db.Auctions.AddAsync(
+                new DutchDataModelAuction
+                {
+                    Seller = new DataModelUser { IdentityId = "dummy2" },
+                    StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                    EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                    Description = "flower",
+                    PriceDecrementFrequency = new TimeSpan(1,0, 0, 0),
+                    PriceDecrementRate = 2,
+                    StartingPrice = 1000,
+                }
+            );
+            
+            await db.SaveChangesAsync();
+        }
         
         // Act
+        
+        BidRequest bid;
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+            var auction = db.Auctions.First();
+            
+            bid = new BidRequest
+            {
+                AuctionId = auction.Id,
+                Amount = 10_000
+            };
+            
+        }
+
         var response = await _client.PostAsJsonAsync("/buy/bid", bid);
         
         // Assert
-        Assert.True(db.Bids.Any(b => b.Value == 10_000));
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+            Assert.True(db.Bids.Any(b => b.Value == 10_000));
+        }
     }
     
     [Fact]

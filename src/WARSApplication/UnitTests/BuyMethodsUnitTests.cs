@@ -209,7 +209,7 @@ public class BuyMethodsUnitTests
         };
 
         var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
-
+        // TODO: check whether update is called - make tests for it (the repository doesn't seem to register added auction)
         Assert.IsType<Ok>(response.Result);
         Assert.True(mockAuctionRepo.AllChangesCommited);
 
