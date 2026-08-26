@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.Utils;
@@ -20,11 +21,11 @@ public class AuctionEvaluator(ICurrentTime time) : IAuctionEvaluator
                 throw new ArgumentOutOfRangeException();
         }
     }
-    
+
     public AuctionStatus EvaluateStatus(Auction auction)
     {
         var currentTime = time.Now;
-        
+
         if (currentTime >= auction.EndTime)
         {
             return AuctionStatus.Finished;
@@ -34,7 +35,7 @@ public class AuctionEvaluator(ICurrentTime time) : IAuctionEvaluator
         {
             return AuctionStatus.Pending;
         }
-        
+
         return EvaluateAuctionTypeSpecificActiveTimeWindowStatus(auction);
     }
 
@@ -47,14 +48,42 @@ public class AuctionEvaluator(ICurrentTime time) : IAuctionEvaluator
         {
             EnglishAuction englishAuction => englishAuction.Bids.MaxBy(b => b.Value.Value)?.Bidder,
             DutchAuction dutchAuction => dutchAuction.Bid?.Bidder,
-            FirstPriceSealedBidAuction firstPriceSealedBidAuction => firstPriceSealedBidAuction.Bids.MaxBy(b => b.Value.Value)
+            FirstPriceSealedBidAuction firstPriceSealedBidAuction => firstPriceSealedBidAuction.Bids
+                .MaxBy(b => b.Value.Value)
                 ?.Bidder,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
+    private Price CalculateActiveDutchAuctionPrice(DutchAuction auction)
+    {
+        var temporalDifference = time.Now - auction.StartTime;
+        var passedRounds = (int)temporalDifference.Divide(auction.PriceDecrementFrequency);
+        return auction.StartingPrice - passedRounds * auction.PriceDecrementRate;
+    }
+    
     public Price? EvaluateCurrentMinimumBidValue(Auction auction)
     {
-        throw new NotImplementedException();
+        var status = EvaluateStatus(auction);
+        if (status == AuctionStatus.Finished)
+            return null;
+        
+        switch (auction) {
+            case EnglishAuction englishAuction:
+                if (status == AuctionStatus.Pending)
+                    return englishAuction.StartingPrice;
+                
+                // status == AuctionStatus.Active
+                return englishAuction.Bids.MaxBy(b => b.Value.Value)?.Value ?? englishAuction.StartingPrice;
+            case DutchAuction dutchAuction:
+                if (status == AuctionStatus.Pending)
+                    return dutchAuction.StartingPrice;
+                
+                return CalculateActiveDutchAuctionPrice(dutchAuction);
+            case FirstPriceSealedBidAuction firstPriceSealedBidAuction:
+                return null;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 }
