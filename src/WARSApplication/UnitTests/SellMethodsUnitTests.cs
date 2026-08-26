@@ -225,13 +225,14 @@ public class SellMethodsUnitTests
         var mockRepo = new MockAuctionRepository(MockRepoContent.Append(existingAuction).ToList());
         var updateRequest = new AuctionUpdateRequest(existingAuction.Id, new DateTimeOffset(2025, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _currentTime, mockRepo);
+        _ = await SellMethods.UpdateAuctionAsync(user, updateRequest, _currentTime, mockRepo);
 
         var addedBeforeContent = MockRepoContent;
         Assert.True(mockRepo.AllChangesCommited);
-        Assert.Collection(mockRepo.CommitedRepoContent, a =>
-        {
-                if (!a.Description.Description.StartsWith("added_before"))
+        Assert.Equal(4, mockRepo.CommitedRepoContent.Count);        
+        
+        foreach (var a in mockRepo.CommitedRepoContent) { 
+            if (!a.Description.Description.StartsWith("added_before"))
             {
                 Assert.Equal(existingAuction.Description, a.Description);
                 Assert.Equal(existingAuction.StartTime, a.StartTime);
@@ -243,7 +244,7 @@ public class SellMethodsUnitTests
                 var correspondingOriginal = addedBeforeContent.First(x => x.Description == a.Description);
                 AssertAuctionMatches(correspondingOriginal, a);
             }
-        });
+        }
     }
 
     [Fact]
@@ -382,7 +383,7 @@ public class SellMethodsUnitTests
         );
         
         // Act
-        var result = (await SellMethods.ListAsync(user, AuctionStatus.Finished, evaluator, mockRepo)).Value.ToList();
+        var result = (await SellMethods.ListAsync(user, AuctionStatus.Active, evaluator, mockRepo)).Value.ToList();
         
         // Assert
         Assert.Single(result);
@@ -435,7 +436,7 @@ public class SellMethodsUnitTests
         );
         
         // Act
-        var result = (await SellMethods.ListAsync(user, AuctionStatus.Active, evaluator, mockRepo)).Value.ToList();
+        var result = (await SellMethods.ListAsync(user, AuctionStatus.Finished, evaluator, mockRepo)).Value.ToList();
         
         // Assert
         Assert.Single(result);

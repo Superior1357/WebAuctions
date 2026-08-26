@@ -16,35 +16,34 @@ public static class SellMethods
 {
     private static Auction ApiToBusinessAuction(User user, CreatedAuction createdAuction)
     {
-        switch (createdAuction)
+        return createdAuction switch
         {
-            case EnglishCreatedAuction englishCreatedAuction:
-                return new EnglishAuction(englishCreatedAuction.StartTime, englishCreatedAuction.EndTime)
+            EnglishCreatedAuction englishCreatedAuction => new
+                EnglishAuction(englishCreatedAuction.StartTime, englishCreatedAuction.EndTime)
                 {
                     Description = englishCreatedAuction.Description,
                     StartingPrice = englishCreatedAuction.StartingPrice,
                     Seller = user
-                };
+                },
             
-            case DutchCreatedAuction dutchCreatedAuction:
-                return new DutchAuction(dutchCreatedAuction.StartTime, dutchCreatedAuction.EndTime)
+            DutchCreatedAuction dutchCreatedAuction => new
+                DutchAuction(dutchCreatedAuction.StartTime, dutchCreatedAuction.EndTime)
                 {
                     Description = dutchCreatedAuction.Description,
                     StartingPrice = dutchCreatedAuction.StartingPrice,
                     Seller = user,
                     PriceDecrementRate = dutchCreatedAuction.PriceDecrementRate,
                     PriceDecrementFrequency = dutchCreatedAuction.PriceDecrementFrequency
-                };
-            case FirstPriceSealedBidCreatedAuction firstPriceSealedBidCreatedAuction:
-                return new FirstPriceSealedBidAuction(firstPriceSealedBidCreatedAuction.StartTime,
-                    firstPriceSealedBidCreatedAuction.EndTime)
-                {
-                    Description = firstPriceSealedBidCreatedAuction.Description,
-                    Seller = user
-                };
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+                },
+            
+            FirstPriceSealedBidCreatedAuction firstPriceSealedBidCreatedAuction => new FirstPriceSealedBidAuction(
+                firstPriceSealedBidCreatedAuction.StartTime, firstPriceSealedBidCreatedAuction.EndTime)
+            {
+                Description = firstPriceSealedBidCreatedAuction.Description, Seller = user
+            },
+            
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     public static async Task<Results<Ok, BadRequest<InvalidAuctionParameters>>> CreateAuctionAsync(User user, CreatedAuction createdAuction, ICurrentTime currentTime, IRepository<Auction> repository)
@@ -74,5 +73,17 @@ public static class SellMethods
         var specified = auctions.Where(a => evaluator.EvaluateStatus(a) == status && a.Seller == user).Select(a => a.Id);
         return TypedResults.Ok(specified);
     }
-    public static Task<Results<Ok<IEnumerable<SellerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(User user, IEnumerable<AuctionId> auctionIds, IRepository<Auction> repository) => throw new NotImplementedException();
+
+    public static async Task<Results<Ok<IEnumerable<SellerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(User user,
+        IReadOnlyCollection<AuctionId> auctionIds, IRepository<Auction> repository)
+    {
+        var auctions = await repository.ListAsync();
+        var userAuctions = auctions.Where(a => a.Seller == user);
+        
+        var chosen = userAuctions.IntersectBy(auctionIds, a => a.Id);
+        var sortedChosen = auctionIds.Join(chosen, a => a, i => i.Id, (_, i) => i);
+
+        var transformedChosen = sortedChosen.Select(a => new SellerAuctionInfo(a));
+        return TypedResults.Ok(transformedChosen);
+    }
 }
