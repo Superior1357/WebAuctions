@@ -439,12 +439,189 @@ public class AuctionEvaluatorTest
         }
     }
     
-    
     [Theory]
     [MemberData(nameof(FinishedWithWinnersAuctions))]
     public void EvaluateWinner_Returns_User_With_Highest_Bid_Dutch_English_FirstPriceSealedBid(Auction finishedAuction, User expectedWinner)
     {
         var user = Evaluator.EvaluateWinner(finishedAuction);
         Assert.Equal(expectedWinner, user);
+    }
+    
+    public static IEnumerable<object[]> FinishedAuctions
+    {
+        get
+        {
+            var winner2 = MakeUser(1);
+            var winner3 = MakeUser(2);
+            
+            return new List<object[]>
+                {
+                    new object[]
+                    {
+                        EnglishAuction.Restore(
+                            new AuctionId(1),
+                            "English auction",
+                            MakeUser(0),
+                            new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                            new DateTimeOffset(2021, 3, 1, 1, 1, 1, TimeSpan.Zero),
+                            new TestAddOnlyCollection<Bid>(
+                            [
+                            ]),
+                            1000
+                        )
+                    },
+                    
+                    new object[]
+                    {
+                        DutchAuction.Restore(
+                            new AuctionId(3),
+                            "Dutch auction",
+                            MakeUser(0),
+                            new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                            new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                            MakeBid(0, 1000, winner2, new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)),
+                            1000,
+                            2,
+                            new TimeSpan(0, 1, 0)
+                        )
+                    },
+                    
+                    new object[]
+                     {
+                         FirstPriceSealedBidAuction.Restore(
+                             new AuctionId(8),
+                             "English auction",
+                             MakeUser(0),
+                             new TestAddOnlyCollection<Bid>(
+                             [
+                                 MakeBid(0, 1000, MakeUser(1), new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)),
+                                 MakeBid(1, 2000, winner3, new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero))
+                             ]),
+                             new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                             new DateTimeOffset(2021, 3, 1, 1, 1, 1, TimeSpan.Zero)
+                         )
+                     }
+                };
+        }
+    }
+    
+    [Theory]
+    [MemberData(nameof(FinishedAuctions))]
+    public void EvaluateCurrentMinimumBidValue_Returns_Null_When_Auction_Finished(Auction finishedAuction)
+    {
+        var evaluation = Evaluator.EvaluateCurrentMinimumBidValue(finishedAuction);
+        Assert.Null(evaluation);
+    }
+
+    [Fact]
+    public void EvaluateCurrentMinimumBidValue_Returns_Starting_Price_Auction_Dutch_Pending()
+    {
+        var dutchAuction = DutchAuction.Restore(
+            new AuctionId(5),
+            "Dutch auction",
+            MakeUser(0),
+            new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+            new DateTimeOffset(2024, 2, 1, 1, 1, 1, TimeSpan.Zero),
+            null,
+            1000,
+            2,
+            new TimeSpan(0, 1, 0)
+        );
+        
+        var evaluation = Evaluator.EvaluateCurrentMinimumBidValue(dutchAuction);
+        Assert.Equal(1000, evaluation);
+    }
+    
+    [Fact]
+    public void EvaluateCurrentMinimumBidValue_Returns_Starting_Price_Auction_English_Pending()
+    {
+        var englishAuction = EnglishAuction.Restore(
+            new AuctionId(5),
+            "English auction",
+            MakeUser(0),
+            new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+            new DateTimeOffset(2024, 2, 1, 1, 1, 1, TimeSpan.Zero),
+            new TestAddOnlyCollection<Bid>([]),
+            1000
+        );
+        
+        var evaluation = Evaluator.EvaluateCurrentMinimumBidValue(englishAuction);
+        Assert.Equal(1000, evaluation);
+    }
+    
+    [Fact]
+    public void EvaluateCurrentMinimumBidValue_Returns_Null_Auction_First_Price_Sealed_Bid_Pending()
+    {
+        var firstPriceSealedBidAuction = FirstPriceSealedBidAuction.Restore(
+            new AuctionId(5),
+            "first price sealed bid auction",
+            MakeUser(0),
+            new TestAddOnlyCollection<Bid>([]),
+            new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
+            new DateTimeOffset(2024, 2, 1, 1, 1, 1, TimeSpan.Zero)
+        );
+        
+        var evaluation = Evaluator.EvaluateCurrentMinimumBidValue(firstPriceSealedBidAuction);
+        Assert.Null(evaluation);
+    }
+
+    [Fact]
+    public void EvaluateCurrentMinimumBidValue_Returns_Last_Bid_Plus_One_English_Auction_Active()
+    {
+        var englishActive = EnglishAuction.Restore(
+            new AuctionId(1),
+            "English auction",
+            MakeUser(0),
+            new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
+            new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+            new TestAddOnlyCollection<Bid>(
+                [
+                    MakeBid(0, 1000, MakeUser(1), new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)),
+                    MakeBid(1, 2000, MakeUser(2), new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero))
+                ]
+            ),
+            1000);
+        
+        var evaluation = Evaluator.EvaluateCurrentMinimumBidValue(englishActive);
+        Assert.Equal(2001, evaluation);
+    }
+    
+    [Fact]
+    public void EvaluateCurrentMinimumBidValue_Returns_Null_First_Price_Sealed_Bid_Active()
+    {
+        var firstPriceSealedBidActive = FirstPriceSealedBidAuction.Restore(
+                new AuctionId(1),
+                "first price sealed bid auction",
+                MakeUser(0),
+                new TestAddOnlyCollection<Bid>(
+                    [
+                        MakeBid(0, 1000, MakeUser(1), new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)),
+                        MakeBid(1, 2000, MakeUser(2), new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero))
+                    ]
+                ),
+                new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero));
+        
+        var evaluation = Evaluator.EvaluateCurrentMinimumBidValue(firstPriceSealedBidActive);
+        Assert.Null(evaluation);
+    }
+    
+    [Fact]
+    public void EvaluateCurrentMinimumBidValue_Returns_Time_Calculated_Price_Active()
+    {
+        var dutchAuction = DutchAuction.Restore(
+                new AuctionId(1),
+                "Dutch auction",
+                MakeUser(0),
+                new DateTimeOffset(2021, 12, 24, 5, 1, 1, TimeSpan.Zero),
+                new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
+                null, 
+                1000,
+                3,
+                new TimeSpan(2,0,0,0)
+            );
+        
+        var evaluation = Evaluator.EvaluateCurrentMinimumBidValue(dutchAuction);
+        Assert.Equal(991, evaluation);
     }
 }

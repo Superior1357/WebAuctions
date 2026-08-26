@@ -1,4 +1,5 @@
 using WARSApplication.Data.DataModel.Business;
+using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.Utils;
 
 namespace WARSApplication.AuctionEvaluation;
@@ -44,11 +45,16 @@ public class AuctionEvaluator(ICurrentTime time) : IAuctionEvaluator
 
         return auction switch
         {
-            EnglishAuction englishAuction => englishAuction.Bids.MaxBy(b => b.Value)?.Bidder,
+            EnglishAuction englishAuction => englishAuction.Bids.MaxBy(b => b.Value.Value)?.Bidder,
             DutchAuction dutchAuction => dutchAuction.Bid?.Bidder,
-            FirstPriceSealedBidAuction firstPriceSealedBidAuction => firstPriceSealedBidAuction.Bids.MaxBy(b => b.Value)
+            FirstPriceSealedBidAuction firstPriceSealedBidAuction => firstPriceSealedBidAuction.Bids.MaxBy(b => b.Value.Value)
                 ?.Bidder,
             _ => throw new ArgumentOutOfRangeException()
         };
+    }
+
+    public Price? EvaluateCurrentMinimumBidValue(Auction auction)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -9,4 +9,8 @@ public class MockAuctionEvaluator(IDictionary<AuctionId, AuctionStatus> auctionS
 {
     public AuctionStatus EvaluateStatus(Auction auction) => auctionStatusMap[auction.Id];
     public User? EvaluateWinner(Auction auction) => auctionToWinnerMap[auction.Id];
+    public Price? EvaluateCurrentMinimumBidValue(Auction auction)
+    {
+        throw new NotImplementedException();
+    }
 }

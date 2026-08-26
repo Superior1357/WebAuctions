@@ -326,8 +326,8 @@ public class BuyMethodsUnitTests
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
 
         AuctionId[] requestedIds = [new(5), new(2), new(1)];
-
-        var response = await BuyMethods.GetInfoAsync(requestedIds, mockAuctionRepo);
+        
+        var response = await BuyMethods.GetInfoAsync(requestedIds, MockAuctionEvaluator, mockAuctionRepo);
 
         var result = Assert.IsType<Ok<IEnumerable<BuyerAuctionInfo>>>(response.Result).Value.ToList();
 
@@ -345,15 +345,15 @@ public class BuyMethodsUnitTests
             Assert.Equal(auction.EndTime, info.EndTime);
         }
 
-        Assert.IsType<FirstTimeSealedBidInfo>(result[0].InfoData);
-        var info2 = Assert.IsType<DutchAuctionInfo>(result[1].InfoData);
-        var info1 = Assert.IsType<EnglishAuctionInfo>(result[2].InfoData);
+        Assert.IsType<FirstPriceSealedBidInfo>(result[0]);
+        var info2 = Assert.IsType<DutchAuctionInfo>(result[1]);
+        var info1 = Assert.IsType<EnglishAuctionInfo>(result[2]);
 
         var rules2 = Assert.IsType<DutchAuction>(addedBeforeAuctionContent[2]);
         var rules1 = Assert.IsType<EnglishAuction>(addedBeforeAuctionContent[1]);
 
         Assert.Equal(rules2.StartingPrice, info2.CurrentPrice);
-        Assert.Equal(rules1.StartingPrice, info1.CurrentBid);
+        Assert.Equal(rules1.StartingPrice, info1.CurrentMinimumBid);
     }
 
     [Fact]
@@ -362,8 +362,7 @@ public class BuyMethodsUnitTests
         AuctionId[] requestedIds = [new(5), new(2000), new(1)];
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
-
-        var response = await BuyMethods.GetInfoAsync(requestedIds, mockAuctionRepo);
+        var response = await BuyMethods.GetInfoAsync(requestedIds, MockAuctionEvaluator, mockAuctionRepo);
 
         Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
     }
