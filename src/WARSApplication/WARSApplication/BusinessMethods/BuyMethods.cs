@@ -97,10 +97,58 @@ public static class BuyMethods
 
         return TypedResults.Ok();
     }
-
-    public static Task<Results<Ok<IEnumerable<BuyerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(
-        IEnumerable<AuctionId> auctionIds, IRepository<Auction> auctionRepository)
+    
+    // TODO: inject this as a service (make tests exactly for this)
+    private static BuyerAuctionInfo BusinessToApiAuctionInfo(Auction auction, IAuctionEvaluator auctionEvaluator)
     {
-        throw new NotImplementedException(); // TODO: change BuyerAuctionInfo API
+        var auctionStatus = auctionEvaluator.EvaluateStatus(auction);
+        
+        switch (auction)
+        {
+            case EnglishAuction englishAuction:
+                return new EnglishAuctionInfo
+                {
+                    AuctionId = englishAuction.Id,
+                    Description = englishAuction.Description,
+                    EndTime = englishAuction.EndTime,
+                    CurrentMinimumBid = auctionEvaluator.EvaluateCurrentMinimumBidValue(englishAuction),
+                    SellerId = englishAuction.Seller.Id,
+                    StartTime = englishAuction.StartTime,
+                    Status = auctionStatus
+                };
+            case DutchAuction dutchAuction:
+                return new DutchAuctionInfo
+                {
+                    AuctionId = dutchAuction.Id,
+                    CurrentPrice = auctionEvaluator.EvaluateCurrentMinimumBidValue(dutchAuction),
+                    Description = dutchAuction.Description,
+                    EndTime = dutchAuction.EndTime,
+                    SellerId = dutchAuction.Seller.Id,
+                    StartTime = dutchAuction.StartTime,
+                    Status = auctionStatus
+                };
+            case FirstPriceSealedBidAuction firstPriceSealedBidAuction:
+                return new FirstPriceSealedBidInfo
+                {
+                    AuctionId = firstPriceSealedBidAuction.Id,
+                    Description = firstPriceSealedBidAuction.Description,
+                    EndTime = firstPriceSealedBidAuction.EndTime,
+                    SellerId = firstPriceSealedBidAuction.Seller.Id,
+                    StartTime = firstPriceSealedBidAuction.StartTime,
+                    Status = auctionStatus
+                };
+            default: 
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    public static async Task<Results<Ok<IEnumerable<BuyerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(
+        IEnumerable<AuctionId> auctionIds, IAuctionEvaluator auctionEvaluator, IRepository<Auction> auctionRepository)
+    {
+        var auctions = await auctionRepository.ListAsync();
+        var requestedAuctions = auctions.IntersectBy(auctionIds, a => a.Id);
+
+        var info = requestedAuctions.Select(a => BusinessToApiAuctionInfo(a, auctionEvaluator));
+        return TypedResults.Ok(info);
     }
 }

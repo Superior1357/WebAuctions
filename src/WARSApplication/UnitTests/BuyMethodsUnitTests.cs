@@ -116,6 +116,16 @@ public class BuyMethodsUnitTests
                 [new AuctionId(3)] = null,
                 [new AuctionId(4)] = TestUser,
                 [new AuctionId(5)] = null
+            },
+            
+            new Dictionary<AuctionId, Price?>()
+            {
+                [new AuctionId(0)] = 1000,
+                [new AuctionId(1)] = 1000,
+                [new AuctionId(2)] = 1000,
+                [new AuctionId(3)] = 2001,
+                [new AuctionId(4)] = null,
+                [new AuctionId(5)] = null
             }
         );
 

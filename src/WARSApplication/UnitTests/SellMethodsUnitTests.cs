@@ -307,7 +307,7 @@ public class SellMethodsUnitTests
         var evaluator = new MockAuctionEvaluator(
                 new Dictionary<AuctionId, AuctionStatus>
                 {
-                    { addedBeforeContent[0].Id, AuctionStatus.Finished },
+                    { addedBeforeContent[0].Id, AuctionStatus.Pending },
                     { addedBeforeContent[1].Id, AuctionStatus.Pending },
                     { addedBeforeContent[2].Id, AuctionStatus.Pending }
                 },
@@ -316,7 +316,14 @@ public class SellMethodsUnitTests
                     { addedBeforeContent[0].Id, null },
                     { addedBeforeContent[1].Id, null },
                     { addedBeforeContent[2].Id, null }
-                } 
+                },
+                
+                new Dictionary<AuctionId, Price?>
+                {
+                    { addedBeforeContent[0].Id, 1000 },
+                    { addedBeforeContent[1].Id, 1000 },
+                    { addedBeforeContent[2].Id, 1000 }
+                }
             );
         // Act
         var result = (await SellMethods.ListAsync(user, AuctionStatus.Pending, evaluator, mockRepo)).Value.ToList();
@@ -351,19 +358,26 @@ public class SellMethodsUnitTests
         var evaluator = new MockAuctionEvaluator(
             new Dictionary<AuctionId, AuctionStatus>
             {
-                { addedBeforeContent[0].Id, AuctionStatus.Finished },
+                { addedBeforeContent[0].Id, AuctionStatus.Pending },
                 { addedBeforeContent[1].Id, AuctionStatus.Pending },
                 { addedBeforeContent[2].Id, AuctionStatus.Pending },
                 { listedAuction.Id, AuctionStatus.Active }
             },
-            
             new Dictionary<AuctionId, User?>
             {
                 { addedBeforeContent[0].Id, null },
                 { addedBeforeContent[1].Id, null },
                 { addedBeforeContent[2].Id, null },
                 { listedAuction.Id, null }
-            } 
+            },
+            
+            new Dictionary<AuctionId, Price?>
+            {
+                { addedBeforeContent[0].Id, 1000 },
+                { addedBeforeContent[1].Id, 1000 },
+                { addedBeforeContent[2].Id, 1000 },
+                { listedAuction.Id, 1000 }
+            }
         );
         
         // Act
@@ -396,10 +410,10 @@ public class SellMethodsUnitTests
         var evaluator = new MockAuctionEvaluator(
             new Dictionary<AuctionId, AuctionStatus>
             {
-                { addedBeforeContent[0].Id, AuctionStatus.Finished },
+                { addedBeforeContent[0].Id, AuctionStatus.Pending },
                 { addedBeforeContent[1].Id, AuctionStatus.Pending },
                 { addedBeforeContent[2].Id, AuctionStatus.Pending },
-                { listedAuction.Id, AuctionStatus.Active }
+                { listedAuction.Id, AuctionStatus.Finished }
             },
             
             new Dictionary<AuctionId, User?>
@@ -408,7 +422,15 @@ public class SellMethodsUnitTests
                 { addedBeforeContent[1].Id, null },
                 { addedBeforeContent[2].Id, null },
                 { listedAuction.Id, null }
-            } 
+            },
+            
+            new Dictionary<AuctionId, Price?>
+            {
+                { addedBeforeContent[0].Id, 1000 },
+                { addedBeforeContent[1].Id, 1000 },
+                { addedBeforeContent[2].Id, 1000 },
+                { listedAuction.Id, null }
+            }
         );
         
         // Act
