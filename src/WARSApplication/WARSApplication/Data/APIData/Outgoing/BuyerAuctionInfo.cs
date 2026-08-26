@@ -1,13 +1,24 @@
 using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.APIData.Outgoing;
-public record struct BuyerAuctionInfo(
-        AuctionId AuctionId, string Description, UserId SellerId, 
-        DateTimeOffset StartTime, DateTimeOffset EndTime, AuctionStatus Status, AuctionTypeSpecificRules InfoData 
-    );
 
-public abstract record TypeSpecificAuctionInfo; 
+public abstract record BuyerAuctionInfo
+{
+    public required AuctionId AuctionId { get; init; }
+    public required AuctionDescription Description { get; init; }
+    public required UserId SellerId { get; init; }
+    public required DateTimeOffset StartTime { get; init; }
+    public required DateTimeOffset EndTime { get; init; }
+    public required AuctionStatus Status { get; init; }
+}
 
-public sealed record DutchAuctionInfo(Price CurrentPrice) : TypeSpecificAuctionInfo;
-public sealed record EnglishAuctionInfo(Price CurrentBid) : TypeSpecificAuctionInfo;
-public sealed record FirstTimeSealedBidInfo : TypeSpecificAuctionInfo;
+public sealed record DutchAuctionInfo : BuyerAuctionInfo
+{
+    public required Price? CurrentPrice { get; init; }
+}
+
+public sealed record EnglishAuctionInfo : BuyerAuctionInfo
+{
+    public required Price? CurrentMinimumBid { get; init; }   
+}
+public sealed record FirstPriceSealedBidInfo : BuyerAuctionInfo;
