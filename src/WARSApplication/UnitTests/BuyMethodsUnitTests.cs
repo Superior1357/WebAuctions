@@ -387,7 +387,7 @@ public class BuyMethodsUnitTests
     }
 
     [Fact]
-    public async Task Info_Returns_Info_Returns_Not_Found_When_AuctionId_Nonexistent_Async()
+    public async Task Info_Returns_Not_Found_When_AuctionId_Nonexistent_Async()
     {
         AuctionId[] requestedIds = [new(5), new(2000), new(1)];
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
@@ -397,9 +397,6 @@ public class BuyMethodsUnitTests
         Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
     }
     
-    // TODO: make it forbidden to bid to finished auctions, first-time sealed bid auctions twice and so on
     // TODO: a validator? or sth
-    
     // TODO: auth methods? -- last, after everything else is completed
-    // TODO: add tests for edge cases like bidding to a pending auction
 }

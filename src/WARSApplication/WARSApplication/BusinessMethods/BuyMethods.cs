@@ -68,6 +68,11 @@ public static class BuyMethods
         {
             return TypedResults.NotFound(new AuctionIdNotFound());
         }
+
+        if (auctionEvaluator.EvaluateStatus(auction) != AuctionStatus.Active)
+        {
+            return TypedResults.UnprocessableEntity(new BidAuctionRulesViolationResponse());
+        }
         
         var bid = new Bid
         {
@@ -86,6 +91,9 @@ public static class BuyMethods
                     dutchAuction.Bid = bid;
                 break;
             case FirstPriceSealedBidAuction firstPriceSealedBidAuction:
+                if (firstPriceSealedBidAuction.Bids.Any(b => b.Bidder == usr))
+                    return TypedResults.UnprocessableEntity(new BidAuctionRulesViolationResponse());
+                    
                 firstPriceSealedBidAuction.Bids.Add(bid);
                 break;
             default:
@@ -146,8 +154,13 @@ public static class BuyMethods
         IReadOnlyCollection<AuctionId> auctionIds, IAuctionEvaluator auctionEvaluator, IRepository<Auction> auctionRepository)
     {
         var auctions = await auctionRepository.ListAsync();
-        var requestedAuctions = auctions.IntersectBy(auctionIds, a => a.Id);
+        var requestedAuctions = auctions.IntersectBy(auctionIds, a => a.Id).ToList();
 
+        if (requestedAuctions.Count != auctionIds.Count)
+        {
+            return TypedResults.NotFound(new AuctionIdNotFound());
+        }
+        
         var info = requestedAuctions.Select(a => BusinessToApiAuctionInfo(a, auctionEvaluator));
         var correctOrderInfo = auctionIds.Join(info, a => a, i => i.AuctionId, (_, i) => i);
         
