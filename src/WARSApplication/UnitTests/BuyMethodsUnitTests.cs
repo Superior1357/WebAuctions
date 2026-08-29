@@ -212,7 +212,8 @@ public class BuyMethodsUnitTests
         // TODO: check whether update is called - make tests for it (the repository doesn't seem to register added auction)
         Assert.IsType<Ok>(response.Result);
         Assert.True(mockAuctionRepo.AllChangesCommited);
-
+        Assert.Contains(addedBeforeAuctionContent[5].Id, mockAuctionRepo.UpdatesCalled.Select(u => u.Id));
+        
         var repoContent = mockAuctionRepo.CommitedRepoContent;
         var correspondingAuction = repoContent.First(a => a.Id == addedBeforeAuctionContent[5].Id);
         
