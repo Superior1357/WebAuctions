@@ -19,10 +19,10 @@ public class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
         return Task.FromResult(item);
     }
 
-    public Task UpdateAsync(T item)
+    public Task UpdateAsync(T updatedAuction)
     {
         AllChangesCommited = false;
-        UpdatesCalled.Add(item);
+        UpdatesCalled.Add(updatedAuction);
         return Task.CompletedTask;
     }
 

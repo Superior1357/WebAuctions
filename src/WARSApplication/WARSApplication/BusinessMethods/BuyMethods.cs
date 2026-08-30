@@ -87,13 +87,14 @@ public static class BuyMethods
                 englishAuction.Bids.Add(bid);
                 break;
             case DutchAuction dutchAuction:
-                if (dutchAuction.Bid is not null)
-                    dutchAuction.Bid = bid;
+                dutchAuction.Bid = bid;
                 break;
             case FirstPriceSealedBidAuction firstPriceSealedBidAuction:
                 if (firstPriceSealedBidAuction.Bids.Any(b => b.Bidder == usr))
+                {
                     return TypedResults.UnprocessableEntity(new BidAuctionRulesViolationResponse());
-                    
+                }
+                
                 firstPriceSealedBidAuction.Bids.Add(bid);
                 break;
             default:

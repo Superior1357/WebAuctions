@@ -10,8 +10,6 @@ using WARSApplication.Repository;
 
 namespace UnitTests;
 // TODO: throw exception when StartTime is after EndTime (not supporting that, don't test any other possible problems)
-// TODO: add auction methods (seems simple) - do correct auction type mapping tests
-// TODO: end time parameter adjusting tests - test one and then multiple updates
 // TODO: test repo commit - if not called, no changes in db, if called, saves changes - what if an exception throw? - capable of handling that?
 [TestSubject(typeof(AppRepository))]
 public class AppRepositoryTests
@@ -67,8 +65,7 @@ public class AppRepositoryTests
                     },
 
                     lastBid
-                },
-                LastPlacedBid = lastBid.Id
+                }
             },
             new DutchDataModelAuction
             {
@@ -216,7 +213,6 @@ public class AppRepositoryTests
         Assert.Equal(expected.StartTime, actual.StartTime);
         Assert.Equal(expected.EndTime, actual.EndTime);
         Assert.Equal(expected.Seller, actual.Seller);
-        Assert.Equal(expected.LastPlacedBid, actual.LastPlacedBid);
 
         switch (expected)
         {
@@ -301,8 +297,7 @@ public class AppRepositoryTests
                     },
 
                     lastBid
-                },
-                LastPlacedBid = lastBid.Id
+                }
             },
             new DutchDataModelAuction
             {
@@ -396,8 +391,7 @@ public class AppRepositoryTests
                     },
 
                     lastBid
-                },
-                LastPlacedBid = lastBid.Id
+                }
             },
             
             new DutchDataModelAuction
@@ -519,8 +513,7 @@ public class AppRepositoryTests
                     },
 
                     lastBid
-                },
-                LastPlacedBid = lastBid.Id
+                }
             },
             new DutchDataModelAuction
             {
@@ -693,8 +686,7 @@ public class AppRepositoryTests
             Bids = new List<DataModelBid>
             {
                 lastEnglishBid
-            },
-            LastPlacedBid = lastEnglishBid.Id
+            }
         };
 
         var dutchDataModelAuction = new DutchDataModelAuction
@@ -803,7 +795,7 @@ public class AppRepositoryTests
             
             Assert.Equal(addedBid.Value, addedNewAfter.Value);
             Assert.Equal(addedBid.Time, addedNewAfter.Timestamp);
-            Assert.Equal(addedNewAfter.Id, englishDataModelAuctionAfter.LastPlacedBid);
+            Assert.NotEqual(0, englishDataModelAuctionAfter.Version);
         }
     }
     
@@ -853,8 +845,7 @@ public class AppRepositoryTests
             Bids = new List<DataModelBid>
             {
                 lastEnglishBid
-            },
-            LastPlacedBid = lastEnglishBid.Id
+            }
         };
 
         var dutchDataModelAuction = new DutchDataModelAuction
@@ -922,7 +913,7 @@ public class AppRepositoryTests
             var newestDutchBid = updatedBidsDatabaseContent.First(b => b.Value == 10_000);
             
             Assert.Equal(bidder.Id, newestDutchBid.Bidder.Id);
-            Assert.Equal(englishDataModelAuction.Id, newestDutchBid.AuctionId);
+            Assert.Equal(dutchDataModelAuction.Id, newestDutchBid.AuctionId);
             Assert.Equal(addedBid.Value, newestDutchBid.Value);
             
             var updatedAuctionDatabaseContent = context.Auctions.Include(a => a.Bids).ThenInclude(b => b.Bidder)
@@ -944,7 +935,7 @@ public class AppRepositoryTests
             
             Assert.Equal(addedBid.Value, addedNewAfter.Value);
             Assert.Equal(addedBid.Time, addedNewAfter.Timestamp);
-            Assert.Equal(addedNewAfter.Id, dutchDataModelAuctionAfter.LastPlacedBid);
+            Assert.NotEqual(0, dutchDataModelAuctionAfter.Version);
         }
     }
     
@@ -994,8 +985,7 @@ public class AppRepositoryTests
             Bids = new List<DataModelBid>
             {
                 lastEnglishBid
-            },
-            LastPlacedBid = lastEnglishBid.Id
+            }
         };
 
         var dutchDataModelAuction = new DutchDataModelAuction
@@ -1063,7 +1053,7 @@ public class AppRepositoryTests
             var newestFirstPriceSealedBid = updatedBidsDatabaseContent.First(b => b.Value == 10_000);
             
             Assert.Equal(bidder.Id, newestFirstPriceSealedBid.Bidder.Id);
-            Assert.Equal(englishDataModelAuction.Id, newestFirstPriceSealedBid.AuctionId);
+            Assert.Equal(firstPriceSealedBidDataModelAuction.Id, newestFirstPriceSealedBid.AuctionId);
             Assert.Equal(addedBid.Value, newestFirstPriceSealedBid.Value);
             
             // TODO
@@ -1085,7 +1075,8 @@ public class AppRepositoryTests
             
             Assert.Equal(addedBid.Value, addedNewAfter.Value);
             Assert.Equal(addedBid.Time, addedNewAfter.Timestamp);
-            Assert.Equal(addedNewAfter.Id, firstPriceSealedBidDataModelAuctionAfter.LastPlacedBid);
+            Assert.NotEqual(0, firstPriceSealedBidDataModelAuctionAfter.Version);
+            
         }
     }
     
@@ -1136,10 +1127,6 @@ public class AppRepositoryTests
             }
         }
     }
-    
-    
     // TODO: combined tests (e.g. add + update) -> if makes sense to combine them? (but do not overthink this)
     // TODO: remove the status tests and place them somewhere else (delegate the responsibility to something else)
 }
-
-

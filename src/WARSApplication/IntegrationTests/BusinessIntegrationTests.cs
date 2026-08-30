@@ -442,14 +442,13 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             };
             
         }
-
         var response = await _client.PostAsJsonAsync("/buy/bid", bid);
         
         // Assert
         using (var scope = _factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
-            Assert.True(db.Bids.Any(b => b.Value == 10_000));
+            Assert.Contains(db.Bids, b => b.Value == 10_000);
         }
     }
     
@@ -797,8 +796,6 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             Value = 2000,
         };
         
-        auction.LastPlacedBid = winningBid.Id;
-        
         await db.Bids.AddAsync(winningBid);
         await db.SaveChangesAsync();
         
@@ -843,8 +840,6 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             Timestamp = new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero),
             Value = 2000,
         };
-        
-        auction.LastPlacedBid = winningBid.Id;
         
         await db.Bids.AddAsync(winningBid);
         await db.SaveChangesAsync();
@@ -893,8 +888,6 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             Value = 2000,
         };
         
-        auction.LastPlacedBid = winningBid.Id;
-        
         await db.Bids.AddAsync(winningBid);
         await db.SaveChangesAsync();
         
@@ -939,8 +932,6 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             Timestamp = new DateTimeOffset(2021, 1, 1, 1, 1, 3, TimeSpan.Zero),
             Value = 2000,
         };
-        
-        auction.LastPlacedBid = winningBid.Id;
         
         await db.Bids.AddAsync(winningBid);
         await db.SaveChangesAsync();

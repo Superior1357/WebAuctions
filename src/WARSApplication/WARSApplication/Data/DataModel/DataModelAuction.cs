@@ -10,8 +10,10 @@ public abstract record DataModelAuction
     public required DateTimeOffset StartTime { get; init; }
     public required DateTimeOffset EndTime { get; set; }
     public required DataModelUser Seller { get; init; }
+    
     [ConcurrencyCheck]
-    public BidId? LastPlacedBid { get; set; }
+    public int Version { get; private set; }
+    public void IncrementVersion() => Version++;
     public ICollection<DataModelBid> Bids { get; init; } = new List<DataModelBid>();
 }
 

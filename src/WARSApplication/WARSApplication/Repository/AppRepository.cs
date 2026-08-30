@@ -1,3 +1,4 @@
+using System.Collections;
 using Microsoft.EntityFrameworkCore;
 using WARSApplication.Data.DataModel;
 using WARSApplication.Data.DataModel.Business;
@@ -6,14 +7,38 @@ using WARSApplication.Data.SharedDataProperties;
 namespace WARSApplication.Repository;
 
 public sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Auction>
-{
+{ // TODO: expects to be used in one context only
+    private sealed class ChangesTrackingAddOnlyCollection<T>(IEnumerable<T> initialCollection) : IAddOnlyCollection<T>
+    {
+        private readonly List<T> _items = initialCollection.ToList();
+        private readonly List<T> _addedItems = [];
+        public IReadOnlyCollection<T> AddedItems => _addedItems;
+        public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public void Add(T item)
+        {
+            _addedItems.Add(item);
+            _items.Add(item);
+        }
+
+        public int Count => _items.Count;
+    }
+    
     private static Bid DataToBusinessBid(DataModelBid dataBid)
     => Bid.Restore(dataBid.Id, User.Restore(dataBid.Bidder.Id), dataBid.Value, dataBid.Timestamp);
+
+    private IEnumerable<DataModelBid> DataBidsOfAnAuction(DataModelAuction dataAuction) =>
+        dbContext.Bids.Where(b => b.AuctionId == dataAuction.Id);
     
     private Auction DataToBusinessAuction(DataModelAuction dataAuction)
     {
-        var bids = dbContext.Bids.Where(b => b.AuctionId == dataAuction.Id).AsEnumerable().Select(DataToBusinessBid);
-        var bidsCollection = new AddOnlyCollection<Bid>(bids);
+        var bids = DataBidsOfAnAuction(dataAuction).Select(DataToBusinessBid);
+        var bidsCollection = new ChangesTrackingAddOnlyCollection<Bid>(bids);
 
         return dataAuction switch
         {
@@ -89,10 +114,70 @@ public sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Auct
         return businessAuctions;
     }
 
-    public async Task UpdateAsync(Auction entity)
+    private async Task<DataModelBid> BusinessToDataModelBid(Bid bid)
     {
-        var dataAuction = await dbContext.Auctions.FirstAsync(a => a.Id == entity.Id);
-        dataAuction.EndTime = entity.EndTime;
+        return new DataModelBid
+        {
+            Bidder = await dbContext.Users.FirstAsync(u => u.Id == bid.Bidder.Id),
+            Value = bid.Value,
+            Timestamp = bid.Time
+        };
+    }
+    
+    public async Task UpdateAsync(Auction updatedAuction)
+    { // TODO: expects that time is equal across
+        var dataAuction = await dbContext.Auctions.FirstAsync(a => a.Id == updatedAuction.Id);
+        dataAuction.EndTime = updatedAuction.EndTime;
+        
+        switch (dataAuction)
+        {
+            case EnglishDataModelAuction englishDataModelAuction:
+                var englishBusinessAuction = (EnglishAuction) updatedAuction;
+                var updatedCollection = englishBusinessAuction.Bids as ChangesTrackingAddOnlyCollection<Bid>; // TODO: what if not of this type?
+                var addedBids = updatedCollection.AddedItems;
+                
+                if (addedBids.Count != 0)
+                {
+                    englishDataModelAuction.IncrementVersion();
+
+                    foreach (var addedBid in addedBids)
+                    {
+                        var dataModelBid = await BusinessToDataModelBid(addedBid);
+                        englishDataModelAuction.Bids.Add(dataModelBid);
+                    }
+                }
+                
+                break;
+            case DutchDataModelAuction dutchDataModelAuction:
+                var dutchBusinessAuction = (DutchAuction)updatedAuction;
+                if (dutchBusinessAuction.Bid is not null)
+                {
+                    dutchDataModelAuction.IncrementVersion();
+                    dutchDataModelAuction.Bids.Add(await BusinessToDataModelBid(dutchBusinessAuction.Bid));
+                }
+
+                break;
+            case FirstPriceSealedBidDataModelAuction firstPriceSealedBidDataModelAuction:
+                var firstPriceSealedBidBusinessAuction = (FirstPriceSealedBidAuction) updatedAuction;
+                updatedCollection = firstPriceSealedBidBusinessAuction.Bids as ChangesTrackingAddOnlyCollection<Bid>; // TODO: what if not of this type?
+                addedBids = updatedCollection.AddedItems;
+                
+                if (addedBids.Count != 0)
+                {
+                    firstPriceSealedBidDataModelAuction.IncrementVersion();
+
+                    foreach (var addedBid in addedBids)
+                    {
+                        var dataModelBid = await BusinessToDataModelBid(addedBid);
+                        firstPriceSealedBidDataModelAuction.Bids.Add(dataModelBid);
+                    }
+                }
+                
+                break;
+            default:
+                
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     public async Task AddAsync(Auction entity)
@@ -101,8 +186,8 @@ public sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Auct
         await dbContext.Auctions.AddAsync(dataAuction);
     }
 
-    public async Task CommitAsync() // TODO: handle when cannot commit in the internal database
+    public async Task CommitAsync()
     {
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(); // TODO: handle when cannot commit in the internal database
     }
 }
