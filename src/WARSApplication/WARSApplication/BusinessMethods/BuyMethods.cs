@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using WARSApplication.AuctionEvaluation;
 using WARSApplication.Data.APIData.Incoming;
 using WARSApplication.Data.APIData.Outgoing;
@@ -48,7 +49,7 @@ public static class BuyMethods
     }
 
     public static async Task<Results<Ok<IEnumerable<AuctionId>>, NotFound<UserIdNotFound>>>
-        ListNotFinishedAuctionsOfASellerAsync(UserId seller, IRepository<Auction> auctionRepository,
+        ListNotFinishedAuctionsOfASellerAsync([FromBody] UserId seller, IRepository<Auction> auctionRepository,
             IAuctionEvaluator auctionEvaluator) // TODO: checks somewhere else? - e.g add a foreign user?
     {
         var auctions = await auctionRepository.ListAsync();

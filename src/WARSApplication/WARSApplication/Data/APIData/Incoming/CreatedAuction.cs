@@ -7,7 +7,7 @@ namespace WARSApplication.Data.APIData.Incoming;
 [JsonDerivedType(typeof(EnglishCreatedAuction), "english")]
 [JsonDerivedType(typeof(DutchCreatedAuction), "dutch")]
 [JsonDerivedType(typeof(FirstPriceSealedBidCreatedAuction), "sealed")]
-public abstract record CreatedAuction()
+public abstract record CreatedAuction
 {
     public required DateTimeOffset StartTime { get; init; }
     public required DateTimeOffset EndTime { get; init; }

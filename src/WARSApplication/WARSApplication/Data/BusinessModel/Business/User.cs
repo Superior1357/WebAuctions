@@ -9,7 +9,6 @@ public record User
 {
     public UserId Id { get; private init; }
     public static User Restore(UserId id) => new() { Id = id };
-    
     public static async ValueTask<User?> BindAsync(HttpContext context, ParameterInfo parameter)
     {
         var identityId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);

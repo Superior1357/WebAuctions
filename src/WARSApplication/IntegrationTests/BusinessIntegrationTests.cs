@@ -23,16 +23,28 @@ using Xunit;
 public static class TestData
 {
     public static readonly string AuthUserId = "woenfon";
+    public static readonly string AuthUserId2 = "woenfon2";
+
     public static DataModelUser DummyUser { get; private set; } = new()
     {
         IdentityId = AuthUserId
     };
 
-    public static void RefreshUser()
+    public static DataModelUser DummyUser2 { get; private set; } = new()
+    {
+        IdentityId = AuthUserId2
+    };
+
+public static void RefreshUser()
     {
         DummyUser = new()
         {
             IdentityId = AuthUserId
+        };
+        
+        DummyUser2 = new()
+        {
+            IdentityId = AuthUserId2
         };
     }
 }
@@ -77,8 +89,8 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
             await db.SaveChangesAsync();
         }
-
-        var payload = new DutchCreatedAuction
+        // TODO: what to do with this?
+        CreatedAuction payload = new DutchCreatedAuction
         {
             StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
@@ -103,14 +115,15 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
     public async Task Sell_Create_CreatesAuctionAsync()
     {
         // Arrange
-        using (var scope = _factory.Services.CreateScope()) {
+        using (var scope = _factory.Services.CreateScope()) 
+        {
             var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
 
             await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
             await db.SaveChangesAsync();
         }
 
-        var payload = new DutchCreatedAuction
+        CreatedAuction payload = new DutchCreatedAuction
         {
             StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
             EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
@@ -225,7 +238,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             auction = db.Auctions.Add(
                 new DutchDataModelAuction
                 {
-                    Seller = TestData.DummyUser,
+                    Seller = TestData.DummyUser2,
                     StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     Description = "flower",
@@ -260,7 +273,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             var auction = db.Auctions.Add(
                 new DutchDataModelAuction
                 {
-                    Seller = TestData.DummyUser,
+                    Seller = TestData.DummyUser2,
                     StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     Description = "flower",
@@ -368,7 +381,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             auction = db.Auctions.Add(
                 new DutchDataModelAuction
                 {
-                    Seller = TestData.DummyUser,
+                    Seller = TestData.DummyUser2,
                     StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     Description = "flower",
@@ -402,27 +415,24 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
 
             auction = db.Auctions.Add(
-                new DutchDataModelAuction
+                new EnglishDataModelAuction
                 {
-                    Seller = TestData.DummyUser,
+                    Seller = TestData.DummyUser2,
                     StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     Description = "flower",
-                    PriceDecrementFrequency = new TimeSpan(0, 0, 1),
-                    PriceDecrementRate = 2,
-                    StartingPrice = 1000
+                    StartingPrice = 1000,
+                    Bids = [
+                        new DataModelBid
+                        {
+                            Bidder = TestData.DummyUser,
+                            Timestamp = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero),
+                            Value = 1000,
+                        }
+                    ]
                 }
             ).Entity;
 
-            var previousBid = new DataModelBid
-            {
-                Bidder = TestData.DummyUser,
-                ModelAuction = auction,
-                Timestamp = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero),
-                Value = 1000,
-            };
-
-            await db.Bids.AddAsync(previousBid);
             await db.SaveChangesAsync();
         }
 
@@ -448,19 +458,25 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
             await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
 
-            _ = await db.Auctions.AddAsync(
-                new DutchDataModelAuction
+            _ = db.Auctions.Add(
+                new EnglishDataModelAuction
                 {
-                    Seller = new DataModelUser { IdentityId = "dummy2" },
+                    Seller = TestData.DummyUser2,
                     StartTime = new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     EndTime = new DateTimeOffset(2024, 1, 1, 1, 1, 1, TimeSpan.Zero),
                     Description = "flower",
-                    PriceDecrementFrequency = new TimeSpan(1,0, 0, 0),
-                    PriceDecrementRate = 2,
                     StartingPrice = 1000,
+                    Bids = [
+                        new DataModelBid
+                        {
+                            Bidder = TestData.DummyUser,
+                            Timestamp = new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero),
+                            Value = 1000,
+                        }
+                    ]
                 }
-            );
-            
+            ).Entity;
+
             await db.SaveChangesAsync();
         }
         
@@ -491,7 +507,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
     }
     
     [Fact]
-    public async Task Buy_Nonexistent_Auction_Bid_ReturnsOkStatusCodeAsync()
+    public async Task Buy_Nonexistent_Auction_Bid_ReturnsNotFoundStatusCodeAsync()
     {   
         // Arrange
         DataModelAuction auction;
@@ -592,7 +608,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
     }
     
     [Fact]
-    public async Task Buy_List_Sellers_Returns_Correct_Sellers_Async()
+    public async Task Buy_List_Sellers_Returns_Correct_Sellers_Async() // TODO: should not contain the calling user?
     {
         // Arrange
         DataModelUser sellerUser;
@@ -651,7 +667,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
     }
     
     [Fact]
-    public async Task Buy_List_Active_Returns_OK_Code_Async()
+    public async Task Buy_List_Not_Finished_Returns_OK_Code_Async()
     {
         // Arrange
         DataModelUser sellerUser;
@@ -665,14 +681,12 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
                 IdentityId = "no"
             };
 
-            sellerUser = db.Users.Add(
-                new DataModelUser
+            sellerUser = new DataModelUser
                 {
                     IdentityId = "yes"
-                }
-            ).Entity;
+                };
 
-            await db.Users.AddRangeAsync(noSellerUser, TestData.DummyUser);
+            await db.Users.AddRangeAsync(noSellerUser);
 
             _ = db.Auctions.Add(
                 new EnglishDataModelAuction
@@ -700,14 +714,14 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         }
 
         // Act
-        var response = await _client.GetAsync($"/buy/list/active/{sellerUser.Id}");
+        var response = await _client.PostAsJsonAsync("/buy/list/not_finished", sellerUser.Id);
         
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
     
     [Fact]
-    public async Task Buy_List_Active_Returns_Active_Auctions_Async()
+    public async Task Buy_List_Not_Finished_Returns_Not_Finished_Auctions_Async()
     {
         // Arrange
         DataModelUser sellerUser;
@@ -757,13 +771,18 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         }
 
         // Act
-        var response = await _client.GetAsync($"/buy/list/active/{sellerUser.Id}");
-        
+        var response = await _client.PostAsJsonAsync("/buy/list/not_finished", sellerUser.Id);
+
         // Assert
-        var content = await response.Content.ReadFromJsonAsync<IEnumerable<AuctionId>>();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        Assert.True(response.IsSuccessStatusCode,
+            $"Expected success but got {(int)response.StatusCode}: {responseBody}");
         
+        var content = await response.Content.ReadFromJsonAsync<IEnumerable<AuctionId>>();
         Assert.Single(content);
         Assert.Equal(sellerAuction.Id, content.First());
+        
+        // TODO: fix it so that id parameter binding (AuctionId, UserId) is correct and not causing errors  
     }
     
     [Fact]
@@ -1193,8 +1212,6 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         var response = await _client.PostAsJsonAsync($"/buy/info", requestedInfo);
         
         // Assert
-        var content = await response.Content.ReadFromJsonAsync<IEnumerable<BuyerAuctionInfo>>();
-        
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 }
