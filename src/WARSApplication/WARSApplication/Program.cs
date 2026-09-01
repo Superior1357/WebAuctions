@@ -1,6 +1,8 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using WARSApplication.Repository;
 using WARSApplication;
@@ -15,7 +17,11 @@ var connectionString = builder.Configuration.GetConnectionString("Auctions") ?? 
 var authConnectionString = builder.Configuration.GetConnectionString("Auth") ?? "Data Source=Auth.db";
 
 builder.Services.AddSqlite<AuthDbContext>(authConnectionString);
-builder.Services.AddSqlite<AuctionDbContext>(connectionString);
+
+// TODO: uncomment the following lines of code?
+
+builder.Services.AddDbContext<AuctionDbContext>(
+        options => options.UseSqlite(connectionString).ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 builder.Services.AddScoped<IRepository<Auction>, AppRepository>();
 builder.Services.AddScoped<ICurrentTime, CurrentTime>();
@@ -55,7 +61,10 @@ builder.Services.AddAuthorization();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+});
 
 var app = builder.Build();
 

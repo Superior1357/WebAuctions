@@ -1,3 +1,3 @@
 namespace WARSApplication.ErrorResponses.SellErrorResponses;
 
-public sealed record InvalidAuctionParameters : ErrorResponse;
+public sealed record InvalidAuctionParameters(string Message) : ErrorResponse;

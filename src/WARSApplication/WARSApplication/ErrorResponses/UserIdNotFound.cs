@@ -1,3 +1,3 @@
 namespace WARSApplication.ErrorResponses;
 
-public record UserIdNotFound : ErrorResponse;
+public record UserIdNotFound(string Message) : ErrorResponse;

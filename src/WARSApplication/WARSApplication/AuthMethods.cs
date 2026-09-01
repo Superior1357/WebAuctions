@@ -3,17 +3,35 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using WARSApplication.Data.DataModel;
+using WARSApplication.Data.DataModel.Business;
 
 namespace WARSApplication;
 
 public static class AuthMethods
 { // TODO: check if really working (changed emails to username, deleted email from line 96)
-    public static async Task<IResult> Register(RegisterRequest req, UserManager<IdentityUser> userManager)
+    public static async Task<IResult> Register(RegisterRequest req, UserManager<IdentityUser> userManager, AuctionDbContext dbContext)
     {
         var user = new IdentityUser { UserName = req.UserName };
         var result = await userManager.CreateAsync(user, req.Password);
-                
-        return result.Succeeded ? Results.Ok() : Results.BadRequest(result.Errors);
+
+        if (!result.Succeeded) return Results.BadRequest(result.Errors);
+        
+        await dbContext.Users.AddAsync(
+            new DataModelUser
+            {
+                IdentityId = user.Id
+            }
+        );
+        
+        await dbContext.SaveChangesAsync();
+
+        foreach (var usr in dbContext.Users)
+        {
+            Console.WriteLine(usr);
+        }
+        
+        return Results.Ok();
     }
     
     public static async Task<IResult> Login(LoginRequest req, UserManager<IdentityUser> userManager, IConfiguration config)
@@ -41,10 +59,10 @@ public static class AuthMethods
         var handler = new JwtSecurityTokenHandler();
         var token = handler.CreateToken(tokenDescriptor);
         var jwtString = handler.WriteToken(token);
-
+        
         return Results.Ok(new { Token = jwtString });
     }
     
-    public abstract record RegisterRequest(string UserName, string Password);
-    public abstract record LoginRequest(string UserName, string Password);
+    public record RegisterRequest(string UserName, string Password);
+    public record LoginRequest(string UserName, string Password);
 }

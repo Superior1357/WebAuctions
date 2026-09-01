@@ -46,13 +46,13 @@ public static class SellMethods
         };
     }
 
-    public static async Task<Results<Ok, BadRequest<InvalidAuctionParameters>>> CreateAuctionAsync(User user, CreatedAuction createdAuction, ICurrentTime currentTime, IRepository<Auction> repository)
+    public static async Task<Results<Ok, UnprocessableEntity<InvalidAuctionParameters>>> CreateAuctionAsync(User user, CreatedAuction createdAuction, ICurrentTime currentTime, IRepository<Auction> repository)
     { // TODO: why not use a factory service? (to transform between api and business) - maybe an antipattern if this used in one method only
         if (createdAuction.StartTime < currentTime.Now)
-            return TypedResults.BadRequest(new InvalidAuctionParameters());
+            return TypedResults.UnprocessableEntity(new InvalidAuctionParameters("start time"));
         
         if (createdAuction.EndTime <= createdAuction.StartTime)
-            return TypedResults.BadRequest(new InvalidAuctionParameters());
+            return TypedResults.UnprocessableEntity(new InvalidAuctionParameters("end time"));
         
         var auction = ApiToBusinessAuction(user, createdAuction);
         await repository.AddAsync(auction);
@@ -60,20 +60,20 @@ public static class SellMethods
         return TypedResults.Ok();
     }
 
-    public static async Task<Results<Ok, NotFound<AuctionIdNotFound>, BadRequest<InvalidAuctionParameters>>>
+    public static async Task<Results<Ok, NotFound<AuctionIdNotFound>, UnprocessableEntity<InvalidAuctionParameters>>>
         UpdateAuctionAsync(User user, AuctionUpdateRequest r, ICurrentTime currentTime, IRepository<Auction> repository)
     {
         var auctions = await repository.ListAsync();
         var auction = auctions.FirstOrDefault(a => a.Id == r.Id);
         
         if (auction is null)
-            return TypedResults.NotFound(new AuctionIdNotFound());
+            return TypedResults.NotFound(new AuctionIdNotFound($"not found {r.Id}"));
         
         if (r.NewEnd < auction.EndTime)
-            return TypedResults.BadRequest(new InvalidAuctionParameters());
+            return TypedResults.UnprocessableEntity(new InvalidAuctionParameters("end time"));
         
         if (auction.Seller != user)
-            return TypedResults.NotFound(new AuctionIdNotFound());
+            return TypedResults.NotFound(new AuctionIdNotFound("different seller than user"));
         
         auction.EndTime = r.NewEnd;
         
@@ -99,7 +99,7 @@ public static class SellMethods
         var chosen = userAuctions.IntersectBy(auctionIds, a => a.Id).ToList();
         
         if (chosen.Count != auctionIds.Count)
-            return TypedResults.NotFound(new AuctionIdNotFound());
+            return TypedResults.NotFound(new AuctionIdNotFound("not all auctions found"));
         
         var sortedChosen = auctionIds.Join(chosen, a => a, i => i.Id, (_, i) => i);
 

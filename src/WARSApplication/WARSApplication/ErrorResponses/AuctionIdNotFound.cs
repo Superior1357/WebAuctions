@@ -1,3 +1,3 @@
 namespace WARSApplication.ErrorResponses;
 
-public record AuctionIdNotFound : ErrorResponse;
+public record AuctionIdNotFound(string Message) : ErrorResponse;

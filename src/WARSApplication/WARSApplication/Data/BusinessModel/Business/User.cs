@@ -17,6 +17,7 @@ public record User
 
         var db = context.RequestServices.GetRequiredService<AuctionDbContext>();
         var user = await db.Users.FirstOrDefaultAsync(u => u.IdentityId == identityId);
-        return new User { Id = user.Id };
+        
+        return user is not null ? new User { Id = user.Id } : null;
     }
 }

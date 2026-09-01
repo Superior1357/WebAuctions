@@ -67,12 +67,12 @@ public static class BuyMethods
 
         if (auction is null)
         {
-            return TypedResults.NotFound(new AuctionIdNotFound());
+            return TypedResults.NotFound(new AuctionIdNotFound("auction not found"));
         }
 
         if (auctionEvaluator.EvaluateStatus(auction) != AuctionStatus.Active)
         {
-            return TypedResults.UnprocessableEntity(new BidAuctionRulesViolationResponse());
+            return TypedResults.UnprocessableEntity(new BidAuctionRulesViolationResponse("bidding to non-active auction"));
         }
         
         var bid = new Bid
@@ -93,7 +93,7 @@ public static class BuyMethods
             case FirstPriceSealedBidAuction firstPriceSealedBidAuction:
                 if (firstPriceSealedBidAuction.Bids.Any(b => b.Bidder == usr))
                 {
-                    return TypedResults.UnprocessableEntity(new BidAuctionRulesViolationResponse());
+                    return TypedResults.UnprocessableEntity(new BidAuctionRulesViolationResponse("already bid"));
                 }
                 
                 firstPriceSealedBidAuction.Bids.Add(bid);
@@ -160,7 +160,7 @@ public static class BuyMethods
 
         if (requestedAuctions.Count != auctionIds.Count)
         {
-            return TypedResults.NotFound(new AuctionIdNotFound());
+            return TypedResults.NotFound(new AuctionIdNotFound("not all auctions found"));
         }
         
         var info = requestedAuctions.Select(a => BusinessToApiAuctionInfo(a, auctionEvaluator));
