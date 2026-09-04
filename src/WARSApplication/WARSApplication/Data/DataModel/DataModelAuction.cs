@@ -3,7 +3,7 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.DataModel;
 
-public abstract record DataModelAuction
+internal abstract record DataModelAuction
 {
     public AuctionId Id { get; init; }
     public required AuctionDescription Description { get; init; }
@@ -17,16 +17,16 @@ public abstract record DataModelAuction
     public ICollection<DataModelBid> Bids { get; init; } = new List<DataModelBid>();
 }
 
-public sealed record EnglishDataModelAuction : DataModelAuction
+internal sealed record EnglishDataModelAuction : DataModelAuction
 {
     public Price StartingPrice { get; init; }
 }
 
-public sealed record DutchDataModelAuction : DataModelAuction
+internal sealed record DutchDataModelAuction : DataModelAuction
 {
     public required Price StartingPrice { get; init; }
     public required Price PriceDecrementRate { get; init; }
     public required TimeSpan PriceDecrementFrequency { get; init; }
 }
 
-public sealed record FirstPriceSealedBidDataModelAuction : DataModelAuction;
+internal sealed record FirstPriceSealedBidDataModelAuction : DataModelAuction;

@@ -1,8 +1,8 @@
 namespace Frontend;
 
-public interface IModeResult
+public interface IViewResult
 {
     
 }
 
-public sealed class Result : IModeResult;
+public sealed class Result : IViewResult;

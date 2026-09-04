@@ -6,7 +6,7 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Repository;
 
-public sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Auction>
+internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Auction>
 { // TODO: expects to be used in one context only
     private sealed class ChangesTrackingAddOnlyCollection<T>(IEnumerable<T> initialCollection) : IAddOnlyCollection<T>
     {

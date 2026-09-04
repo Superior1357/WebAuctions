@@ -3,7 +3,7 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.DataModel;
 
-public record DataModelBid
+internal record DataModelBid
 {
     public BidId Id { get; init; }
     public AuctionId AuctionId { get; init; }

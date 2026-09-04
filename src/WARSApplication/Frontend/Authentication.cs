@@ -1,8 +1,8 @@
 namespace Frontend;
 
-public class AuthenticationRole : IProgramMode
+public class AuthenticationRole : IView
 {
-    public Task<IModeResult> RunAsync()
+    public Task<IViewResult> RunAsync()
     {
         throw new NotImplementedException();
     }

@@ -2,7 +2,7 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.DataModel.Business;
 
-public abstract record Auction(DateTimeOffset StartTime, DateTimeOffset EndTime)
+public abstract record Auction(DateTimeOffset StartTime, DateTimeOffset EndTime) // TODO: make it internal
 {
     public AuctionId Id { get; protected init; }
     public AuctionDescription Description { get; init; } = string.Empty;

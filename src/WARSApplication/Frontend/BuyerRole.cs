@@ -4,11 +4,13 @@ using Spectre.Console;
 
 namespace Frontend;
 
-public class BuyerRole(IServiceProvider serviceProvider) : IProgramMode
+public class BuyerRole(IServiceProvider serviceProvider) : IView
 {
-    public async Task<IModeResult> RunAsync()
+    public async Task<IViewResult> RunAsync()
     {
-        var mode = await PresentModes.PresentAsync(serviceProvider.GetRequiredService<ListAllSellersMode>());
+        var mode = await PresentModes.PresentAsync(
+            serviceProvider.GetRequiredService<ListAllSellersMode>()
+            );
         
         await mode.RunAsync();
         return new Result();

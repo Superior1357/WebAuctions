@@ -18,8 +18,6 @@ var authConnectionString = builder.Configuration.GetConnectionString("Auth") ?? 
 
 builder.Services.AddSqlite<AuthDbContext>(authConnectionString);
 
-// TODO: uncomment the following lines of code?
-
 builder.Services.AddDbContext<AuctionDbContext>(
         options => options.UseSqlite(connectionString).ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
@@ -86,7 +84,7 @@ app.UseHttpsRedirection();
 
 app.MapGroup("/buy").MapBuyApis().RequireAuthorization();
 app.MapGroup("/sell").MapSellApis().RequireAuthorization();
-app.MapGroup("/authenticate").MapAuthApis();
+app.MapGroup("/auth").MapAuthApis();
 
 app.Run();
 

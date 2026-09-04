@@ -8,7 +8,7 @@ using WARSApplication.Data.DataModel.Business;
 
 namespace WARSApplication;
 
-public static class AuthMethods
+internal static class AuthMethods
 { // TODO: check if really working (changed emails to username, deleted email from line 96)
     public static async Task<IResult> Register(RegisterRequest req, UserManager<IdentityUser> userManager, AuctionDbContext dbContext)
     {
@@ -60,9 +60,10 @@ public static class AuthMethods
         var token = handler.CreateToken(tokenDescriptor);
         var jwtString = handler.WriteToken(token);
         
-        return Results.Ok(new { Token = jwtString });
+        return Results.Ok(new TokenResponse(jwtString));
     }
-    
-    public record RegisterRequest(string UserName, string Password);
-    public record LoginRequest(string UserName, string Password);
 }
+
+public record RegisterRequest(string UserName, string Password);
+public record LoginRequest(string UserName, string Password);
+public record TokenResponse(string Token);

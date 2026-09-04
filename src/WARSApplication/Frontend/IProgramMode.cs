@@ -1,6 +1,6 @@
 namespace Frontend;
 
-public interface IProgramMode
+public interface IView
 {
-    Task<IModeResult> RunAsync();
+    Task<IViewResult> RunAsync();
 }

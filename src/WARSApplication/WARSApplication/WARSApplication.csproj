@@ -5,10 +5,14 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
       <UserSecretsId>e7c4204d-8c7d-40ee-9454-a3cde3e366a2</UserSecretsId>
-  </PropertyGroup>
-
+    </PropertyGroup>
+    
     <ItemGroup>
-       <PackageReference Include="FastEndpoints.Security" Version="8.2.0" />
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>UnitTests</_Parameter1>
+        </AssemblyAttribute>
+        
+        <PackageReference Include="FastEndpoints.Security" Version="8.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.10" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />

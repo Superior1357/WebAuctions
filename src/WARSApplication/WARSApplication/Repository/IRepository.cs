@@ -1,6 +1,6 @@
 namespace WARSApplication.Repository;
 
-public interface IRepository<T>
+internal interface IRepository<T>
 {
     public Task<IEnumerable<T>> ListAsync();
     public Task UpdateAsync(T updatedAuction);

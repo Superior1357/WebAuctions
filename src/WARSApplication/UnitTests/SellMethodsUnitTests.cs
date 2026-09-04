@@ -161,7 +161,7 @@ public class SellMethodsUnitTests
 
         var result = await SellMethods.CreateAuctionAsync(user, createdAuction, _currentTime, mockRepo);
 
-        Assert.IsType<BadRequest<InvalidAuctionParameters>>(result.Result);
+        Assert.IsType<UnprocessableEntity<InvalidAuctionParameters>>(result.Result);
     }
 
     [Fact]
@@ -181,7 +181,7 @@ public class SellMethodsUnitTests
 
         var result = await SellMethods.CreateAuctionAsync(user, createdAuction, _currentTime, mockRepo);
 
-        Assert.IsType<BadRequest<InvalidAuctionParameters>>(result.Result);
+        Assert.IsType<UnprocessableEntity<InvalidAuctionParameters>>(result.Result);
     }
 
     [Fact]
@@ -293,7 +293,7 @@ public class SellMethodsUnitTests
 
         var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _currentTime, mockRepo);
 
-        Assert.IsType<BadRequest<InvalidAuctionParameters>>(result.Result);
+        Assert.IsType<UnprocessableEntity<InvalidAuctionParameters>>(result.Result);
     }
 
     [Fact]

@@ -14,4 +14,8 @@
       <PackageReference Include="Spectre.Console" Version="0.57.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\WARSApplication\WARSApplication.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -12,7 +12,7 @@ using WARSApplication.Utils;
 
 namespace WARSApplication.BusinessMethods;
 
-public static class SellMethods
+internal static class SellMethods
 {
     private static Auction ApiToBusinessAuction(User user, CreatedAuction createdAuction)
     {

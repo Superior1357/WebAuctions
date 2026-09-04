@@ -1,8 +1,8 @@
 namespace Frontend.SellerMode;
 
-public class ListMode : IProgramMode
+public class ListMode : IView
 {
-    public Task<IModeResult> RunAsync()
+    public Task<IViewResult> RunAsync()
     {
         throw new NotImplementedException();
     }

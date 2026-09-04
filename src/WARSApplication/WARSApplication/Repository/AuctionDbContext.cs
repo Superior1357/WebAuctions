@@ -3,7 +3,7 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.DataModel.Business;
 
-public sealed class AuctionDbContext(DbContextOptions<AuctionDbContext> options) : DbContext(options)
+internal sealed class AuctionDbContext(DbContextOptions<AuctionDbContext> options) : DbContext(options)
 {
     public DbSet<DataModelAuction> Auctions { get; set; }
     public DbSet<DataModelUser> Users { get; set; }

@@ -3,4 +3,4 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WARSApplication.Data.DataModel.Authentication;
 
-public class AuthDbContext(DbContextOptions<AuthDbContext> options) : IdentityDbContext(options);
+internal class AuthDbContext(DbContextOptions<AuthDbContext> options) : IdentityDbContext(options);

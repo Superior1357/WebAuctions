@@ -12,7 +12,7 @@ using WARSApplication.Utils;
 
 namespace WARSApplication.BusinessMethods;
 
-public static class BuyMethods
+internal static class BuyMethods
 {
     public static async Task<Ok<IEnumerable<UserId>>> ListAllSellersAsync(IRepository<Auction> repository)
     {
