@@ -1,7 +1,7 @@
 using System.Collections;
 using WARSApplication.Data.SharedDataProperties;
 
-namespace UnitTests;
+namespace UnitTests.HelperClasses;
 
 public sealed class TestAddOnlyCollection<T>(IEnumerable<T> items) : IAddOnlyCollection<T>
 {

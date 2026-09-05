@@ -1,5 +1,5 @@
 using WARSApplication.Utils;
 
-namespace UnitTests;
+namespace UnitTests.HelperClasses;
 
 public record MockCurrentTime(DateTimeOffset Now) : ICurrentTime;

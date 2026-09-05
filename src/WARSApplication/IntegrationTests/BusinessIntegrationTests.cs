@@ -25,12 +25,12 @@ public static class TestData
     public static readonly string AuthUserId = "woenfon";
     public static readonly string AuthUserId2 = "woenfon2";
 
-    public static DataModelUser DummyUser { get; private set; } = new()
+    internal static DataModelUser DummyUser { get; private set; } = new()
     {
         IdentityId = AuthUserId
     };
 
-    public static DataModelUser DummyUser2 { get; private set; } = new()
+    internal static DataModelUser DummyUser2 { get; private set; } = new()
     {
         IdentityId = AuthUserId2
     };

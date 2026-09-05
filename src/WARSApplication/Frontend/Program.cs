@@ -19,6 +19,10 @@ builder.Services
     .AddRefitClient<IAuthApi>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{address}/auth"));
 
+builder.Services
+    .AddRefitClient<ISellMethodsAPI>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{address}/sell"));
+
 builder.Services.AddSingleton<ITokenBearer, TokenBearer>();
 builder.Services.AddTransient<Program>();
 

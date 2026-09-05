@@ -1,11 +1,12 @@
 using JetBrains.Annotations;
+using UnitTests.HelperClasses;
 using WARSApplication;
 using WARSApplication.AuctionEvaluation;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.Utils;
 
-namespace UnitTests;
+namespace UnitTests.Tests;
 
 [TestSubject(typeof(AuctionEvaluator))]
 public class AuctionEvaluatorTest

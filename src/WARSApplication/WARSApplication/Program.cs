@@ -8,6 +8,9 @@ using WARSApplication.Repository;
 using WARSApplication;
 using WARSApplication.AuctionEvaluation;
 using WARSApplication.BusinessMethods;
+using WARSApplication.Data;
+using WARSApplication.Data.APIData.Outgoing;
+using WARSApplication.Data.DataConverters;
 using WARSApplication.Data.DataModel.Authentication;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Utils;
@@ -24,6 +27,7 @@ builder.Services.AddDbContext<AuctionDbContext>(
 builder.Services.AddScoped<IRepository<Auction>, AppRepository>();
 builder.Services.AddScoped<ICurrentTime, CurrentTime>();
 builder.Services.AddScoped<IAuctionEvaluator, AuctionEvaluator>();
+builder.Services.AddScoped<IDataConverter<Auction, SellerAuctionInfo>, AuctionToSellerAuctionInfo>();
 
 builder.Services.AddIdentityCore<IdentityUser>(
     options =>

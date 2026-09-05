@@ -1,7 +1,7 @@
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Repository;
 
-namespace UnitTests;
+namespace UnitTests.HelperClasses;
 
 public class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
 {

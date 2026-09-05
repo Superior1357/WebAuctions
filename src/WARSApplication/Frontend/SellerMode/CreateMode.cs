@@ -15,6 +15,9 @@ public class CreateMode(ISellMethodsAPI api) : IView
     {
         var description = await AnsiConsole.AskAsync<string>("Description: ");
         // TODO: time
+
+        var startTime = await Utils.PromptTimeAsync("Start time: ");
+        var endTime = await Utils.PromptTimeAsync("End time: ");
         
         var type = await AnsiConsole.PromptAsync(
             new SelectionPrompt<string>().Title("Choose auction type").AddChoices(Enum.GetNames<AuctionType>())
@@ -25,17 +28,47 @@ public class CreateMode(ISellMethodsAPI api) : IView
         switch (type)
         {
             case "English":
+                createdAuction = new EnglishCreatedAuction
+                {
+                    Description = description,
+                    StartTime = startTime,
+                    EndTime = endTime,
+                    StartingPrice = await AnsiConsole.AskAsync<decimal>("Starting price: ")
+                };
+                
                 break;
             case "Dutch":
+                var decrementFrequency = await AnsiConsole.PromptAsync(
+                    new TextPrompt<TimeSpan>("Choose the decrement frequency: ")
+                        .DefaultValue(new TimeSpan(1,0,0,0))
+                        .EditableDefaultValue(true)
+                );
+
+                createdAuction = new DutchCreatedAuction
+                {
+                    Description = description,
+                    StartTime = startTime,
+                    EndTime = endTime,
+                    PriceDecrementFrequency = decrementFrequency,
+                    StartingPrice = await AnsiConsole.AskAsync<decimal>("Starting price: "),
+                    PriceDecrementRate = await AnsiConsole.AskAsync<decimal>("Price decrement rate: ")
+                };
+                
                 break;
             case "FirstTimeSealedBid":
+                createdAuction = new FirstPriceSealedBidCreatedAuction
+                {
+                    Description = description,
+                    StartTime = startTime,
+                    EndTime = endTime
+                };
+                
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
 
-        throw new NotImplementedException();
-        
+        await api.CreateAuctionAsync(createdAuction);
         return new Result();
     }
 }

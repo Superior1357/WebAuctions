@@ -3,7 +3,7 @@ using WARSApplication.AuctionEvaluation;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 
-namespace UnitTests;
+namespace UnitTests.HelperClasses;
 
 public class MockAuctionEvaluator(IDictionary<AuctionId, AuctionStatus> auctionStatusMap, IDictionary<AuctionId, User?> auctionToWinnerMap,
     IDictionary<AuctionId, Price?> auctionToMinimumBidValueMap) : IAuctionEvaluator

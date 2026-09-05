@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http.HttpResults;
+using UnitTests.HelperClasses;
 using WARSApplication;
 using WARSApplication.AuctionEvaluation;
 using WARSApplication.Data.APIData.Incoming;
@@ -11,15 +12,15 @@ using WARSApplication.ErrorResponses.BuyErrorResponses;
 using WARSApplication.Utils;
 using BuyMethods = WARSApplication.BusinessMethods.BuyMethods;
 
-namespace UnitTests;
+namespace UnitTests.Tests;
 [TestSubject(typeof(BuyMethods))]
 public class BuyMethodsUnitTests
 {
     private readonly ICurrentTime _currentTime = new MockCurrentTime(
         new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero));
-
+    
     private static User TestUser { get; } = User.Restore(new UserId(2));
-
+    
     private static User MakeUser(int id) => User.Restore(new UserId(id));
 
     private static Bid MakeBid(int id, decimal value, User bidder, DateTimeOffset time) =>

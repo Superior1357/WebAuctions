@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using WARSApplication.AuctionEvaluation;
+using WARSApplication.Data;
 using WARSApplication.Data.APIData.Incoming;
 using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.DataModel.Business;
@@ -91,7 +92,7 @@ internal static class SellMethods
     }
 
     public static async Task<Results<Ok<IEnumerable<SellerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(User user,
-        IReadOnlyCollection<AuctionId> auctionIds, IRepository<Auction> repository)
+        IReadOnlyCollection<AuctionId> auctionIds, IRepository<Auction> repository, IDataConverter<Auction, SellerAuctionInfo> converter)
     {
         var auctions = await repository.ListAsync();
         var userAuctions = auctions.Where(a => a.Seller == user);
@@ -103,7 +104,7 @@ internal static class SellMethods
         
         var sortedChosen = auctionIds.Join(chosen, a => a, i => i.Id, (_, i) => i);
 
-        var transformedChosen = sortedChosen.Select(a => new SellerAuctionInfo(a));
+        var transformedChosen = sortedChosen.Select(converter.Convert);
         return TypedResults.Ok(transformedChosen);
     }
 }

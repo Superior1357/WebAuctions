@@ -2,13 +2,11 @@ using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
-using WARSApplication;
 using WARSApplication.Data.DataModel;
 using WARSApplication.Data.DataModel.Business;
-using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.Repository;
 
-namespace UnitTests;
+namespace UnitTests.Tests;
 // TODO: throw exception when StartTime is after EndTime (not supporting that, don't test any other possible problems)
 // TODO: test repo commit - if not called, no changes in db, if called, saves changes - what if an exception throw? - capable of handling that?
 [TestSubject(typeof(AppRepository))]

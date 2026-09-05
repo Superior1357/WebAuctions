@@ -2,7 +2,7 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Time.Testing;
 using WARSApplication.Utils;
 
-namespace UnitTests;
+namespace UnitTests.Tests;
 
 [TestSubject(typeof(CurrentTime))]
 public class CurrentTimeTest

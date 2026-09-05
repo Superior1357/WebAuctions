@@ -1,7 +1,9 @@
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http.HttpResults;
+using UnitTests.HelperClasses;
 using WARSApplication;
 using WARSApplication.BusinessMethods;
+using WARSApplication.Data;
 using WARSApplication.Data.APIData.Incoming;
 using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.DataModel.Business;
@@ -10,7 +12,8 @@ using WARSApplication.ErrorResponses;
 using WARSApplication.ErrorResponses.SellErrorResponses;
 using WARSApplication.Utils;
 
-namespace UnitTests;
+namespace UnitTests.Tests;
+
 [TestSubject(typeof(SellMethods))]
 public class SellMethodsUnitTests
 {
@@ -63,6 +66,7 @@ public class SellMethodsUnitTests
             new TestAddOnlyCollection<Bid>([]),
             1000
         ),
+        
         DutchAuction.Restore(
             new AuctionId(6),
             "added_before2",
@@ -74,6 +78,7 @@ public class SellMethodsUnitTests
             2,
             new TimeSpan(0, 1, 0)
         ),
+        
         EnglishAuction.Restore(
             new AuctionId(5),
             "added_before3",
@@ -85,6 +90,44 @@ public class SellMethodsUnitTests
         )
     ];
 
+    private static Dictionary<AuctionId, SellerAuctionInfo> AuctionIdToSellerAuctionInfoDictionary => new()
+    {
+        [new AuctionId(3)] = new EnglishSellerAuctionInfo
+        {
+            Id = new AuctionId(3),
+            Description = "added_before1",
+            StartTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            EndTime = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            StartingPrice = 1000,
+            Info = new PendingStatus()
+        },
+
+        [new AuctionId(5)] = new EnglishSellerAuctionInfo
+        {
+            Id = new AuctionId(5),
+            Description = "added_before3",
+            StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            StartingPrice = 1000,
+            Info = new PendingStatus()
+        },
+
+        [new AuctionId(6)] = new DutchSellerAuctionInfo
+        {
+            Id = new AuctionId(6),
+            Description = "added_before2",
+            StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            EndTime = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            StartingPrice = 1000,
+            PriceDecrementRate = 2,
+            PriceDecrementFrequency = new TimeSpan(0, 1, 0),
+            Info = new PendingStatus()
+        }
+    };
+
+    private static IDataConverter<Auction, SellerAuctionInfo> AuctionToBuyerInfoConverter =>
+        new MockAuctionToSellerAuctionInfoConverter(AuctionIdToSellerAuctionInfoDictionary);
+    
     [Fact]
     public async Task Sell_Create_Returns_OK_When_Request_Valid_Async()
     {
@@ -452,7 +495,7 @@ public class SellMethodsUnitTests
         var mockRepo = new MockAuctionRepository(addedBeforeContent);
         var userAuctionIds = new List<AuctionId> { addedBeforeContent[1].Id, addedBeforeContent[2].Id };
 
-        var response = await SellMethods.GetInfoAsync(user, userAuctionIds, mockRepo);
+        var response = await SellMethods.GetInfoAsync(user, userAuctionIds, mockRepo, AuctionToBuyerInfoConverter);
 
         var result = Assert.IsType<Ok<IEnumerable<SellerAuctionInfo>>>(response.Result).Value.ToList();
 
@@ -460,10 +503,10 @@ public class SellMethodsUnitTests
 
         for (int i = 0; i < result.Count; i++)
         {
-            var a = result[i].Auction;
-            var correspondingOriginal = addedBeforeContent.First(au => au.Id == userAuctionIds[i]);
-
-            AssertAuctionMatches(correspondingOriginal, a);
+            var resultInfo = result[i];
+            var correspondingOriginal = AuctionIdToSellerAuctionInfoDictionary[userAuctionIds[i]];
+            
+            Assert.Equal(correspondingOriginal, resultInfo);
         }
     }
 
@@ -476,7 +519,7 @@ public class SellMethodsUnitTests
         var mockRepo = new MockAuctionRepository(addedBeforeContent);
         var userAuctionIds = new List<AuctionId> { addedBeforeContent[1].Id, addedBeforeContent[0].Id };
 
-        var response = await SellMethods.GetInfoAsync(user, userAuctionIds, mockRepo);
+        var response = await SellMethods.GetInfoAsync(user, userAuctionIds, mockRepo, AuctionToBuyerInfoConverter);
 
         Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
     }
