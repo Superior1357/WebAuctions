@@ -109,13 +109,14 @@ public class BuyMethodsUnitTests
                 [new AuctionId(4)] = AuctionStatus.Finished,
                 [new AuctionId(5)] = AuctionStatus.Active
             },
-            new Dictionary<AuctionId, User?>
+            
+            new Dictionary<AuctionId, WinnerInfo?>
             {
                 [new AuctionId(0)] = null,
                 [new AuctionId(1)] = null,
                 [new AuctionId(2)] = null,
                 [new AuctionId(3)] = null,
-                [new AuctionId(4)] = TestUser,
+                [new AuctionId(4)] = new WinnerInfo(1000, TestUser.Id),
                 [new AuctionId(5)] = null
             },
             

@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.Utils;
@@ -39,20 +38,29 @@ public class AuctionEvaluator(ICurrentTime time) : IAuctionEvaluator
         return EvaluateAuctionTypeSpecificActiveTimeWindowStatus(auction);
     }
 
-    public User? EvaluateWinner(Auction auction)
+    public WinnerInfo? EvaluateWinner(Auction auction)
     {
         if (EvaluateStatus(auction) != AuctionStatus.Finished)
             return null;
 
-        return auction switch
+        Bid? winningBid;
+        
+        switch (auction)
         {
-            EnglishAuction englishAuction => englishAuction.Bids.MaxBy(b => b.Value.Value)?.Bidder,
-            DutchAuction dutchAuction => dutchAuction.Bid?.Bidder,
-            FirstPriceSealedBidAuction firstPriceSealedBidAuction => firstPriceSealedBidAuction.Bids
-                .MaxBy(b => b.Value.Value)
-                ?.Bidder,
-            _ => throw new ArgumentOutOfRangeException()
-        };
+            case EnglishAuction englishAuction:
+                winningBid = englishAuction.Bids.MaxBy(b => b.Value.Value);
+                break;
+            case DutchAuction dutchAuction:
+                winningBid = dutchAuction.Bid;
+                break;
+            case FirstPriceSealedBidAuction firstPriceSealedBidAuction:
+                winningBid = firstPriceSealedBidAuction.Bids.MaxBy(b => b.Value.Value);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(auction));
+        }
+
+        return winningBid is not null ? new WinnerInfo(winningBid.Value, winningBid.Bidder.Id) : null;
     }
 
     private Price CalculateActiveDutchAuctionPrice(DutchAuction auction)

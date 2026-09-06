@@ -11,10 +11,10 @@ namespace UnitTests.Tests;
 [TestSubject(typeof(AuctionToSellerAuctionInfo))]
 public class AuctionToSellerAuctionInfoTest
 {
-    private class LocalMockEvaluator(AuctionStatus status, User? user, Price? price) : IAuctionEvaluator
+    private class LocalMockEvaluator(AuctionStatus status, WinnerInfo? winnerInfo, Price? price) : IAuctionEvaluator
     {
         public AuctionStatus EvaluateStatus(Auction auction) => status;
-        public User? EvaluateWinner(Auction auction) => user;
+        public WinnerInfo? EvaluateWinner(Auction auction) => winnerInfo;
         public Price? EvaluateCurrentMinimumBidValue(Auction auction) => price;
     }
     
@@ -216,7 +216,8 @@ public class AuctionToSellerAuctionInfoTest
         },
 
         {
-            new LocalMockEvaluator(AuctionStatus.Finished, User.Restore(new UserId(2)), 1000),
+            new LocalMockEvaluator(AuctionStatus.Finished,
+                new WinnerInfo(1000, new UserId(2)), 1000),
             new FinishedStatus
             {
                 Winner = new WinnerInfo(1000, new UserId(2))

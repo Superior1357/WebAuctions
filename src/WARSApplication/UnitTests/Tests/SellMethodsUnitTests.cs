@@ -356,7 +356,7 @@ public class SellMethodsUnitTests
                     { addedBeforeContent[1].Id, AuctionStatus.Pending },
                     { addedBeforeContent[2].Id, AuctionStatus.Pending }
                 },
-                new Dictionary<AuctionId, User?>
+                new Dictionary<AuctionId, WinnerInfo?>
                 {
                     { addedBeforeContent[0].Id, null },
                     { addedBeforeContent[1].Id, null },
@@ -408,7 +408,7 @@ public class SellMethodsUnitTests
                 { addedBeforeContent[2].Id, AuctionStatus.Pending },
                 { listedAuction.Id, AuctionStatus.Active }
             },
-            new Dictionary<AuctionId, User?>
+            new Dictionary<AuctionId, WinnerInfo?>
             {
                 { addedBeforeContent[0].Id, null },
                 { addedBeforeContent[1].Id, null },
@@ -461,7 +461,7 @@ public class SellMethodsUnitTests
                 { listedAuction.Id, AuctionStatus.Finished }
             },
             
-            new Dictionary<AuctionId, User?>
+            new Dictionary<AuctionId, WinnerInfo?>
             {
                 { addedBeforeContent[0].Id, null },
                 { addedBeforeContent[1].Id, null },

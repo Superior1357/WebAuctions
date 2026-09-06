@@ -6,7 +6,7 @@ namespace WARSApplication.AuctionEvaluation;
 public interface IAuctionEvaluator
 {
     public AuctionStatus EvaluateStatus(Auction auction);
-    public User? EvaluateWinner(Auction auction);
+    public WinnerInfo? EvaluateWinner(Auction auction);
     /// <summary>
     /// null if auction is not finished
     /// </summary>

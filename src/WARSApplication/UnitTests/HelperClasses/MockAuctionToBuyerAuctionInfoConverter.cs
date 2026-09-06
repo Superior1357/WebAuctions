@@ -7,5 +7,5 @@ namespace UnitTests.HelperClasses;
 
 public class MockAuctionToSellerAuctionInfoConverter(Dictionary<AuctionId, SellerAuctionInfo> mapping) : IDataConverter<Auction, SellerAuctionInfo>
 {
-    public SellerAuctionInfo Convert(Auction item) => mapping[item.Id];
+    public SellerAuctionInfo Convert(Auction entity) => mapping[entity.Id];
 }

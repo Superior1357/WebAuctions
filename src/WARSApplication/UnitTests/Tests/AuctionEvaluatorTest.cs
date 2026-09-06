@@ -401,7 +401,7 @@ public class AuctionEvaluatorTest
                             ]),
                             1000
                         ),
-                        winner1
+                        new WinnerInfo(2000, winner1.Id)
                     },
                     
                     new object[]
@@ -417,7 +417,7 @@ public class AuctionEvaluatorTest
                             2,
                             new TimeSpan(0, 1, 0)
                         ),
-                        winner2
+                        new WinnerInfo(1000, winner2.Id)
                     },
                     
                     new object[]
@@ -434,7 +434,7 @@ public class AuctionEvaluatorTest
                              new DateTimeOffset(2021, 1, 1, 1, 1, 1, TimeSpan.Zero),
                              new DateTimeOffset(2021, 3, 1, 1, 1, 1, TimeSpan.Zero)
                          ),
-                         winner3
+                         new WinnerInfo(2000, winner3.Id)
                      }
                 };
         }
@@ -442,10 +442,10 @@ public class AuctionEvaluatorTest
     
     [Theory]
     [MemberData(nameof(FinishedWithWinnersAuctions))]
-    public void EvaluateWinner_Returns_User_With_Highest_Bid_Dutch_English_FirstPriceSealedBid(Auction finishedAuction, User expectedWinner)
+    public void EvaluateWinner_Returns_User_With_Highest_Bid_Dutch_English_FirstPriceSealedBid(Auction finishedAuction, WinnerInfo? expectedWinnerInfo)
     {
         var user = Evaluator.EvaluateWinner(finishedAuction);
-        Assert.Equal(expectedWinner, user);
+        Assert.Equal(expectedWinnerInfo, user);
     }
     
     public static IEnumerable<object[]> FinishedAuctions

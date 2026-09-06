@@ -43,7 +43,15 @@ internal static class BuyMethods
     public static async Task<Ok<IEnumerable<AuctionId>>> ListWonAuctionsAsync(User usr, IRepository<Auction> repository, IAuctionEvaluator auctionEvaluator)
     {
         var auctions = await repository.ListAsync();
-        var wonIds = auctions.Where(a => auctionEvaluator.EvaluateWinner(a) == usr).Select(a => a.Id);
+        var wonIds = auctions
+            .Where(
+                a =>
+                {
+                    var winnerEvaluation = auctionEvaluator.EvaluateWinner(a);
+                    return winnerEvaluation.HasValue && winnerEvaluation.Value.WinningBidderId == usr.Id;
+                }
+            )
+            .Select(a => a.Id);
         
         return TypedResults.Ok(wonIds);
     }

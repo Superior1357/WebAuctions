@@ -28,8 +28,6 @@ public sealed record DutchSellerAuctionInfo : SellerAuctionInfo
 
 public sealed record FirstPriceSealedBidSellerAuctionInfo : SellerAuctionInfo;
 
-public readonly record struct WinnerInfo(Price WinningBid, UserId WinningBidderId);
-
 public abstract record StatusSpecificInfo;
 
 public sealed record PendingStatus : StatusSpecificInfo;
