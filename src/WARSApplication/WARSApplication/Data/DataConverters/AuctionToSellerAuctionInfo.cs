@@ -10,20 +10,61 @@ public class AuctionToSellerAuctionInfo(IAuctionEvaluator auctionEvaluator) : ID
     {
         var status = auctionEvaluator.EvaluateStatus(entity);
         StatusSpecificInfo statusSpecificInfo;
-        
-        if (status == AuctionStatus.Finished)
+
+        switch (status)
         {
-            var winner = auctionEvaluator.EvaluateWinner(entity);
+            case AuctionStatus.Active:
+                statusSpecificInfo = new ActiveStatus();
+                break;
+            case AuctionStatus.Pending:
+                statusSpecificInfo = new PendingStatus();
+                break;
+            case AuctionStatus.Finished:
+                statusSpecificInfo = new FinishedStatus
+                {
+                    Winner = auctionEvaluator.EvaluateWinner(entity)
+                };
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(status), status, null);
         }
         
         switch (entity)
         {
             case EnglishAuction englishAuction:
-                throw new NotImplementedException();
+                return new EnglishSellerAuctionInfo
+                {
+                    Description = englishAuction.Description,
+                    EndTime = englishAuction.EndTime,
+                    Id = englishAuction.Id,
+                    Info = statusSpecificInfo,
+                    StartingPrice = englishAuction.StartingPrice,
+                    StartTime = englishAuction.StartTime
+                };
+            
             case DutchAuction dutchAuction:
-                throw new NotImplementedException();
+                return new DutchSellerAuctionInfo
+                {
+                    Description = dutchAuction.Description,
+                    EndTime = dutchAuction.EndTime,
+                    Id = dutchAuction.Id,
+                    Info = statusSpecificInfo,
+                    PriceDecrementFrequency = dutchAuction.PriceDecrementFrequency,
+                    PriceDecrementRate = dutchAuction.PriceDecrementRate,
+                    StartingPrice = dutchAuction.StartingPrice,
+                    StartTime = dutchAuction.StartTime
+                };
+            
             case FirstPriceSealedBidAuction firstPriceSealedBidAuction:
-                throw new NotImplementedException();
+                return new FirstPriceSealedBidSellerAuctionInfo
+                {
+                    Description = firstPriceSealedBidAuction.Description,
+                    EndTime = firstPriceSealedBidAuction.EndTime,
+                    Id = firstPriceSealedBidAuction.Id,
+                    Info = statusSpecificInfo,
+                    StartTime = firstPriceSealedBidAuction.StartTime
+                };
+            
             default:
                 throw new ArgumentOutOfRangeException(nameof(entity), entity, null);
         }
