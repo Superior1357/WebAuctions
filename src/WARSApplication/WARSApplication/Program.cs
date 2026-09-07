@@ -109,7 +109,7 @@ namespace WARSApplication
             private void MapBuyListApis()
             {
                 group.MapGet("/sellers", BuyMethods.ListAllSellersAsync);
-                group.MapPost("/not_finished", BuyMethods.ListNotFinishedAuctionsOfASellerAsync); // TODO: changed here (removed user_id)
+                group.MapPost("/not_finished", BuyMethods.ListNotFinishedAuctionsOfASellerAsync);
                 
                 group.MapGet("/won", BuyMethods.ListWonAuctionsAsync);
                 group.MapGet("/participated", BuyMethods.ListParticipatedAuctionsAsync);
@@ -133,5 +133,5 @@ namespace WARSApplication
             }
         }
     }
-} // TODO: change the ListNotFinishedAuctionsOfASellerAsync so that it accepts one record as a body - don't try to pass it as a record via the path
+}
 // TODO: concurrency handling in repository !!!!!!!!!!!!!!!!!

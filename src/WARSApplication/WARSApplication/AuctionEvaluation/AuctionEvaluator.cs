@@ -4,7 +4,7 @@ using WARSApplication.Utils;
 
 namespace WARSApplication.AuctionEvaluation;
 
-public class AuctionEvaluator(ICurrentTime time) : IAuctionEvaluator
+internal class AuctionEvaluator(ICurrentTime time) : IAuctionEvaluator
 {
     private static AuctionStatus EvaluateAuctionTypeSpecificActiveTimeWindowStatus(Auction auction)
     {

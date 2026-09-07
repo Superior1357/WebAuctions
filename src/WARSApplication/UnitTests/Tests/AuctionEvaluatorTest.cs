@@ -318,7 +318,7 @@ public class AuctionEvaluatorTest
 
     [Theory]
     [MemberData(nameof(UnfinishedAuctions))]
-    public void EvaluateWinner_Returns_Null_When_Auction_Unfinished(Auction unfinishedAuction)
+    internal void EvaluateWinner_Returns_Null_When_Auction_Unfinished(Auction unfinishedAuction)
     {
         var winner = Evaluator.EvaluateWinner(unfinishedAuction);
         Assert.Null(winner);
@@ -370,7 +370,7 @@ public class AuctionEvaluatorTest
     
     [Theory]
     [MemberData(nameof(FinishedNoBidAuctions))]
-    public void EvaluateWinner_Returns_Null_When_Finished_Auction_No_Bid(Auction finishedNoBidAuction)
+    internal void EvaluateWinner_Returns_Null_When_Finished_Auction_No_Bid(Auction finishedNoBidAuction)
     {
         var winner = Evaluator.EvaluateWinner(finishedNoBidAuction);
         Assert.Null(winner);
@@ -442,7 +442,7 @@ public class AuctionEvaluatorTest
     
     [Theory]
     [MemberData(nameof(FinishedWithWinnersAuctions))]
-    public void EvaluateWinner_Returns_User_With_Highest_Bid_Dutch_English_FirstPriceSealedBid(Auction finishedAuction, WinnerInfo? expectedWinnerInfo)
+    internal void EvaluateWinner_Returns_User_With_Highest_Bid_Dutch_English_FirstPriceSealedBid(Auction finishedAuction, WinnerInfo? expectedWinnerInfo)
     {
         var user = Evaluator.EvaluateWinner(finishedAuction);
         Assert.Equal(expectedWinnerInfo, user);
@@ -508,7 +508,7 @@ public class AuctionEvaluatorTest
     
     [Theory]
     [MemberData(nameof(FinishedAuctions))]
-    public void EvaluateCurrentMinimumBidValue_Returns_Null_When_Auction_Finished(Auction finishedAuction)
+    internal void EvaluateCurrentMinimumBidValue_Returns_Null_When_Auction_Finished(Auction finishedAuction)
     {
         var evaluation = Evaluator.EvaluateCurrentMinimumBidValue(finishedAuction);
         Assert.Null(evaluation);

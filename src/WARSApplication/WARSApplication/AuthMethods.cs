@@ -9,7 +9,7 @@ using WARSApplication.Data.DataModel.Business;
 namespace WARSApplication;
 
 internal static class AuthMethods
-{ // TODO: check if really working (changed emails to username, deleted email from line 96)
+{
     public static async Task<IResult> Register(RegisterRequest req, UserManager<IdentityUser> userManager, AuctionDbContext dbContext)
     {
         var user = new IdentityUser { UserName = req.UserName };

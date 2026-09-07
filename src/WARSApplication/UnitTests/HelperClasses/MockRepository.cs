@@ -3,7 +3,7 @@ using WARSApplication.Repository;
 
 namespace UnitTests.HelperClasses;
 
-public class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
+internal class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
 {
     private readonly ICollection<T> _repoContent = repoItems.ToList();
     public ICollection<T> CommitedRepoContent { get; private set; } = repoItems.ToList();
@@ -34,4 +34,4 @@ public class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
     }
 }
 
-public class MockAuctionRepository(ICollection<Auction> repoItems) : MockRepository<Auction>(repoItems);
+internal class MockAuctionRepository(ICollection<Auction> repoItems) : MockRepository<Auction>(repoItems);

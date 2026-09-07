@@ -18,10 +18,9 @@ public class AuctionToSellerAuctionInfoTest
         public Price? EvaluateCurrentMinimumBidValue(Auction auction) => price;
     }
     
-    public static TheoryData<Auction, SellerAuctionInfo>
-        AuctionToSellerAuctionInfoConvertReturnsCorrectSellerAuctionInfoData => new()
+    public static IEnumerable<object[]> AuctionToSellerAuctionInfoConvertReturnsCorrectSellerAuctionInfoData => new List<object[]>
         {
-            {
+            new object[] {
                 EnglishAuction.Restore(
                     new AuctionId(0),
                     "English auction",
@@ -41,7 +40,7 @@ public class AuctionToSellerAuctionInfoTest
                 }
             },
 
-            {
+            new object[] {
                 DutchAuction.Restore(
                     new AuctionId(0),
                     "Dutch auction",
@@ -66,8 +65,8 @@ public class AuctionToSellerAuctionInfoTest
                     PriceDecrementFrequency = new TimeSpan(0, 1, 0)
                 }
             },
-
-            {
+            
+            new object[] {
                 FirstPriceSealedBidAuction.Restore(
                         new AuctionId(0),
                         "First price sealed bid",
@@ -195,19 +194,18 @@ public class AuctionToSellerAuctionInfoTest
         Assert.Equal(expectedInfo, actualInfo);
     }
 
-    public static TheoryData<IAuctionEvaluator, StatusSpecificInfo> EvaluatorAndExpectedOutput = new()
-    {
-        {
+    public static IEnumerable<object[]> EvaluatorAndExpectedOutput = new List<object[]> {
+        new object[] {
             new LocalMockEvaluator(AuctionStatus.Pending, null, null),
             new PendingStatus()
         },
 
-        {
+        new object[] {
             new LocalMockEvaluator(AuctionStatus.Active, null, null),
             new ActiveStatus()
         },
 
-        {
+        new object[] {
             new LocalMockEvaluator(AuctionStatus.Finished, null, null),
             new FinishedStatus
             {
@@ -215,7 +213,7 @@ public class AuctionToSellerAuctionInfoTest
             }
         },
 
-        {
+        new object[] {
             new LocalMockEvaluator(AuctionStatus.Finished,
                 new WinnerInfo(1000, new UserId(2)), 1000),
             new FinishedStatus
@@ -227,7 +225,7 @@ public class AuctionToSellerAuctionInfoTest
     
     [Theory]
     [MemberData(nameof(EvaluatorAndExpectedOutput))]
-    public void Dynamic_Info_English_Auction_Read_Correctly(IAuctionEvaluator auctionEvaluator, StatusSpecificInfo expectedInfo) // TODO: just test whether whatever it gets from the status evaluator is correct
+    internal void Dynamic_Info_English_Auction_Read_Correctly(IAuctionEvaluator auctionEvaluator, StatusSpecificInfo expectedInfo) // TODO: just test whether whatever it gets from the status evaluator is correct
     {
         // Arrange
         var auction = EnglishAuction.Restore(
@@ -248,7 +246,7 @@ public class AuctionToSellerAuctionInfoTest
     
     [Theory]
     [MemberData(nameof(EvaluatorAndExpectedOutput))]
-    public void Dynamic_Info_Dutch_Auction_Read_Correctly(IAuctionEvaluator auctionEvaluator, StatusSpecificInfo expectedInfo) // TODO: just test whether whatever it gets from the status evaluator is correct
+    internal void Dynamic_Info_Dutch_Auction_Read_Correctly(IAuctionEvaluator auctionEvaluator, StatusSpecificInfo expectedInfo) // TODO: just test whether whatever it gets from the status evaluator is correct
     {
         // Arrange
         var auction = DutchAuction.Restore(
@@ -272,7 +270,7 @@ public class AuctionToSellerAuctionInfoTest
     
     [Theory]
     [MemberData(nameof(EvaluatorAndExpectedOutput))]
-    public void Dynamic_Info_FirstPriceSealedBid_Auction_Read_Correctly(IAuctionEvaluator auctionEvaluator, StatusSpecificInfo expectedInfo) // TODO: just test whether whatever it gets from the status evaluator is correct
+    internal void Dynamic_Info_FirstPriceSealedBid_Auction_Read_Correctly(IAuctionEvaluator auctionEvaluator, StatusSpecificInfo expectedInfo) // TODO: just test whether whatever it gets from the status evaluator is correct
     {
         // Arrange
         var auction = FirstPriceSealedBidAuction.Restore(

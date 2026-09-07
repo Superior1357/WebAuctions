@@ -7,8 +7,6 @@ using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Repository;
 
 namespace UnitTests.Tests;
-// TODO: throw exception when StartTime is after EndTime (not supporting that, don't test any other possible problems)
-// TODO: test repo commit - if not called, no changes in db, if called, saves changes - what if an exception throw? - capable of handling that?
 [TestSubject(typeof(AppRepository))]
 public class AppRepositoryTests
 {
@@ -640,7 +638,7 @@ public class AppRepositoryTests
 
     [Fact]
     public async Task Update_English_Auction_Updated_Bids_Adds_Bid_Commit_Called_Async()
-    { // TODO: why not make the test easier? - don't test all the aspects (don't test that nothing else changed?)
+    {
         // Arrange
         var users = new List<DataModelUser>
         {
@@ -1054,7 +1052,6 @@ public class AppRepositoryTests
             Assert.Equal(firstPriceSealedBidDataModelAuction.Id, newestFirstPriceSealedBid.AuctionId);
             Assert.Equal(addedBid.Value, newestFirstPriceSealedBid.Value);
             
-            // TODO
             var updatedAuctionDatabaseContent = context.Auctions.Include(a => a.Bids).ThenInclude(b => b.Bidder)
                 .Include(a => a.Seller).ToList();
             
@@ -1125,6 +1122,5 @@ public class AppRepositoryTests
             }
         }
     }
-    // TODO: combined tests (e.g. add + update) -> if makes sense to combine them? (but do not overthink this)
     // TODO: remove the status tests and place them somewhere else (delegate the responsibility to something else)
 }

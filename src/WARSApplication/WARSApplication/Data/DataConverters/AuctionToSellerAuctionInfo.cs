@@ -4,7 +4,7 @@ using WARSApplication.Data.DataModel.Business;
 
 namespace WARSApplication.Data.DataConverters;
 
-public class AuctionToSellerAuctionInfo(IAuctionEvaluator auctionEvaluator) : IDataConverter<Auction, SellerAuctionInfo>
+internal class AuctionToSellerAuctionInfo(IAuctionEvaluator auctionEvaluator) : IDataConverter<Auction, SellerAuctionInfo>
 {
     public SellerAuctionInfo Convert(Auction entity)
     {

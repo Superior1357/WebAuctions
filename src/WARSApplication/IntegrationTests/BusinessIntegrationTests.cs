@@ -16,9 +16,6 @@ namespace IntegrationTests;
 
 using Xunit;
 
-// TODO: auth tests in a separate file
-
-// TODO: if there are problems, make arrange context different from act and assert contexts  
 
 public static class TestData
 {
@@ -89,7 +86,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
             await db.SaveChangesAsync();
         }
-        // TODO: what to do with this?
+        
         CreatedAuction payload = new DutchCreatedAuction
         {
             StartTime = new DateTimeOffset(2023, 1, 1, 1, 1, 1, TimeSpan.Zero),

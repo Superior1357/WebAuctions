@@ -211,7 +211,6 @@ public class BuyMethodsUnitTests
         };
 
         var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
-        // TODO: check whether update is called - make tests for it (the repository doesn't seem to register added auction)
         Assert.IsType<Ok>(response.Result);
         Assert.True(mockAuctionRepo.AllChangesCommited);
         Assert.Contains(addedBeforeAuctionContent[5].Id, mockAuctionRepo.UpdatesCalled.Select(u => u.Id));
@@ -248,7 +247,7 @@ public class BuyMethodsUnitTests
     
     [Theory]
     [MemberData(nameof(InactiveAuctions))]
-    public async Task Bid_Returns_Error_When_Auction_Inactive_Async(Auction repoAuction)
+    internal async Task Bid_Returns_Error_When_Auction_Inactive_Async(Auction repoAuction)
     {
         var mockAuctionRepo = new MockAuctionRepository([repoAuction]);
         
@@ -290,7 +289,7 @@ public class BuyMethodsUnitTests
         
     [Theory]
     [MemberData(nameof(ActiveAuctions))]
-    public async Task Bid_Returns_Error_When_Bid_Price_Too_Low_Dutch_English_Auctions_Async(Auction activeAuction)
+    internal async Task Bid_Returns_Error_When_Bid_Price_Too_Low_Dutch_English_Auctions_Async(Auction activeAuction)
     {
         var mockAuctionRepo = new MockAuctionRepository([activeAuction]);
         
@@ -399,7 +398,4 @@ public class BuyMethodsUnitTests
 
         Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
     }
-    
-    // TODO: a validator? or sth
-    // TODO: auth methods? -- last, after everything else is completed
 }

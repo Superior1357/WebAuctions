@@ -2,7 +2,7 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.DataModel.Business;
 
-public abstract record Auction(DateTimeOffset StartTime, DateTimeOffset EndTime) // TODO: make it internal
+internal abstract record Auction(DateTimeOffset StartTime, DateTimeOffset EndTime)
 {
     public AuctionId Id { get; protected init; }
     public AuctionDescription Description { get; init; } = string.Empty;
@@ -11,9 +11,9 @@ public abstract record Auction(DateTimeOffset StartTime, DateTimeOffset EndTime)
     public DateTimeOffset EndTime { get; set; } = EndTime;
 }
 
-public sealed record EnglishAuction(DateTimeOffset StartTime, DateTimeOffset EndTime) : Auction(StartTime, EndTime)
+internal sealed record EnglishAuction(DateTimeOffset StartTime, DateTimeOffset EndTime) : Auction(StartTime, EndTime)
 {
-    public IAddOnlyCollection<Bid> Bids { get; init; } = new AddOnlyCollection<Bid>();
+    public IAddOnlyCollection<Bid> Bids { get; private init; } = new AddOnlyCollection<Bid>();
     public required Price StartingPrice { get; init; }
     
     public static EnglishAuction Restore(
@@ -34,7 +34,7 @@ public sealed record EnglishAuction(DateTimeOffset StartTime, DateTimeOffset End
         };
 }
 
-public sealed record DutchAuction(DateTimeOffset StartTime, DateTimeOffset EndTime) : Auction(StartTime, EndTime)
+internal sealed record DutchAuction(DateTimeOffset StartTime, DateTimeOffset EndTime) : Auction(StartTime, EndTime)
 {
     public required Price StartingPrice { get; init; }
     public required Price PriceDecrementRate { get; init; }
@@ -75,8 +75,7 @@ public sealed record DutchAuction(DateTimeOffset StartTime, DateTimeOffset EndTi
     };
 }
 
-public sealed record FirstPriceSealedBidAuction(DateTimeOffset StartTime, DateTimeOffset EndTime)
-    : Auction(StartTime, EndTime)
+internal sealed record FirstPriceSealedBidAuction(DateTimeOffset StartTime, DateTimeOffset EndTime) : Auction(StartTime, EndTime)
 {
     public static FirstPriceSealedBidAuction Restore(
         AuctionId id, 
@@ -93,5 +92,5 @@ public sealed record FirstPriceSealedBidAuction(DateTimeOffset StartTime, DateTi
             Bids = bids
         };
     
-    public IAddOnlyCollection<Bid> Bids { get; init; } = new AddOnlyCollection<Bid>();
+    public IAddOnlyCollection<Bid> Bids { get; private init; } = new AddOnlyCollection<Bid>();
 }

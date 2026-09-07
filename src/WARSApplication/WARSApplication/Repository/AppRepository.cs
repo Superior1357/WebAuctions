@@ -7,7 +7,7 @@ using WARSApplication.Data.SharedDataProperties;
 namespace WARSApplication.Repository;
 
 internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Auction>
-{ // TODO: expects to be used in one context only
+{
     private sealed class ChangesTrackingAddOnlyCollection<T>(IEnumerable<T> initialCollection) : IAddOnlyCollection<T>
     {
         private readonly List<T> _items = initialCollection.ToList();
@@ -125,7 +125,7 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
     }
     
     public async Task UpdateAsync(Auction updatedAuction)
-    { // TODO: expects that time is equal across
+    {
         var dataAuction = await dbContext.Auctions.FirstAsync(a => a.Id == updatedAuction.Id);
         dataAuction.EndTime = updatedAuction.EndTime;
         
@@ -133,7 +133,7 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
         {
             case EnglishDataModelAuction englishDataModelAuction:
                 var englishBusinessAuction = (EnglishAuction) updatedAuction;
-                var updatedCollection = englishBusinessAuction.Bids as ChangesTrackingAddOnlyCollection<Bid>; // TODO: what if not of this type?
+                var updatedCollection = englishBusinessAuction.Bids as ChangesTrackingAddOnlyCollection<Bid>;
                 var addedBids = updatedCollection.AddedItems;
                 
                 if (addedBids.Count != 0)
@@ -159,7 +159,7 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
                 break;
             case FirstPriceSealedBidDataModelAuction firstPriceSealedBidDataModelAuction:
                 var firstPriceSealedBidBusinessAuction = (FirstPriceSealedBidAuction) updatedAuction;
-                updatedCollection = firstPriceSealedBidBusinessAuction.Bids as ChangesTrackingAddOnlyCollection<Bid>; // TODO: what if not of this type?
+                updatedCollection = firstPriceSealedBidBusinessAuction.Bids as ChangesTrackingAddOnlyCollection<Bid>;
                 addedBids = updatedCollection.AddedItems;
                 
                 if (addedBids.Count != 0)
@@ -175,7 +175,6 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
                 
                 break;
             default:
-                
                 throw new ArgumentOutOfRangeException();
         }
     }

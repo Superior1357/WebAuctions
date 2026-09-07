@@ -5,7 +5,7 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace UnitTests.HelperClasses;
 
-public class MockAuctionToSellerAuctionInfoConverter(Dictionary<AuctionId, SellerAuctionInfo> mapping) : IDataConverter<Auction, SellerAuctionInfo>
+internal class MockAuctionToSellerAuctionInfoConverter(Dictionary<AuctionId, SellerAuctionInfo> mapping) : IDataConverter<Auction, SellerAuctionInfo>
 {
     public SellerAuctionInfo Convert(Auction entity) => mapping[entity.Id];
 }

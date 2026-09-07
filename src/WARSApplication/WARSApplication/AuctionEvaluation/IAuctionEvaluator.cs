@@ -3,7 +3,7 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.AuctionEvaluation;
 
-public interface IAuctionEvaluator
+internal interface IAuctionEvaluator
 {
     public AuctionStatus EvaluateStatus(Auction auction);
     public WinnerInfo? EvaluateWinner(Auction auction);

@@ -5,7 +5,7 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace UnitTests.HelperClasses;
 
-public class MockAuctionEvaluator(IDictionary<AuctionId, AuctionStatus> auctionStatusMap, IDictionary<AuctionId, WinnerInfo?> auctionToWinnerMap,
+internal class MockAuctionEvaluator(IDictionary<AuctionId, AuctionStatus> auctionStatusMap, IDictionary<AuctionId, WinnerInfo?> auctionToWinnerMap,
     IDictionary<AuctionId, Price?> auctionToMinimumBidValueMap) : IAuctionEvaluator
 {
     public AuctionStatus EvaluateStatus(Auction auction) => auctionStatusMap[auction.Id];

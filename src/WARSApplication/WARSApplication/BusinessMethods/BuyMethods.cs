@@ -58,7 +58,7 @@ internal static class BuyMethods
 
     public static async Task<Results<Ok<IEnumerable<AuctionId>>, NotFound<UserIdNotFound>>>
         ListNotFinishedAuctionsOfASellerAsync([FromBody] UserId seller, IRepository<Auction> auctionRepository,
-            IAuctionEvaluator auctionEvaluator) // TODO: checks somewhere else? - e.g add a foreign user?
+            IAuctionEvaluator auctionEvaluator)
     {
         var auctions = await auctionRepository.ListAsync();
         var notFinished = auctions.Where(a => auctionEvaluator.EvaluateStatus(a) != AuctionStatus.Finished && a.Seller.Id == seller);
