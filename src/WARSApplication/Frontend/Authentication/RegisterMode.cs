@@ -4,7 +4,7 @@ using WARSApplication;
 
 namespace Frontend.Authentication;
 
-public class RegisterMode(IAuthApi authApi, IServiceProvider serviceProvider) : IView
+public class RegisterMode(IAuthApi authApi, IViewController controller) : IView
 {
     public async Task<IViewResult> RunAsync()
     {
@@ -14,7 +14,6 @@ public class RegisterMode(IAuthApi authApi, IServiceProvider serviceProvider) : 
         var registerRequest = new RegisterRequest(username, password);
         await authApi.RegisterAsync(registerRequest);
 
-        _ = await serviceProvider.GetRequiredService<LoginMode>().RunAsync();
-        return new Result();
+        return await controller.ShowViewAsync<LoginMode>();
     }
 }

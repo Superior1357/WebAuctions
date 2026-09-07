@@ -14,7 +14,6 @@ public class CreateMode(ISellMethodsAPI api) : IView
     public async Task<IViewResult> RunAsync()
     {
         var description = await AnsiConsole.AskAsync<string>("Description: ");
-        // TODO: time
 
         var startTime = await Utils.PromptTimeAsync("Start time: ");
         var endTime = await Utils.PromptTimeAsync("End time: ");

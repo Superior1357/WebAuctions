@@ -21,14 +21,14 @@ builder.Services
 
 builder.Services
     .AddRefitClient<ISellMethodsAPI>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{address}/sell"));
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{address}/sell"))
+    .AddHttpMessageHandler<AuthHandler>();
 
 builder.Services.AddSingleton<ITokenBearer, TokenBearer>();
 builder.Services.AddTransient<Program>();
 
 builder.Services.AddTransient<BuyerRole>();
 builder.Services.AddTransient<SellerRole>();
-builder.Services.AddTransient<AuthenticationRole>();
 
 builder.Services.AddTransient<CreateMode>();
 builder.Services.AddTransient<UpdateMode>();
@@ -38,8 +38,9 @@ builder.Services.AddTransient<RegisterMode>();
 builder.Services.AddTransient<LoginMode>();
 
 builder.Services.AddTransient<AuthHandler>();
-
 builder.Services.AddTransient<ListAllSellersMode>();
+
+builder.Services.AddTransient<IViewController, ViewController>();
 
 using var host = builder.Build();
 

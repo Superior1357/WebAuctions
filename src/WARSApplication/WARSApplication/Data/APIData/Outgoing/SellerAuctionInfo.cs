@@ -1,6 +1,11 @@
+using System.Text.Json.Serialization;
 using WARSApplication.Data.SharedDataProperties;
 namespace WARSApplication.Data.APIData.Outgoing;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(EnglishSellerAuctionInfo), "english")]
+[JsonDerivedType(typeof(DutchSellerAuctionInfo), "dutch")]
+[JsonDerivedType(typeof(FirstPriceSealedBidSellerAuctionInfo), "sealed")]
 public abstract record SellerAuctionInfo
 {
     public required AuctionId Id { get; init; }
@@ -28,6 +33,10 @@ public sealed record DutchSellerAuctionInfo : SellerAuctionInfo
 
 public sealed record FirstPriceSealedBidSellerAuctionInfo : SellerAuctionInfo;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(PendingStatus), "pending")]
+[JsonDerivedType(typeof(ActiveStatus), "active")]
+[JsonDerivedType(typeof(FinishedStatus), "finished")]
 public abstract record StatusSpecificInfo;
 
 public sealed record PendingStatus : StatusSpecificInfo;

@@ -19,4 +19,6 @@ public interface IBuyMethodsAPI
     
     [Post("/bid")]
     public Task<string> BidAsync([Body] BidRequest bidRequest);
+    
+    
 }

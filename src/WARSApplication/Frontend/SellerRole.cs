@@ -3,17 +3,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Frontend;
 
-public class SellerRole(IServiceProvider serviceProvider) : IView
+public class SellerRole(IServiceProvider serviceProvider, IViewController viewController) : IView
 {
     public async Task<IViewResult> RunAsync()
     {
         var mode = await PresentModes.PresentAsync(
             serviceProvider.GetRequiredService<CreateMode>(),
-            serviceProvider.GetRequiredService<ListMode>(),
-            serviceProvider.GetRequiredService<UpdateMode>()
+            serviceProvider.GetRequiredService<ListMode>()
         );
         
-        await mode.RunAsync();
-        return new Result();
+        return await viewController.ShowViewAsync(mode);
     }
 }

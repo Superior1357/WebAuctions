@@ -4,7 +4,7 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace Frontend.BuyerMode;
 
-public class ListSellersAuctionsMode(UserId userId, IBuyMethodsAPI api) : IView
+public class ListSellersAuctionsMode(UserId userId, IBuyMethodsAPI api, IViewController viewController) : IView
 {
     public async Task<IViewResult> RunAsync()
     {
@@ -17,7 +17,8 @@ public class ListSellersAuctionsMode(UserId userId, IBuyMethodsAPI api) : IView
                 .UseConverter(mode => mode.ToString())
                 .AddChoices(infos)
             );
-        
-        return await new InfoAndBidView(info, api).RunAsync();
+
+        var view = new InfoAndBidView(info, api);
+        return await viewController.ShowViewAsync(view);
     }
 }

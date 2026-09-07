@@ -1,9 +1,17 @@
+using WARSApplication.Data.APIData.Incoming;
+using WARSApplication.Data.APIData.Outgoing;
+
 namespace Frontend.SellerMode;
 
-public class UpdateMode : IView
+public class UpdateMode(SellerAuctionInfo auctionInfo, ISellMethodsAPI api) : IView
 {
-    public Task<IViewResult> RunAsync()
+    public async Task<IViewResult> RunAsync()
     {
-        throw new NotImplementedException();
+        var newEnd = await Utils.PromptTimeAsync("New auction end: ");
+
+        var updateRequest = new AuctionUpdateRequest(auctionInfo.Id, newEnd);
+        
+        await api.UpdateAuctionAsync(updateRequest);
+        return new Result();
     }
 }
