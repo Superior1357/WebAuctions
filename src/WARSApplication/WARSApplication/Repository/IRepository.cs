@@ -4,6 +4,7 @@ internal interface IRepository<T>
 {
     public Task<IEnumerable<T>> ListAsync();
     public Task UpdateAsync(T updatedAuction);
+    
     /// <summary>
     /// Adds entity to the repository. Returns created entity with id parameterized.
     /// </summary>

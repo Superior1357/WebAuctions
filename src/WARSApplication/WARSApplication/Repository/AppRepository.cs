@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WARSApplication.Data.DataModel;
 using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Data.SharedDataProperties;
+using WARSApplication.Exceptions;
 
 namespace WARSApplication.Repository;
 
@@ -187,6 +188,22 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
 
     public async Task CommitAsync()
     {
-        await dbContext.SaveChangesAsync(); // TODO: handle when cannot commit in the internal database
+        try
+        {
+            await dbContext.SaveChangesAsync();
+        }
+        
+        catch (DbUpdateConcurrencyException)
+        {
+            var completionSource = new TaskCompletionSource();
+            completionSource.SetException(new ConcurrencyException());
+        }
     }
 }
+/* TODO list: 
+- improve sent error messages
+- improve frontend (so that it looks better)
+- registration twice handling
+NOT:
+- authentication tests
+*/
