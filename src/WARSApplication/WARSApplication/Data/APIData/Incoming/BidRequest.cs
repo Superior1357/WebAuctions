@@ -2,8 +2,9 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.APIData.Incoming;
 
-public record BidRequest
-{
-    public required AuctionId AuctionId { get; init; }
-    public required Price Amount { get; init; }
-}
+/// <summary>
+/// API request for placing a bid
+/// </summary>
+/// <param name="AuctionId"></param>
+/// <param name="Amount"></param>
+public record BidRequest(AuctionId AuctionId, Price Amount);

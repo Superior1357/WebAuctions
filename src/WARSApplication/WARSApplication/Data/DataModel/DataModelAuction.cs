@@ -3,6 +3,9 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.DataModel;
 
+/// <summary>
+/// Base class for all data model auctions.
+/// </summary>
 internal abstract record DataModelAuction
 {
     public AuctionId Id { get; init; }

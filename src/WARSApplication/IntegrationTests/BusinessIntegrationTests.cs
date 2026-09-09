@@ -433,11 +433,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             await db.SaveChangesAsync();
         }
 
-        var bid = new BidRequest
-        {
-            AuctionId = auction.Id,
-            Amount = 10_000
-        };
+        var bid = new BidRequest(auction.Id, 10_000);
         
         // Act
         var response = await _client.PostAsJsonAsync("/buy/bid", bid);
@@ -485,13 +481,8 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         {
             var db = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
             var auction = db.Auctions.First();
-            
-            bid = new BidRequest
-            {
-                AuctionId = auction.Id,
-                Amount = 10_000
-            };
-            
+
+            bid = new BidRequest(auction.Id, 10_000);
         }
         var response = await _client.PostAsJsonAsync("/buy/bid", bid);
         
@@ -540,11 +531,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
             await db.SaveChangesAsync();
         }
 
-        var bid = new BidRequest
-        {
-            AuctionId = auction.Id + 10,
-            Amount = 10_000
-        };
+        var bid = new BidRequest(auction.Id + 10, 10_000);
         
         // Act
         var response = await _client.PostAsJsonAsync("/buy/bid", bid);

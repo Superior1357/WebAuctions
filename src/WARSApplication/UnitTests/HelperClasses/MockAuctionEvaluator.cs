@@ -9,6 +9,6 @@ internal class MockAuctionEvaluator(IDictionary<AuctionId, AuctionStatus> auctio
     IDictionary<AuctionId, Price?> auctionToMinimumBidValueMap) : IAuctionEvaluator
 {
     public AuctionStatus EvaluateStatus(Auction auction) => auctionStatusMap[auction.Id];
-    public WinnerInfo? EvaluateWinner(Auction auction) => auctionToWinnerMap[auction.Id];
+    public WinnerInfo? EvaluateWinnerInfo(Auction auction) => auctionToWinnerMap[auction.Id];
     public Price? EvaluateCurrentMinimumBidValue(Auction auction) => auctionToMinimumBidValueMap[auction.Id];
 }

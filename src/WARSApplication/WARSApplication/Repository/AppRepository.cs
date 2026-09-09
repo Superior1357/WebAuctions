@@ -7,8 +7,17 @@ using WARSApplication.Exceptions;
 
 namespace WARSApplication.Repository;
 
+/// <summary>
+/// Application auction repository. Used as a bridge between the data model and the business model.
+/// Also handles concurrency exceptions.
+/// </summary>
+/// <param name="dbContext"></param>
 internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Auction>
 {
+    /// <summary>
+    /// Track added items to the collection.
+    /// </summary>
+    /// <param name="initialCollection">initial items that are not tracked</param>
     private sealed class ChangesTrackingAddOnlyCollection<T>(IEnumerable<T> initialCollection) : IAddOnlyCollection<T>
     {
         private readonly List<T> _items = initialCollection.ToList();
@@ -100,7 +109,10 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
             _ => throw new ArgumentOutOfRangeException()
         };
     }
-    
+    /// <summary>
+    /// Asynchronously get all auctions.
+    /// </summary>
+    /// <returns>all auctions</returns>
     public async Task<IEnumerable<Auction>> ListAsync()
     {
         var dataAuctions = dbContext.Auctions.Include(a => a.Bids).ThenInclude(b => b.Bidder).Include(a => a.Seller).AsAsyncEnumerable();
@@ -114,7 +126,6 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
 
         return businessAuctions;
     }
-
     private async Task<DataModelBid> BusinessToDataModelBid(Bid bid)
     {
         return new DataModelBid
@@ -125,6 +136,12 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
         };
     }
     
+    /// <summary>
+    /// Asynchronously update an auction. End time and bid updates are supported.
+    /// Change is versioned for later concurrency checks.
+    /// </summary>
+    /// <param name="updatedAuction">auction with certain parameters changed</param>
+    /// <exception cref="ArgumentOutOfRangeException">a new auction type has been added and not added to the implementation</exception>
     public async Task UpdateAsync(Auction updatedAuction)
     {
         var dataAuction = await dbContext.Auctions.FirstAsync(a => a.Id == updatedAuction.Id);
@@ -179,13 +196,20 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
                 throw new ArgumentOutOfRangeException();
         }
     }
-
+    /// <summary>
+    /// Asynchronously add an auction to the database.
+    /// </summary>
+    /// <param name="entity"></param>
     public async Task AddAsync(Auction entity)
     {
         var dataAuction = NewBusinessToNewDataAuction(entity);
         await dbContext.Auctions.AddAsync(dataAuction);
     }
-
+    
+    /// <summary>
+    /// Asynchronously commit all changes to the database.
+    /// If a concurrency exception occurs, the task is completed with a ConcurrencyException.
+    /// </summary>
     public async Task CommitAsync()
     {
         try
@@ -201,9 +225,6 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
     }
 }
 /* TODO list: 
-- improve sent error messages
 - improve frontend (so that it looks better)
 - registration twice handling
-NOT:
-- authentication tests
 */

@@ -14,7 +14,7 @@ public class AuctionToSellerAuctionInfoTest
     private class LocalMockEvaluator(AuctionStatus status, WinnerInfo? winnerInfo, Price? price) : IAuctionEvaluator
     {
         public AuctionStatus EvaluateStatus(Auction auction) => status;
-        public WinnerInfo? EvaluateWinner(Auction auction) => winnerInfo;
+        public WinnerInfo? EvaluateWinnerInfo(Auction auction) => winnerInfo;
         public Price? EvaluateCurrentMinimumBidValue(Auction auction) => price;
     }
     

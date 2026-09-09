@@ -1,9 +1,11 @@
 using System.Text.Json.Serialization;
-using WARSApplication.Data.APIData.Incoming;
 using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.APIData.Outgoing;
 
+/// <summary>
+/// Outgoing API response for a single buyer auction info request
+/// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(EnglishAuctionInfo), "english")]
 [JsonDerivedType(typeof(DutchAuctionInfo), "dutch")]
@@ -18,13 +20,23 @@ public abstract record BuyerAuctionInfo
     public required AuctionStatus Status { get; init; }
 }
 
+/// <summary>
+/// Outgoing API response for a single dutch buyer auction info request
+/// </summary>
 public sealed record DutchAuctionInfo : BuyerAuctionInfo
 {
     public required Price? CurrentPrice { get; init; }
 }
 
+/// <summary>
+/// Outgoing API response for a single dutch buyer auction info request
+/// </summary>
 public sealed record EnglishAuctionInfo : BuyerAuctionInfo
 {
     public required Price? CurrentMinimumBid { get; init; }   
 }
+
+/// <summary>
+/// Outgoing API response for a single dutch buyer auction info request
+/// </summary>
 public sealed record FirstPriceSealedBidInfo : BuyerAuctionInfo;

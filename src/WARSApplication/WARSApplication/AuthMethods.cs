@@ -9,7 +9,17 @@ using WARSApplication.Data.DataModel.Business;
 namespace WARSApplication;
 
 internal static class AuthMethods
-{
+{ // TODO: what if the user exists already?
+    /// <summary>
+    /// Adds a new user to the authentication database. 
+    /// </summary>
+    /// <param name="req">the registration API request</param>
+    /// <param name="userManager">the user manager</param>
+    /// <param name="dbContext">the non-authentication database context</param>
+    /// <returns>
+    /// OK status code upon success.
+    /// BadRequest code and errors upon failure (for example, when the user already exists).
+    /// </returns>
     public static async Task<IResult> Register(RegisterRequest req, UserManager<IdentityUser> userManager, AuctionDbContext dbContext)
     {
         var user = new IdentityUser { UserName = req.UserName };
@@ -25,12 +35,6 @@ internal static class AuthMethods
         );
         
         await dbContext.SaveChangesAsync();
-
-        foreach (var usr in dbContext.Users)
-        {
-            Console.WriteLine(usr);
-        }
-        
         return Results.Ok();
     }
     

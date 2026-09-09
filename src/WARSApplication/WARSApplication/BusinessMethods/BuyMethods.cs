@@ -14,6 +14,11 @@ namespace WARSApplication.BusinessMethods;
 
 internal static class BuyMethods
 {
+    /// <summary>
+    /// Returns ids of all sellers of all auctions.
+    /// </summary>
+    /// <param name="repository">the repository service</param>
+    /// <returns>OK status code and enumerable of seller user ids.</returns>
     public static async Task<Ok<IEnumerable<UserId>>> ListAllSellersAsync(IRepository<Auction> repository)
     {
         var auctions = await repository.ListAsync();
@@ -21,7 +26,14 @@ internal static class BuyMethods
         
         return TypedResults.Ok(sellerIds);
     }
-
+    
+    /// <summary>
+    /// Returns ids of all auctions in which the user participated.
+    /// </summary>
+    /// <param name="usr">an authenticated user</param>
+    /// <param name="repository">the repository service</param>
+    /// <returns>OK status code and enumerable of auctions ids in which the user participated.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">new auction type has been added and the switch expression not updated</exception>
     public static async Task<Ok<IEnumerable<AuctionId>>> ListParticipatedAuctionsAsync(User usr,
         IRepository<Auction> repository)
     {
@@ -40,6 +52,13 @@ internal static class BuyMethods
         return TypedResults.Ok(participated.Select(a => a.Id));
     }
 
+    /// <summary>
+    /// Lists ids of all auctions in which the user won.
+    /// </summary>
+    /// <param name="usr">an authenticated user</param>
+    /// <param name="repository">the repository service</param>
+    /// <param name="auctionEvaluator">the auction evaluator service</param>
+    /// <returns>OK status code and enumerable of auction ids corresponding to auction that the user has won.</returns>
     public static async Task<Ok<IEnumerable<AuctionId>>> ListWonAuctionsAsync(User usr, IRepository<Auction> repository, IAuctionEvaluator auctionEvaluator)
     {
         var auctions = await repository.ListAsync();
@@ -47,7 +66,7 @@ internal static class BuyMethods
             .Where(
                 a =>
                 {
-                    var winnerEvaluation = auctionEvaluator.EvaluateWinner(a);
+                    var winnerEvaluation = auctionEvaluator.EvaluateWinnerInfo(a);
                     return winnerEvaluation.HasValue && winnerEvaluation.Value.WinningBidderId == usr.Id;
                 }
             )
@@ -55,7 +74,14 @@ internal static class BuyMethods
         
         return TypedResults.Ok(wonIds);
     }
-
+    /// <summary>
+    /// List ids of all auctions of a seller that are not finished yet. 
+    /// </summary>
+    /// <param name="seller">the seller whose auctions are requested.</param>
+    /// <param name="auctionRepository">the repository service</param>
+    /// <param name="auctionEvaluator">the auction evaluation service</param>
+    /// <returns>OK status code and enumerable of auction ids upon success.
+    /// NotFound code and UserIdNotFound message when the seller id does not belong to a seller.</returns>
     public static async Task<Results<Ok<IEnumerable<AuctionId>>, NotFound<UserIdNotFound>>>
         ListNotFinishedAuctionsOfASellerAsync([FromBody] UserId seller, IRepository<Auction> auctionRepository,
             IAuctionEvaluator auctionEvaluator)
@@ -66,6 +92,20 @@ internal static class BuyMethods
         return TypedResults.Ok(notFinished.Select(a => a.Id));
     }
 
+    /// <summary>
+    /// Assigns a new bid to an active auction if the auction rules allow it. 
+    /// </summary>
+    /// <param name="usr">an authenticated user</param>
+    /// <param name="bidRequest">concrete bid information</param>
+    /// <param name="now">current request time</param>
+    /// <param name="auctionRepository">the repository service</param>
+    /// <param name="auctionEvaluator">the evaluator service</param>
+    /// <returns>
+    /// OK status code upon success.
+    /// NotFound code and AuctionIdNotFound message when the auction id does not belong to an auction.
+    /// UnprocessableEntity code and BidAuctionRulesViolationResponse message when the bid violates the auction rules.
+    /// </returns>
+    /// <exception cref="ArgumentOutOfRangeException">a new auction type is added and not handled in the switch expression</exception>
     public static async Task<Results<Ok, NotFound<AuctionIdNotFound>, UnprocessableEntity<BidAuctionRulesViolationResponse>>>
         BidAsync(User usr, BidRequest bidRequest, ICurrentTime now, IRepository<Auction> auctionRepository,
             IAuctionEvaluator auctionEvaluator)
@@ -120,46 +160,53 @@ internal static class BuyMethods
     private static BuyerAuctionInfo BusinessToApiAuctionInfo(Auction auction, IAuctionEvaluator auctionEvaluator)
     {
         var auctionStatus = auctionEvaluator.EvaluateStatus(auction);
-        
-        switch (auction)
-        {
-            case EnglishAuction englishAuction:
-                return new EnglishAuctionInfo
-                {
-                    AuctionId = englishAuction.Id,
-                    Description = englishAuction.Description,
-                    EndTime = englishAuction.EndTime,
-                    CurrentMinimumBid = auctionEvaluator.EvaluateCurrentMinimumBidValue(englishAuction),
-                    SellerId = englishAuction.Seller.Id,
-                    StartTime = englishAuction.StartTime,
-                    Status = auctionStatus
-                };
-            case DutchAuction dutchAuction:
-                return new DutchAuctionInfo
-                {
-                    AuctionId = dutchAuction.Id,
-                    CurrentPrice = auctionEvaluator.EvaluateCurrentMinimumBidValue(dutchAuction),
-                    Description = dutchAuction.Description,
-                    EndTime = dutchAuction.EndTime,
-                    SellerId = dutchAuction.Seller.Id,
-                    StartTime = dutchAuction.StartTime,
-                    Status = auctionStatus
-                };
-            case FirstPriceSealedBidAuction firstPriceSealedBidAuction:
-                return new FirstPriceSealedBidInfo
-                {
-                    AuctionId = firstPriceSealedBidAuction.Id,
-                    Description = firstPriceSealedBidAuction.Description,
-                    EndTime = firstPriceSealedBidAuction.EndTime,
-                    SellerId = firstPriceSealedBidAuction.Seller.Id,
-                    StartTime = firstPriceSealedBidAuction.StartTime,
-                    Status = auctionStatus
-                };
-            default: 
-                throw new ArgumentOutOfRangeException();
-        }
-    }
 
+        return auction switch
+        {
+            EnglishAuction englishAuction => new EnglishAuctionInfo
+            {
+                AuctionId = englishAuction.Id,
+                Description = englishAuction.Description,
+                EndTime = englishAuction.EndTime,
+                CurrentMinimumBid = auctionEvaluator.EvaluateCurrentMinimumBidValue(englishAuction),
+                SellerId = englishAuction.Seller.Id,
+                StartTime = englishAuction.StartTime,
+                Status = auctionStatus
+            },
+            
+            DutchAuction dutchAuction => new DutchAuctionInfo
+            {
+                AuctionId = dutchAuction.Id,
+                CurrentPrice = auctionEvaluator.EvaluateCurrentMinimumBidValue(dutchAuction),
+                Description = dutchAuction.Description,
+                EndTime = dutchAuction.EndTime,
+                SellerId = dutchAuction.Seller.Id,
+                StartTime = dutchAuction.StartTime,
+                Status = auctionStatus
+            },
+            
+            FirstPriceSealedBidAuction firstPriceSealedBidAuction => new FirstPriceSealedBidInfo
+            {
+                AuctionId = firstPriceSealedBidAuction.Id,
+                Description = firstPriceSealedBidAuction.Description,
+                EndTime = firstPriceSealedBidAuction.EndTime,
+                SellerId = firstPriceSealedBidAuction.Seller.Id,
+                StartTime = firstPriceSealedBidAuction.StartTime,
+                Status = auctionStatus
+            },
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+    /// <summary>
+    /// List buyer-relevant information about requested auctions.
+    /// </summary>
+    /// <param name="auctionIds">auction ids whose information is requested</param>
+    /// <param name="auctionEvaluator">the auction evaluation service</param>
+    /// <param name="auctionRepository">the auction repository service</param>
+    /// <returns>
+    /// OK status code and enumerable of BuyerAuctionInfo upon success.
+    /// NotFound code and AuctionIdNotFound message when an auction id does not belong to an auction.
+    /// </returns>
     public static async Task<Results<Ok<IEnumerable<BuyerAuctionInfo>>, NotFound<AuctionIdNotFound>>> GetInfoAsync(
         IReadOnlyCollection<AuctionId> auctionIds, IAuctionEvaluator auctionEvaluator, IRepository<Auction> auctionRepository)
     {

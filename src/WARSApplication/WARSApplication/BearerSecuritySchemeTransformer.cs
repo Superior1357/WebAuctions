@@ -5,6 +5,10 @@ using Microsoft.OpenApi;
 
 namespace WARSApplication;
 
+/// <summary>
+/// The transformer for simpler swagger ui authentication.
+/// </summary>
+/// <param name="authenticationSchemeProvider"></param>
 internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider) : IOpenApiDocumentTransformer
 {
     public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context,

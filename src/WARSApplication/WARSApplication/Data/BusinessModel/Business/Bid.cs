@@ -2,6 +2,10 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.DataModel.Business;
 
+/// <summary>
+/// Type representing a business bid. When placing a new bid, the default constructor should be used.
+/// The restore function should be used to restore an object that has been persisted, for instance, to the database.
+/// </summary>
 public record Bid
 {
     public BidId Id { get; private init; }

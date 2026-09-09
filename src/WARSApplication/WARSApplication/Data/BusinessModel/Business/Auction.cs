@@ -1,15 +1,29 @@
+using System.Diagnostics;
 using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.DataModel.Business;
 
-internal abstract record Auction(DateTimeOffset StartTime, DateTimeOffset EndTime)
+/// <summary>
+/// Base class for generic business auction representation. When creating a new auction with a not yet-assigned id,
+/// the object should be created with the default constructor.
+/// Restore function should be used to restore an object that has been persisted, for instance, to the database.
+/// </summary>
+internal abstract record Auction
 {
+    protected Auction(DateTimeOffset StartTime, DateTimeOffset EndTime)
+    {
+        Debug.Assert(StartTime < EndTime);
+        
+        this.StartTime = StartTime;
+        this.EndTime = EndTime;
+    }
     public AuctionId Id { get; protected init; }
     public AuctionDescription Description { get; init; } = string.Empty;
     public required User Seller { get; init; }
-    public DateTimeOffset StartTime { get; } = StartTime;
-    public DateTimeOffset EndTime { get; set; } = EndTime;
+    public DateTimeOffset StartTime { get; }
+    public DateTimeOffset EndTime { get; set; }
 }
+
 
 internal sealed record EnglishAuction(DateTimeOffset StartTime, DateTimeOffset EndTime) : Auction(StartTime, EndTime)
 {

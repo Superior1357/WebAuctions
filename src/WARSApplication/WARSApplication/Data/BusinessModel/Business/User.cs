@@ -5,6 +5,10 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.DataModel.Business;
 
+/// <summary>
+/// Business model for a user. When creating a new user, the object should be created with the default constructor.
+/// The restore function should be used to restore an object that has been persisted, for instance, to the database.
+/// </summary>
 public record User
 {
     public UserId Id { get; private init; }

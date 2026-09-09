@@ -3,7 +3,11 @@ using WARSApplication.Data.SharedDataProperties;
 using WARSApplication.Utils;
 
 namespace WARSApplication.AuctionEvaluation;
-
+// TODO: more documentation here? - something has been already provided in the interface
+/// <summary>
+/// Auction evaluation service
+/// </summary>
+/// <param name="time">Current time</param>
 internal class AuctionEvaluator(ICurrentTime time) : IAuctionEvaluator
 {
     private static AuctionStatus EvaluateAuctionTypeSpecificActiveTimeWindowStatus(Auction auction)
@@ -38,7 +42,7 @@ internal class AuctionEvaluator(ICurrentTime time) : IAuctionEvaluator
         return EvaluateAuctionTypeSpecificActiveTimeWindowStatus(auction);
     }
 
-    public WinnerInfo? EvaluateWinner(Auction auction)
+    public WinnerInfo? EvaluateWinnerInfo(Auction auction)
     {
         if (EvaluateStatus(auction) != AuctionStatus.Finished)
             return null;
@@ -69,7 +73,6 @@ internal class AuctionEvaluator(ICurrentTime time) : IAuctionEvaluator
         var passedRounds = (int)temporalDifference.Divide(auction.PriceDecrementFrequency);
         return auction.StartingPrice - passedRounds * auction.PriceDecrementRate;
     }
-    
     public Price? EvaluateCurrentMinimumBidValue(Auction auction)
     {
         var status = EvaluateStatus(auction);

@@ -4,6 +4,10 @@ using WARSApplication.Data.DataModel.Business;
 
 namespace WARSApplication.Data.DataConverters;
 
+/// <summary>
+/// Data converter for auctions to seller auction info
+/// </summary>
+/// <param name="auctionEvaluator">the auction evaluator service</param>
 internal class AuctionToSellerAuctionInfo(IAuctionEvaluator auctionEvaluator) : IDataConverter<Auction, SellerAuctionInfo>
 {
     public SellerAuctionInfo Convert(Auction entity)
@@ -22,7 +26,7 @@ internal class AuctionToSellerAuctionInfo(IAuctionEvaluator auctionEvaluator) : 
             case AuctionStatus.Finished:
                 statusSpecificInfo = new FinishedStatus
                 {
-                    Winner = auctionEvaluator.EvaluateWinner(entity)
+                    Winner = auctionEvaluator.EvaluateWinnerInfo(entity)
                 };
                 break;
             default:

@@ -13,11 +13,7 @@ public class InfoAndBidView(BuyerAuctionInfo info, IBuyMethodsAPI api) : IView
         
         if (bid is not null)
         {
-            var bidRequest = new BidRequest
-            {
-                Amount = bid.Value,
-                AuctionId = info.AuctionId
-            };
+            var bidRequest = new BidRequest(info.AuctionId, bid.Value);
 
             var confirmation = await AnsiConsole.ConfirmAsync($"Are you sure you want to bid {bid.Value} on auction {info.AuctionId}?");
             if (confirmation)

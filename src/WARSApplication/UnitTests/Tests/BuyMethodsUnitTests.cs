@@ -204,11 +204,7 @@ public class BuyMethodsUnitTests
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
 
-        var bidRequest = new BidRequest
-        {
-            Amount = 10_000,
-            AuctionId = addedBeforeAuctionContent[5].Id
-        };
+        var bidRequest = new BidRequest(addedBeforeAuctionContent[5].Id, 10_000);
 
         var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
         Assert.IsType<Ok>(response.Result);
@@ -229,11 +225,7 @@ public class BuyMethodsUnitTests
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
 
-        var bidRequest = new BidRequest
-        {
-            Amount = 10_000,
-            AuctionId = addedBeforeAuctionContent[5].Id + 10000
-        };
+        var bidRequest = new BidRequest(addedBeforeAuctionContent[5].Id + 10000, 10_000);
 
         var response =
             await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
@@ -250,12 +242,8 @@ public class BuyMethodsUnitTests
     internal async Task Bid_Returns_Error_When_Auction_Inactive_Async(Auction repoAuction)
     {
         var mockAuctionRepo = new MockAuctionRepository([repoAuction]);
-        
-        var bidRequest = new BidRequest
-        {
-            Amount = 10_000,
-            AuctionId = repoAuction.Id
-        };
+
+        var bidRequest = new BidRequest(repoAuction.Id, 10_000);
         
         var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
         Assert.IsType<UnprocessableEntity<BidAuctionRulesViolationResponse>>(response.Result);
@@ -293,11 +281,7 @@ public class BuyMethodsUnitTests
     {
         var mockAuctionRepo = new MockAuctionRepository([activeAuction]);
         
-        var bidRequest = new BidRequest
-        {
-            Amount = 1,
-            AuctionId = activeAuction.Id
-        };
+        var bidRequest = new BidRequest(activeAuction.Id, 1);
         
         var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
         Assert.IsType<UnprocessableEntity<BidAuctionRulesViolationResponse>>(response.Result);
@@ -317,11 +301,7 @@ public class BuyMethodsUnitTests
             new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero)
         );
         
-        var bidRequest = new BidRequest
-        {
-            Amount = 1000,
-            AuctionId = repoContent.Id
-        };
+        var bidRequest = new BidRequest(repoContent.Id, 10_000);
         
         var mockRepo = new MockAuctionRepository([repoContent]);
         var response = await BuyMethods.BidAsync(

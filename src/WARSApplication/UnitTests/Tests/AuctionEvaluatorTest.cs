@@ -320,7 +320,7 @@ public class AuctionEvaluatorTest
     [MemberData(nameof(UnfinishedAuctions))]
     internal void EvaluateWinner_Returns_Null_When_Auction_Unfinished(Auction unfinishedAuction)
     {
-        var winner = Evaluator.EvaluateWinner(unfinishedAuction);
+        var winner = Evaluator.EvaluateWinnerInfo(unfinishedAuction);
         Assert.Null(winner);
     }
 
@@ -372,7 +372,7 @@ public class AuctionEvaluatorTest
     [MemberData(nameof(FinishedNoBidAuctions))]
     internal void EvaluateWinner_Returns_Null_When_Finished_Auction_No_Bid(Auction finishedNoBidAuction)
     {
-        var winner = Evaluator.EvaluateWinner(finishedNoBidAuction);
+        var winner = Evaluator.EvaluateWinnerInfo(finishedNoBidAuction);
         Assert.Null(winner);
     }
 
@@ -444,7 +444,7 @@ public class AuctionEvaluatorTest
     [MemberData(nameof(FinishedWithWinnersAuctions))]
     internal void EvaluateWinner_Returns_User_With_Highest_Bid_Dutch_English_FirstPriceSealedBid(Auction finishedAuction, WinnerInfo? expectedWinnerInfo)
     {
-        var user = Evaluator.EvaluateWinner(finishedAuction);
+        var user = Evaluator.EvaluateWinnerInfo(finishedAuction);
         Assert.Equal(expectedWinnerInfo, user);
     }
     

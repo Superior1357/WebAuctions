@@ -3,6 +3,10 @@ using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication.Data.DataModel;
 
+/// <summary>
+/// Class for a bid in the auction.
+/// There's a many-to-one relationship between a bid and an auction.
+/// </summary>
 internal record DataModelBid
 {
     public BidId Id { get; init; }
