@@ -85,8 +85,9 @@ internal static class SellMethods
     /// UnprocessableEntity code and InvalidAuctionParameters message when the request is invalid.
     /// </returns>
     public static async Task<Results<Ok, NotFound<AuctionIdNotFound>, UnprocessableEntity<InvalidAuctionParameters>>>
-        UpdateAuctionAsync(User user, AuctionUpdateRequest request, ICurrentTime currentTime, IRepository<Auction> repository)
+        UpdateAuctionAsync(User user, AuctionUpdateRequest request, IRepository<Auction> repository)
     { // TODO: if auction is finished then don't allow update
+        // TODO: concurrency conflict can occur here
         var auctions = await repository.ListAsync();
         var auction = auctions.FirstOrDefault(a => a.Id == request.Id);
         

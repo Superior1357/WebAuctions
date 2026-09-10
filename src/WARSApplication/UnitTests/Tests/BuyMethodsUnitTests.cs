@@ -120,7 +120,7 @@ public class BuyMethodsUnitTests
                 [new AuctionId(5)] = null
             },
             
-            new Dictionary<AuctionId, Price?>()
+            new Dictionary<AuctionId, Price?>
             {
                 [new AuctionId(0)] = 1000,
                 [new AuctionId(1)] = 1000,
@@ -253,28 +253,38 @@ public class BuyMethodsUnitTests
     {
         new object[]
         {
-            new EnglishAuction(new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero), new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero))
-            {
-                Description = "English active",
-                Seller = User.Restore(new UserId(100)),
-                StartingPrice = 1000
-            }
+            EnglishAuction.Restore(
+                new AuctionId(3),
+                "added_before_active_1",
+                MakeUser(TestUser.Id.Id + 1),
+                new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new TestAddOnlyCollection<Bid>(
+                    [
+                        MakeBid(0, 1000, TestUser, new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)), 
+                        MakeBid(1, 1500, MakeUser(TestUser.Id.Id + 2), new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero)),
+                        MakeBid(2, 2000, TestUser, new DateTimeOffset(2021, 3, 1, 1, 1, 2, TimeSpan.Zero))]
+                ),
+                1000
+            )
         },
-
+        
         new object[]
         {
-            new DutchAuction(new DateTimeOffset(2021, 12, 30, 0, 0, 0, TimeSpan.Zero), new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero))
-            {
-                Description = "Dutch active",
-                Seller = User.Restore(new UserId(199)),
-                StartingPrice = 1_000_000,
-                PriceDecrementFrequency = new TimeSpan(1, 0, 0),
-                PriceDecrementRate = 1
-            }
+            DutchAuction.Restore(
+            new AuctionId(3),
+            "added_before2",
+            MakeUser(TestUser.Id.Id + 1),
+            new DateTimeOffset(2021, 12, 30, 0, 0, 0, TimeSpan.Zero),
+            new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            null,
+            1000,
+            2,
+            new TimeSpan(1,0, 0, 0)
+            )
         } 
-        
     };
-        
+    
     [Theory]
     [MemberData(nameof(ActiveAuctions))]
     internal async Task Bid_Returns_Error_When_Bid_Price_Too_Low_Dutch_English_Auctions_Async(Auction activeAuction)

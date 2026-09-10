@@ -87,9 +87,25 @@ internal static class BuyMethods
             IAuctionEvaluator auctionEvaluator)
     {
         var auctions = await auctionRepository.ListAsync();
-        var notFinished = auctions.Where(a => auctionEvaluator.EvaluateStatus(a) != AuctionStatus.Finished && a.Seller.Id == seller);
+        var sellersAuctions = auctions.Where(a => a.Seller.Id == seller);
+        using var enumerator = sellersAuctions.GetEnumerator();
+        var anyElement = enumerator.MoveNext();
         
-        return TypedResults.Ok(notFinished.Select(a => a.Id));
+        if (!anyElement)
+            return TypedResults.NotFound(new UserIdNotFound("seller not found"));
+
+        List<AuctionId> notFinishedIds = [];
+        
+        do
+        {
+            var current = enumerator.Current;
+            if (auctionEvaluator.EvaluateStatus(current) != AuctionStatus.Finished)
+            {
+                notFinishedIds.Add(current.Id);
+            }
+        } while (enumerator.MoveNext());
+        
+        return TypedResults.Ok(notFinishedIds.AsEnumerable());
     }
 
     /// <summary>
@@ -109,6 +125,7 @@ internal static class BuyMethods
     public static async Task<Results<Ok, NotFound<AuctionIdNotFound>, UnprocessableEntity<BidAuctionRulesViolationResponse>>>
         BidAsync(User usr, BidRequest bidRequest, ICurrentTime now, IRepository<Auction> auctionRepository,
             IAuctionEvaluator auctionEvaluator)
+            // TODO: concurrency conflict can occur here
     {
         var auctions = await auctionRepository.ListAsync();
         var auction = auctions.FirstOrDefault(a => a.Id == bidRequest.AuctionId);

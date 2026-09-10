@@ -245,7 +245,7 @@ public class SellMethodsUnitTests
         var mockRepo = new MockAuctionRepository(MockRepoContent.Append(existingAuction).ToList());
         var updateRequest = new AuctionUpdateRequest(existingAuction.Id, new DateTimeOffset(2025, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _currentTime, mockRepo);
+        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockRepo);
 
         Assert.IsType<Ok>(result.Result);
     }
@@ -268,7 +268,7 @@ public class SellMethodsUnitTests
         var mockRepo = new MockAuctionRepository(MockRepoContent.Append(existingAuction).ToList());
         var updateRequest = new AuctionUpdateRequest(existingAuction.Id, new DateTimeOffset(2025, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        _ = await SellMethods.UpdateAuctionAsync(user, updateRequest, _currentTime, mockRepo);
+        _ = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockRepo);
 
         var addedBeforeContent = MockRepoContent;
         Assert.True(mockRepo.AllChangesCommited);
@@ -310,7 +310,7 @@ public class SellMethodsUnitTests
 
         var updateRequest = new AuctionUpdateRequest(addedBeforeContent[0].Id, new DateTimeOffset(2027, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _currentTime, mockRepo);
+        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockRepo);
 
         Assert.IsType<NotFound<AuctionIdNotFound>>(result.Result);
     }
@@ -334,7 +334,7 @@ public class SellMethodsUnitTests
         var mockRepo = new MockAuctionRepository(addedBeforeContent.Append(existingAuction).ToList());
         var updateRequest = new AuctionUpdateRequest(existingAuction.Id, new DateTimeOffset(2023, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, _currentTime, mockRepo);
+        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockRepo);
 
         Assert.IsType<UnprocessableEntity<InvalidAuctionParameters>>(result.Result);
     }

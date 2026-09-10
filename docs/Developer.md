@@ -139,7 +139,4 @@ The integration tests use:
 
 These are implementation mismatches visible in the source:
 
-- `BuyMethods.ListNotFinishedAuctionsOfASellerAsync` returns an empty list for an unknown seller id, even though its signature and XML comment suggest a `NotFound<UserIdNotFound>` path.
 - `AppRepository.CommitAsync` catches `DbUpdateConcurrencyException`, but the caught exception is not propagated, so the caller does not observe a failure.
-- `BuyMethods.BidAsync` does not enforce minimum bid rules in code, even though the evaluator exposes current minimum bid logic and the unit tests exercise low-bid rejection.
-- `currentTime` is accepted by `UpdateAuctionAsync` but is not used.
