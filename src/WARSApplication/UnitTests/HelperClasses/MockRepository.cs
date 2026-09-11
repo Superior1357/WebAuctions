@@ -1,9 +1,10 @@
 using WARSApplication.Data.DataModel.Business;
+using WARSApplication.Exceptions;
 using WARSApplication.Repository;
 
 namespace UnitTests.HelperClasses;
 
-internal class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
+internal class MockRepository<T>(ICollection<T> repoItems, bool commitWithConcurrencyConflict) : IRepository<T>
 {
     private readonly ICollection<T> _repoContent = repoItems.ToList();
     public ICollection<T> CommitedRepoContent { get; private set; } = repoItems.ToList();
@@ -28,10 +29,16 @@ internal class MockRepository<T>(ICollection<T> repoItems) : IRepository<T>
 
     public Task CommitAsync()
     {
+        if (commitWithConcurrencyConflict)
+        {
+            var completionSource = new TaskCompletionSource();
+            completionSource.SetException(new ConcurrencyException());
+        }
+        
         AllChangesCommited = true;
         CommitedRepoContent = _repoContent.ToList();
         return Task.CompletedTask;
     }
 }
 
-internal class MockAuctionRepository(ICollection<Auction> repoItems) : MockRepository<Auction>(repoItems);
+internal class MockAuctionRepository(ICollection<Auction> repoItems, bool commitWithConcurrencyConflict = false) : MockRepository<Auction>(repoItems, commitWithConcurrencyConflict);

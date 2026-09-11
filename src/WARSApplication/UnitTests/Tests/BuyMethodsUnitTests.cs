@@ -218,7 +218,21 @@ public class BuyMethodsUnitTests
         Assert.Contains(firstPriceCorrespondingAuction.Bids,
             bid => bid.Bidder.Id == TestUser.Id && bid.Value == bidRequest.Amount);
     }
-
+    [Fact]
+    public async Task Bid_Concurrency_Conflict_Solved_When_Commit_Finished_With_A_Concurrency_Exception_Async()
+    {
+        // Arrange
+        var addedBeforeAuctionContent = MockAuctionsRepoContent;
+        var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent, true);
+        var bid = new BidRequest(addedBeforeAuctionContent[5].Id, 10_000);
+        
+        // Act
+        var result = await BuyMethods.BidAsync(TestUser, bid, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
+        
+        // Assert
+        Assert.IsType<Conflict<ConcurrencyConflictResponse>>(result.Result);
+    }
+    
     [Fact]
     public async Task Bid_Returns_Not_Found_When_Auction_Id_Not_Found_Async()
     {
@@ -263,7 +277,8 @@ public class BuyMethodsUnitTests
                     [
                         MakeBid(0, 1000, TestUser, new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)), 
                         MakeBid(1, 1500, MakeUser(TestUser.Id.Id + 2), new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero)),
-                        MakeBid(2, 2000, TestUser, new DateTimeOffset(2021, 3, 1, 1, 1, 2, TimeSpan.Zero))]
+                        MakeBid(2, 2000, TestUser, new DateTimeOffset(2021, 3, 1, 1, 1, 2, TimeSpan.Zero))
+                    ]
                 ),
                 1000
             )

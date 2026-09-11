@@ -16,7 +16,7 @@ internal abstract record DataModelAuction
     
     [ConcurrencyCheck]
     public int Version { get; private set; }
-    public void IncrementVersion() => Version++;
+    public void IncrementVersion() => Version++; // only when changing bids since end time is prolonged only 
     public ICollection<DataModelBid> Bids { get; init; } = new List<DataModelBid>();
 }
 

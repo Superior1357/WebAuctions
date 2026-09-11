@@ -120,9 +120,14 @@ internal static class BuyMethods
     /// OK status code upon success.
     /// NotFound code and AuctionIdNotFound message when the auction id does not belong to an auction.
     /// UnprocessableEntity code and BidAuctionRulesViolationResponse message when the bid violates the auction rules.
+    /// Conflict code and ConcurrencyConflictResponse message when the bid is not assigned to the auction because of a concurrency conflict.
     /// </returns>
     /// <exception cref="ArgumentOutOfRangeException">a new auction type is added and not handled in the switch expression</exception>
-    public static async Task<Results<Ok, NotFound<AuctionIdNotFound>, UnprocessableEntity<BidAuctionRulesViolationResponse>>>
+    public static async Task<Results<
+            Ok, 
+            NotFound<AuctionIdNotFound>,
+            UnprocessableEntity<BidAuctionRulesViolationResponse>, 
+            Conflict<ConcurrencyConflictResponse>>>
         BidAsync(User usr, BidRequest bidRequest, ICurrentTime now, IRepository<Auction> auctionRepository,
             IAuctionEvaluator auctionEvaluator)
             // TODO: concurrency conflict can occur here
