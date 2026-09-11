@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using UnitTests.HelperClasses;
 using WARSApplication;
 using WARSApplication.AuctionEvaluation;
+using WARSApplication.Data;
 using WARSApplication.Data.APIData.Incoming;
 using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.DataModel.Business;
@@ -72,7 +73,8 @@ public class BuyMethodsUnitTests
                     [
                         MakeBid(0, 1000, TestUser, new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)), 
                         MakeBid(1, 1500, MakeUser(TestUser.Id.Id + 2), new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero)),
-                        MakeBid(2, 2000, TestUser, new DateTimeOffset(2021, 3, 1, 1, 1, 2, TimeSpan.Zero))]
+                        MakeBid(2, 2000, TestUser, new DateTimeOffset(2021, 3, 1, 1, 1, 2, TimeSpan.Zero))
+                    ]
                     ),
                 1000
             );
@@ -197,7 +199,8 @@ public class BuyMethodsUnitTests
 
         Assert.IsType<NotFound<UserIdNotFound>>(response.Result);
     }
-
+    
+    // TODO: come up with many more bid testing cases
     [Fact]
     public async Task Bid_Bids_To_An_Auction_Async()
     {
@@ -275,12 +278,9 @@ public class BuyMethodsUnitTests
                 new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
                 new TestAddOnlyCollection<Bid>(
                     [
-                        MakeBid(0, 1000, TestUser, new DateTimeOffset(2021, 1, 1, 1, 1, 2, TimeSpan.Zero)), 
-                        MakeBid(1, 1500, MakeUser(TestUser.Id.Id + 2), new DateTimeOffset(2021, 2, 1, 1, 1, 2, TimeSpan.Zero)),
-                        MakeBid(2, 2000, TestUser, new DateTimeOffset(2021, 3, 1, 1, 1, 2, TimeSpan.Zero))
                     ]
                 ),
-                1000
+                10
             )
         },
         
@@ -293,7 +293,7 @@ public class BuyMethodsUnitTests
             new DateTimeOffset(2021, 12, 30, 0, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero),
             null,
-            1000,
+            10,
             2,
             new TimeSpan(1,0, 0, 0)
             )
@@ -306,7 +306,7 @@ public class BuyMethodsUnitTests
     {
         var mockAuctionRepo = new MockAuctionRepository([activeAuction]);
         
-        var bidRequest = new BidRequest(activeAuction.Id, 1);
+        var bidRequest = new BidRequest(activeAuction.Id, 100);
         
         var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
         Assert.IsType<UnprocessableEntity<BidAuctionRulesViolationResponse>>(response.Result);
@@ -335,72 +335,189 @@ public class BuyMethodsUnitTests
 
         Assert.IsType<UnprocessableEntity<BidAuctionRulesViolationResponse>>(response.Result);
     }
+
+    private class MockAuctionToBuyerAuctionInfoConverter(Dictionary<AuctionId, BuyerAuctionInfo> mapping) : IDataConverter<Auction, BuyerAuctionInfo>
+    {
+        public BuyerAuctionInfo Convert(Auction entity) => mapping[entity.Id];
+    }
     
     [Fact]
     public async Task Info_Returns_Info_About_Auctions_Async()
     {
+        // Arrange
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
 
+        var infoDictionary = new Dictionary<AuctionId, BuyerAuctionInfo>
+        {
+            [new AuctionId(5)] = new DutchAuctionInfo
+            {
+                CurrentPrice = 123,
+                AuctionId = new AuctionId(5),
+                Description = "something",
+                SellerId = new UserId(123456789),
+                StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                Status = AuctionStatus.Pending
+            },
+            
+            [new AuctionId(2)] = new EnglishAuctionInfo
+            {
+                AuctionId = new AuctionId(2),
+                Description = "something",
+                SellerId = new UserId(123456789),
+                StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                Status = AuctionStatus.Pending,
+                CurrentMinimumBid = 34
+            },
+            
+            [new AuctionId(1)] = new FirstPriceSealedBidInfo
+            {
+                AuctionId = new AuctionId(1),
+                Description = "something",
+                SellerId = new UserId(123456789),
+                StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                Status = AuctionStatus.Pending
+            }
+        };
+        
+        var converter = new MockAuctionToBuyerAuctionInfoConverter(infoDictionary);
+        
         AuctionId[] requestedIds = [new(5), new(2), new(1)];
         
-        var response = await BuyMethods.GetInfoAsync(requestedIds, MockAuctionEvaluator, mockAuctionRepo);
-
+        // Act
+        var response = await BuyMethods.GetInfoAsync(requestedIds, mockAuctionRepo, converter);
         var result = Assert.IsType<Ok<IEnumerable<BuyerAuctionInfo>>>(response.Result).Value.ToList();
-
+        
+        // Assert
         Assert.Equal(3, result.Count);
 
-        for (int i = 0; i < 3; i++)
+        for (var i = 0; i < 3; i++)
         {
-            var info = result[i];
-            var auction = addedBeforeAuctionContent.First(a => a.Id == requestedIds[i]);
+            var id = requestedIds[i];
 
-            Assert.Equal(auction.Id, info.AuctionId);
-            Assert.Equal(auction.Seller.Id, info.SellerId);
-            Assert.Equal(auction.Description, info.Description);
-            Assert.Equal(auction.StartTime, info.StartTime);
-            Assert.Equal(auction.EndTime, info.EndTime);
-            Assert.Equal(MockAuctionEvaluator.EvaluateStatus(auction), info.Status);
+            var expected = infoDictionary[id];
+            var obtained = result[i];
+            
+            Assert.Equal(expected, obtained);
         }
-        
-        var english = Assert.IsType<EnglishAuctionInfo>(result[2]);
-        var dutch = Assert.IsType<DutchAuctionInfo>(result[1]);
-        Assert.IsType<FirstPriceSealedBidInfo>(result[0]);
-        
-        Assert.Equal(1000, english.CurrentMinimumBid);
-        Assert.Equal(1000, dutch.CurrentPrice);
     }
     
     [Fact]
     public async Task Info_Returns_Info_About_Auctions_Different_Request_Permutation_Ids_Order_Correct_Async()
     {
+        // Arrange
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
 
+        var infoDictionary = new Dictionary<AuctionId, BuyerAuctionInfo>
+        {
+            [new AuctionId(5)] = new DutchAuctionInfo
+            {
+                CurrentPrice = 123,
+                AuctionId = new AuctionId(5),
+                Description = "something",
+                SellerId = new UserId(123456789),
+                StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                Status = AuctionStatus.Pending
+            },
+
+            [new AuctionId(2)] = new EnglishAuctionInfo
+            {
+                AuctionId = new AuctionId(2),
+                Description = "something",
+                SellerId = new UserId(123456789),
+                StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                Status = AuctionStatus.Pending,
+                CurrentMinimumBid = 34
+            },
+
+            [new AuctionId(1)] = new FirstPriceSealedBidInfo
+            {
+                AuctionId = new AuctionId(1),
+                Description = "something",
+                SellerId = new UserId(123456789),
+                StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                Status = AuctionStatus.Pending
+            }
+        };
+        
+        var converter = new MockAuctionToBuyerAuctionInfoConverter(infoDictionary);
+        
         AuctionId[] requestedIds = [new(2), new(5), new(1)];
         
-        var response = await BuyMethods.GetInfoAsync(requestedIds, MockAuctionEvaluator, mockAuctionRepo);
+        var response = await BuyMethods.GetInfoAsync(requestedIds, mockAuctionRepo, converter);
         var result = Assert.IsType<Ok<IEnumerable<BuyerAuctionInfo>>>(response.Result).Value.ToList();
 
         Assert.Equal(3, result.Count);
 
         for (int i = 0; i < 3; i++)
         {
-            var info = result[i];
-            var auction = addedBeforeAuctionContent.First(a => a.Id == requestedIds[i]);
+            var id = requestedIds[i];
 
-            Assert.Equal(auction.Id, info.AuctionId);
+            var expected = infoDictionary[id];
+            var obtained = result[i];
+            
+            Assert.Equal(expected, obtained);
         }
     }
 
     [Fact]
     public async Task Info_Returns_Not_Found_When_AuctionId_Nonexistent_Async()
     {
+        // Arrange
+        
+        var infoDictionary = new Dictionary<AuctionId, BuyerAuctionInfo>
+        {
+            [new AuctionId(5)] = new DutchAuctionInfo
+            {
+                CurrentPrice = 123,
+                AuctionId = new AuctionId(444),
+                Description = "something",
+                SellerId = new UserId(123456789),
+                StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                Status = AuctionStatus.Pending
+            },
+            
+            [new AuctionId(2)] = new EnglishAuctionInfo
+            {
+                AuctionId = new AuctionId(444),
+                Description = "something",
+                SellerId = new UserId(123456789),
+                StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                Status = AuctionStatus.Pending,
+                CurrentMinimumBid = 34
+            },
+            
+            [new AuctionId(1)] = new FirstPriceSealedBidInfo
+            {
+                AuctionId = new AuctionId(444),
+                Description = "something",
+                SellerId = new UserId(123456789),
+                StartTime = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                EndTime = new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                Status = AuctionStatus.Pending
+            }
+        };
+        
+        var converter = new MockAuctionToBuyerAuctionInfoConverter(infoDictionary);
+        
         AuctionId[] requestedIds = [new(5), new(2000), new(1)];
+        
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
-        var response = await BuyMethods.GetInfoAsync(requestedIds, MockAuctionEvaluator, mockAuctionRepo);
-
+        
+        // Act
+        var response = await BuyMethods.GetInfoAsync(requestedIds, mockAuctionRepo, converter);
+        
+        // Assert
         Assert.IsType<NotFound<AuctionIdNotFound>>(response.Result);
     }
 }

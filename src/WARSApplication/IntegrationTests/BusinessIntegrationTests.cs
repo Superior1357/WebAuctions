@@ -1073,7 +1073,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         AuctionId[] requestedInfo = [auction.Id];
         
         // Act
-        var response = await _client.PostAsJsonAsync($"/buy/info", requestedInfo);
+        var response = await _client.PostAsJsonAsync("/buy/info", requestedInfo);
         
         // Assert
         var content = await response.Content.ReadFromJsonAsync<IEnumerable<BuyerAuctionInfo>>();
@@ -1133,7 +1133,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         AuctionId[] requestedInfo = [auction.Id];
         
         // Act
-        var response = await _client.PostAsJsonAsync($"/buy/info", requestedInfo);
+        var response = await _client.PostAsJsonAsync("/buy/info", requestedInfo);
         
         // Assert
         var content = await response.Content.ReadFromJsonAsync<IEnumerable<BuyerAuctionInfo>>();
@@ -1193,7 +1193,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         AuctionId[] requestedInfo = [auction.Id + 10];
         
         // Act
-        var response = await _client.PostAsJsonAsync($"/buy/info", requestedInfo);
+        var response = await _client.PostAsJsonAsync("/buy/info", requestedInfo);
         
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

@@ -221,6 +221,7 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
         {
             var completionSource = new TaskCompletionSource();
             completionSource.SetException(new ConcurrencyException());
+            await completionSource.Task; // TODO: is this necessary here or can it be removed or something has to be added?
         }
     }
 }

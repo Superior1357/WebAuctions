@@ -28,6 +28,7 @@ builder.Services.AddScoped<IRepository<Auction>, AppRepository>();
 builder.Services.AddScoped<ICurrentTime, CurrentTime>();
 builder.Services.AddScoped<IAuctionEvaluator, AuctionEvaluator>();
 builder.Services.AddScoped<IDataConverter<Auction, SellerAuctionInfo>, AuctionToSellerAuctionInfo>();
+builder.Services.AddScoped<IDataConverter<Auction, BuyerAuctionInfo>, BusinessToBuyerAuctionInfo>();
 
 builder.Services.AddIdentityCore<IdentityUser>(
     options =>
