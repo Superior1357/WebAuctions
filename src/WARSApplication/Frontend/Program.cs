@@ -13,16 +13,19 @@ const string address = "http://localhost:5205";
 builder.Services
     .AddRefitClient<IBuyMethodsAPI>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{address}/buy"))
-    .AddHttpMessageHandler<AuthHandler>();
+    .AddHttpMessageHandler<AuthHandler>()
+    .RemoveAllLoggers();
 
 builder.Services
     .AddRefitClient<IAuthApi>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{address}/auth"));
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{address}/auth"))
+    .RemoveAllLoggers();
 
 builder.Services
     .AddRefitClient<ISellMethodsAPI>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{address}/sell"))
-    .AddHttpMessageHandler<AuthHandler>();
+    .AddHttpMessageHandler<AuthHandler>()
+    .RemoveAllLoggers();
 
 builder.Services.AddSingleton<ITokenBearer, TokenBearer>();
 builder.Services.AddTransient<Program>();

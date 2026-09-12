@@ -14,19 +14,21 @@ public class ListSellersAuctionsMode(UserId userId, IBuyMethodsAPI api, IViewCon
                                                       Auction type: English
                                                       Current minimum bid: {englishAuctionInfo.CurrentMinimumBid}
                                                       """,
+            
             DutchAuctionInfo dutchAuctionInfo => $"""
                                                   Auction type: Dutch
                                                   Current price: {dutchAuctionInfo.CurrentPrice}
                                                   """,
+            
             FirstPriceSealedBidInfo => "Auction type: First price sealed bid",
                         
             _ => throw new ArgumentOutOfRangeException()
         };
                     
         var shownString = $"""
-                           Auction id: {buyerInfo.AuctionId}
+                           Auction id: {buyerInfo.AuctionId.Id}
                            {extraContent}
-                           Description: {buyerInfo.Description}
+                           Description: {buyerInfo.Description.Description}
                            Seller id: {buyerInfo.SellerId.Id}
                            Status: {buyerInfo.Status}
                            Start Time: {buyerInfo.StartTime}

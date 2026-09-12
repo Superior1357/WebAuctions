@@ -11,14 +11,14 @@ public class ListMode(ISellMethodsAPI api, IViewController controller) : IView
         var auctionTypeSpecificContent = info switch
         {
             EnglishSellerAuctionInfo englishAuctionInfo => $"""
-                                                      Auction type: English
-                                                      Starting price: {englishAuctionInfo.StartingPrice}
-                                                      """,
+                                                            Auction type: English
+                                                            Starting price: {englishAuctionInfo.StartingPrice.Value}
+                                                            """,
             
             DutchSellerAuctionInfo dutchAuctionInfo => $"""
                                                   Auction type: Dutch
-                                                  Starting price: {dutchAuctionInfo.StartingPrice}
-                                                  Price decrement rate: {dutchAuctionInfo.PriceDecrementRate}
+                                                  Starting price: {dutchAuctionInfo.StartingPrice.Value}
+                                                  Price decrement rate: {dutchAuctionInfo.PriceDecrementRate.Value}
                                                   Price decrement frequency: {dutchAuctionInfo.PriceDecrementFrequency}
                                                   """,
             
@@ -34,7 +34,7 @@ public class ListMode(ISellMethodsAPI api, IViewController controller) : IView
             FinishedStatus finishedStatus => finishedStatus.Winner.HasValue
                 ? $"""
                    Auction status: Finished
-                   Winning bidder Id: {finishedStatus.Winner.Value.WinningBidderId}
+                   Winning bidder Id: {finishedStatus.Winner.Value.WinningBidderId.Id}
                    Winning bid: {finishedStatus.Winner.Value.WinningBid.Value}
                    """
                 : "Auction status: Finished",
@@ -42,9 +42,9 @@ public class ListMode(ISellMethodsAPI api, IViewController controller) : IView
         };
         
         var shownString = $"""
-                           Auction id: {info.Id}
+                           Auction id: {info.Id.Id}
                            {auctionTypeSpecificContent}
-                           Description: {info.Description}
+                           Description: {info.Description.Description}
                            Start Time: {info.StartTime}
                            End Time: {info.EndTime}
                            {statusSpecificContent}
@@ -66,7 +66,8 @@ public class ListMode(ISellMethodsAPI api, IViewController controller) : IView
                             AuctionStatus.Finished => "Finished",
                             _ => throw new ArgumentOutOfRangeException()
                         };
-                    }).AddChoices(AuctionStatus.Pending, AuctionStatus.Active, AuctionStatus.Finished)
+                    })
+                    .AddChoices(AuctionStatus.Pending, AuctionStatus.Active, AuctionStatus.Finished)
             );
 
         var auctions = await api.ListAuctionsAsync(statusChoice);
