@@ -11,6 +11,7 @@ public class CreateMode(ISellMethodsAPI api) : IView
         Dutch,
         FirstTimeSealedBid
     }
+    
     public async Task<IViewResult> RunAsync()
     {
         var description = await AnsiConsole.AskAsync<string>("Description: ");
@@ -19,7 +20,9 @@ public class CreateMode(ISellMethodsAPI api) : IView
         var endTime = await Utils.PromptTimeAsync("End time: ");
         
         var type = await AnsiConsole.PromptAsync(
-            new SelectionPrompt<string>().Title("Choose auction type").AddChoices(Enum.GetNames<AuctionType>())
+            new SelectionPrompt<string>()
+                .Title("Choose auction type")
+                .AddChoices(Enum.GetNames<AuctionType>())
             );
 
         CreatedAuction createdAuction;

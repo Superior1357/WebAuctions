@@ -46,5 +46,4 @@ public class ViewController(IServiceProvider serviceProvider) : IViewController
     }
 }
 
-
 public sealed record ApiErrorBody(string Message);

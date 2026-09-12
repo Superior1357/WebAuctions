@@ -15,6 +15,7 @@ public class ListAllSellersMode(IBuyMethodsAPI buyMethodsApi, IViewController vi
                 .PageSize(10)
                 .EnableSearch()
                 .SearchPlaceholderText("Type to search users...")
+                .UseConverter(userId => $"User {userId.Id}")
                 .AddChoices(users)
         );
 
