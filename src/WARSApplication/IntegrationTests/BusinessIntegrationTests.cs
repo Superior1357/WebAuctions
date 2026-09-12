@@ -644,10 +644,11 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         var response = await _client.GetAsync("/buy/list/sellers");
         
         // Assert
-        var content = await response.Content.ReadFromJsonAsync<IEnumerable<UserId>>();
+        var content = (await response.Content.ReadFromJsonAsync<IEnumerable<UserId>>()).ToList();
         
-        Assert.Single(content);
-        Assert.Equal(sellerUser.Id, content.First());
+        Assert.Equal(2, content.Count);
+        Assert.Contains(sellerUser.Id, content);
+        Assert.Contains(TestData.DummyUser.Id, content);
     }
     
     [Fact]

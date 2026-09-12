@@ -22,7 +22,9 @@ var authConnectionString = builder.Configuration.GetConnectionString("Auth") ?? 
 builder.Services.AddSqlite<AuthDbContext>(authConnectionString);
 
 builder.Services.AddDbContext<AuctionDbContext>(
-        options => options.UseSqlite(connectionString).ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
+        options => options
+            .UseSqlite(connectionString)
+            .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 builder.Services.AddScoped<IRepository<Auction>, AppRepository>();
 builder.Services.AddScoped<ICurrentTime, CurrentTime>();
@@ -135,4 +137,3 @@ namespace WARSApplication
         }
     }
 }
-// TODO: wrap some data conversions to the service but don't test them - make it a TODO
