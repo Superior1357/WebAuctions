@@ -39,7 +39,7 @@ public class ViewController(IServiceProvider serviceProvider) : IViewController
     {
         try
         {
-            var error = await e.GetContentAsAsync<ApiErrorBody>(); // TODO: error code here
+            var error = await e.GetContentAsAsync<ApiErrorBody>();
             var errorBody = error?.Message ?? throw new Exception("No message in error response");
 
             return $"The error \"{e.Message}\" with body \"{errorBody}\"";

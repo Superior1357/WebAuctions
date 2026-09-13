@@ -225,7 +225,7 @@ public class AuctionToSellerAuctionInfoTest
     
     [Theory]
     [MemberData(nameof(EvaluatorAndExpectedOutput))]
-    internal void Dynamic_Info_English_Auction_Read_Correctly(IAuctionEvaluator auctionEvaluator, StatusSpecificInfo expectedInfo) // TODO: just test whether whatever it gets from the status evaluator is correct
+    internal void Dynamic_Info_English_Auction_Read_Correctly(IAuctionEvaluator auctionEvaluator, StatusSpecificInfo expectedInfo)
     {
         // Arrange
         var auction = EnglishAuction.Restore(
@@ -246,7 +246,7 @@ public class AuctionToSellerAuctionInfoTest
     
     [Theory]
     [MemberData(nameof(EvaluatorAndExpectedOutput))]
-    internal void Dynamic_Info_Dutch_Auction_Read_Correctly(IAuctionEvaluator auctionEvaluator, StatusSpecificInfo expectedInfo) // TODO: just test whether whatever it gets from the status evaluator is correct
+    internal void Dynamic_Info_Dutch_Auction_Read_Correctly(IAuctionEvaluator auctionEvaluator, StatusSpecificInfo expectedInfo)
     {
         // Arrange
         var auction = DutchAuction.Restore(
@@ -270,7 +270,7 @@ public class AuctionToSellerAuctionInfoTest
     
     [Theory]
     [MemberData(nameof(EvaluatorAndExpectedOutput))]
-    internal void Dynamic_Info_FirstPriceSealedBid_Auction_Read_Correctly(IAuctionEvaluator auctionEvaluator, StatusSpecificInfo expectedInfo) // TODO: just test whether whatever it gets from the status evaluator is correct
+    internal void Dynamic_Info_FirstPriceSealedBid_Auction_Read_Correctly(IAuctionEvaluator auctionEvaluator, StatusSpecificInfo expectedInfo)
     {
         // Arrange
         var auction = FirstPriceSealedBidAuction.Restore(

@@ -242,10 +242,16 @@ public class SellMethodsUnitTests
             1000
         );
 
+        var mockEvaluator = new MockAuctionEvaluator(
+            new Dictionary<AuctionId, AuctionStatus> { [new AuctionId(4)] = AuctionStatus.Pending },
+            new Dictionary<AuctionId, WinnerInfo?> { [new AuctionId(4)] = null },
+            new Dictionary<AuctionId, Price?> { [new AuctionId(4)] = 1000 }
+        );
+        
         var mockRepo = new MockAuctionRepository(MockRepoContent.Append(existingAuction).ToList());
         var updateRequest = new AuctionUpdateRequest(existingAuction.Id, new DateTimeOffset(2025, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockRepo);
+        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockEvaluator, mockRepo);
 
         Assert.IsType<Ok>(result.Result);
     }
@@ -265,10 +271,16 @@ public class SellMethodsUnitTests
             1000
         );
 
+        var mockEvaluator = new MockAuctionEvaluator(
+            new Dictionary<AuctionId, AuctionStatus> { [new AuctionId(4)] = AuctionStatus.Pending },
+            new Dictionary<AuctionId, WinnerInfo?> { [new AuctionId(4)] = null },
+            new Dictionary<AuctionId, Price?> { [new AuctionId(4)] = 1000 }
+        );
+        
         var mockRepo = new MockAuctionRepository(MockRepoContent.Append(existingAuction).ToList());
         var updateRequest = new AuctionUpdateRequest(existingAuction.Id, new DateTimeOffset(2025, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        _ = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockRepo);
+        _ = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockEvaluator, mockRepo);
 
         var addedBeforeContent = MockRepoContent;
         Assert.True(mockRepo.AllChangesCommited);
@@ -289,7 +301,8 @@ public class SellMethodsUnitTests
             }
         }
     }
-
+    
+    
     [Fact]
     public async Task Sell_Update_Returns_Error_When_Updated_Auction_Does_Not_Belong_To_User_Async()
     {
@@ -305,12 +318,18 @@ public class SellMethodsUnitTests
             1000
         );
 
+        var mockEvaluator = new MockAuctionEvaluator(
+            new Dictionary<AuctionId, AuctionStatus> { [new AuctionId(4)] = AuctionStatus.Pending },
+            new Dictionary<AuctionId, WinnerInfo?> { [new AuctionId(4)] = null },
+            new Dictionary<AuctionId, Price?> { [new AuctionId(4)] = 1000 }
+        );
+        
         var addedBeforeContent = MockRepoContent;
         var mockRepo = new MockAuctionRepository(addedBeforeContent.Append(existingAuction).ToList());
 
         var updateRequest = new AuctionUpdateRequest(addedBeforeContent[0].Id, new DateTimeOffset(2027, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockRepo);
+        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockEvaluator, mockRepo);
 
         Assert.IsType<NotFound<AuctionIdNotFound>>(result.Result);
     }
@@ -329,12 +348,48 @@ public class SellMethodsUnitTests
             new TestAddOnlyCollection<Bid>([]),
             1000
         );
+        
+        var mockEvaluator = new MockAuctionEvaluator(
+            new Dictionary<AuctionId, AuctionStatus> { [new AuctionId(4)] = AuctionStatus.Pending },
+            new Dictionary<AuctionId, WinnerInfo?> { [new AuctionId(4)] = null },
+            new Dictionary<AuctionId, Price?> { [new AuctionId(4)] = 1000 }
+        );
 
         var addedBeforeContent = MockRepoContent;
         var mockRepo = new MockAuctionRepository(addedBeforeContent.Append(existingAuction).ToList());
         var updateRequest = new AuctionUpdateRequest(existingAuction.Id, new DateTimeOffset(2023, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
 
-        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockRepo);
+        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockEvaluator, mockRepo);
+
+        Assert.IsType<UnprocessableEntity<InvalidAuctionParameters>>(result.Result);
+    }
+    
+    [Fact]
+    public async Task Sell_Update_Returns_Error_When_Trying_To_Update_Finished_Auction_Async()
+    {
+        var user = TestUser;
+
+        var existingAuction = EnglishAuction.Restore(
+            new AuctionId(4),
+            "test",
+            user,
+            new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            new TestAddOnlyCollection<Bid>([]),
+            1000
+        );
+
+        var mockEvaluator = new MockAuctionEvaluator(
+            new Dictionary<AuctionId, AuctionStatus> { [new AuctionId(4)] = AuctionStatus.Finished },
+            new Dictionary<AuctionId, WinnerInfo?> { [new AuctionId(4)] = null },
+            new Dictionary<AuctionId, Price?> { [new AuctionId(4)] = 1000 }
+        );
+
+        var addedBeforeContent = MockRepoContent;
+        var mockRepo = new MockAuctionRepository(addedBeforeContent.Append(existingAuction).ToList());
+        var updateRequest = new AuctionUpdateRequest(existingAuction.Id, new DateTimeOffset(2026, 1, 1, 1, 1, 1, 1, TimeSpan.Zero));
+
+        var result = await SellMethods.UpdateAuctionAsync(user, updateRequest, mockEvaluator, mockRepo);
 
         Assert.IsType<UnprocessableEntity<InvalidAuctionParameters>>(result.Result);
     }

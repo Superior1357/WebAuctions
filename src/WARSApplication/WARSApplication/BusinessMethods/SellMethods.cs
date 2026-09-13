@@ -59,8 +59,7 @@ internal static class SellMethods
     /// UnprocessableEntity code and InvalidAuctionParameters message when the request is invalid.
     /// </returns>
     public static async Task<Results<Ok, UnprocessableEntity<InvalidAuctionParameters>>> CreateAuctionAsync(User user, CreatedAuction createdAuction, ICurrentTime currentTime, IRepository<Auction> repository)
-    { // TODO: use a factory service, not a local function
-        // TODO: delegate the validation/checks somewhere else?
+    {
         if (createdAuction.StartTime < currentTime.Now)
             return TypedResults.UnprocessableEntity(new InvalidAuctionParameters("start time"));
         
@@ -72,12 +71,13 @@ internal static class SellMethods
         await repository.CommitAsync();
         return TypedResults.Ok();
     }
+    
     /// <summary>
     /// Update the end time of a not-finished-yet auction.
     /// </summary>
     /// <param name="user">authenticated user</param>
     /// <param name="request">auction update request</param>
-    /// <param name="currentTime">current time</param>
+    /// <param name="auctionEvaluator">auction evaluation service</param>
     /// <param name="repository">the repository service</param>
     /// <returns>
     /// OK status code upon successful auction update.
@@ -85,20 +85,24 @@ internal static class SellMethods
     /// UnprocessableEntity code and InvalidAuctionParameters message when the request is invalid.
     /// </returns>
     public static async Task<Results<Ok, NotFound<AuctionIdNotFound>, UnprocessableEntity<InvalidAuctionParameters>>>
-        UpdateAuctionAsync(User user, AuctionUpdateRequest request, IRepository<Auction> repository)
-    { // TODO: if auction is finished then don't allow update
-        // TODO: concurrency conflict can occur here
+        UpdateAuctionAsync(User user, AuctionUpdateRequest request, IAuctionEvaluator auctionEvaluator, IRepository<Auction> repository)
+    { 
         var auctions = await repository.ListAsync();
         var auction = auctions.FirstOrDefault(a => a.Id == request.Id);
         
         if (auction is null)
             return TypedResults.NotFound(new AuctionIdNotFound($"not found {request.Id}"));
         
+        if (auction.Seller != user)
+            return TypedResults.NotFound(new AuctionIdNotFound("different seller than user"));
+        
         if (request.NewEnd < auction.EndTime)
             return TypedResults.UnprocessableEntity(new InvalidAuctionParameters("end time"));
         
-        if (auction.Seller != user)
-            return TypedResults.NotFound(new AuctionIdNotFound("different seller than user"));
+        if (auctionEvaluator.EvaluateStatus(auction) == AuctionStatus.Finished)
+        {
+            return TypedResults.UnprocessableEntity(new InvalidAuctionParameters("auction finished"));
+        }
         
         auction.EndTime = request.NewEnd;
         
@@ -106,6 +110,8 @@ internal static class SellMethods
         await repository.CommitAsync();
         return TypedResults.Ok();
     }
+    
+    
     /// <summary>
     /// List ids of all auctions of a seller that are in a specified status.
     /// </summary>
@@ -123,6 +129,8 @@ internal static class SellMethods
         var specified = auctions.Where(a => evaluator.EvaluateStatus(a) == status && a.Seller == user).Select(a => a.Id);
         return TypedResults.Ok(specified);
     }
+    
+    
     /// <summary>
     /// Get information about auction the user (seller) instantiated.
     /// </summary>

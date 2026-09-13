@@ -4,7 +4,6 @@ using WARSApplication.Data.DataModel.Business;
 
 namespace WARSApplication.Data.DataConverters;
 
-// TODO: tests for this class/service
 internal class BusinessToBuyerAuctionInfo(IAuctionEvaluator auctionEvaluator) : IDataConverter<Auction, BuyerAuctionInfo>
 {
     public BuyerAuctionInfo Convert(Auction auction)

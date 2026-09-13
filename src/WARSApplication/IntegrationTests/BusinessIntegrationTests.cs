@@ -592,7 +592,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
     }
     
     [Fact]
-    public async Task Buy_List_Sellers_Returns_Correct_Sellers_Async() // TODO: should not contain the calling user?
+    public async Task Buy_List_Sellers_Returns_Correct_Sellers_Async()
     {
         // Arrange
         DataModelUser sellerUser;
@@ -767,7 +767,6 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         Assert.Single(content);
         Assert.Equal(sellerAuction.Id, content.First());
         
-        // TODO: fix it so that id parameter binding (AuctionId, UserId) is correct and not causing errors  
     }
     
     [Fact]

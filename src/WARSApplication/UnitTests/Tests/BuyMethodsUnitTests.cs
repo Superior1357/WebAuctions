@@ -200,9 +200,8 @@ public class BuyMethodsUnitTests
         Assert.IsType<NotFound<UserIdNotFound>>(response.Result);
     }
     
-    // TODO: come up with many more bid testing cases
     [Fact]
-    public async Task Bid_Bids_To_An_Auction_Async()
+    public async Task Bid_Bids_To_An_First_Price_Sealed_Bid_Auction_Async()
     {
         var addedBeforeAuctionContent = MockAuctionsRepoContent;
         var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
@@ -221,6 +220,66 @@ public class BuyMethodsUnitTests
         Assert.Contains(firstPriceCorrespondingAuction.Bids,
             bid => bid.Bidder.Id == TestUser.Id && bid.Value == bidRequest.Amount);
     }
+    
+    [Fact]
+    public async Task Bid_Bids_To_An_Active_English_Auction_Async()
+    {
+        var addedBeforeAuctionContent = MockAuctionsRepoContent;
+        var mockAuctionRepo = new MockAuctionRepository(addedBeforeAuctionContent);
+
+        var bidRequest = new BidRequest(addedBeforeAuctionContent[3].Id, 10_000);
+
+        var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, MockAuctionEvaluator);
+        Assert.IsType<Ok>(response.Result);
+        Assert.True(mockAuctionRepo.AllChangesCommited);
+        Assert.Contains(addedBeforeAuctionContent[3].Id, mockAuctionRepo.UpdatesCalled.Select(u => u.Id));
+
+        var repoContent = mockAuctionRepo.CommitedRepoContent;
+        var correspondingAuction = repoContent.First(a => a.Id == addedBeforeAuctionContent[3].Id);
+
+        var englishCorrespondingAuction = Assert.IsType<EnglishAuction>(correspondingAuction);
+        Assert.Contains(englishCorrespondingAuction.Bids,
+            bid => bid.Bidder.Id == TestUser.Id && bid.Value == bidRequest.Amount);
+    }
+    
+    [Fact]
+    public async Task Bid_Bids_To_An_Active_Dutch_Auction_Async()
+    {
+        var activeDutchAuction = DutchAuction.Restore(
+            new AuctionId(6),
+            "added_before_active_dutch",
+            MakeUser(TestUser.Id.Id + 2),
+            new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            null,
+            1000,
+            2,
+            new TimeSpan(0, 0, 1)
+        );
+
+        var auctionEvaluator = new MockAuctionEvaluator(
+            new Dictionary<AuctionId, AuctionStatus> { [new AuctionId(6)] = AuctionStatus.Active },
+            new Dictionary<AuctionId, WinnerInfo?> { [new AuctionId(6)] = null },
+            new Dictionary<AuctionId, Price?> { [new AuctionId(6)] = 100 }
+        );
+        var mockAuctionRepo = new MockAuctionRepository([activeDutchAuction]);
+
+        var bidRequest = new BidRequest(activeDutchAuction.Id, 10_000);
+
+        var response = await BuyMethods.BidAsync(TestUser, bidRequest, _currentTime, mockAuctionRepo, auctionEvaluator);
+        Assert.IsType<Ok>(response.Result);
+        Assert.True(mockAuctionRepo.AllChangesCommited);
+        Assert.Contains(activeDutchAuction.Id, mockAuctionRepo.UpdatesCalled.Select(u => u.Id));
+
+        var repoContent = mockAuctionRepo.CommitedRepoContent;
+        var correspondingAuction = repoContent.First(a => a.Id == activeDutchAuction.Id);
+
+        var dutchCorrespondingAuction = Assert.IsType<DutchAuction>(correspondingAuction);
+        Assert.NotNull(dutchCorrespondingAuction.Bid);
+        Assert.Equal(TestUser.Id, dutchCorrespondingAuction.Bid.Bidder.Id);
+        Assert.Equal(bidRequest.Amount, dutchCorrespondingAuction.Bid.Value);
+    }
+    
     [Fact]
     public async Task Bid_Concurrency_Conflict_Solved_When_Commit_Finished_With_A_Concurrency_Exception_Async()
     {

@@ -196,6 +196,7 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
                 throw new ArgumentOutOfRangeException();
         }
     }
+    
     /// <summary>
     /// Asynchronously add an auction to the database.
     /// </summary>
@@ -219,13 +220,7 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
         
         catch (DbUpdateConcurrencyException)
         {
-            var completionSource = new TaskCompletionSource();
-            completionSource.SetException(new ConcurrencyException());
-            await completionSource.Task; // TODO: is this necessary here or can it be removed or something has to be added?
+            throw new ConcurrencyException();
         }
     }
 }
-/* TODO list: 
-- improve frontend (so that it looks better)
-- registration twice handling
-*/

@@ -31,11 +31,9 @@ internal class MockRepository<T>(ICollection<T> repoItems, bool commitWithConcur
     {
         if (commitWithConcurrencyConflict)
         {
-            var completionSource = new TaskCompletionSource();
-            completionSource.SetException(new ConcurrencyException());
-            return completionSource.Task;
+            return Task.FromException(new ConcurrencyException());
         }
-        
+    
         AllChangesCommited = true;
         CommitedRepoContent = _repoContent.ToList();
         return Task.CompletedTask;

@@ -1122,5 +1122,4 @@ public class AppRepositoryTests
             }
         }
     }
-    // TODO: remove the status tests and place them somewhere else (delegate the responsibility to something else)
 }

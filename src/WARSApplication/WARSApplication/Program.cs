@@ -43,7 +43,11 @@ builder.Services.AddIdentityCore<IdentityUser>(
     }
 ).AddEntityFrameworkStores<AuthDbContext>();
 
-var jwtKey = builder.Configuration["JwtSecret"]; // TODO: what if not configured?
+var jwtKey = builder.Configuration["JwtSecret"];
+if (jwtKey == null)
+{
+    throw new Exception("JwtSecret not configured");
+}
 
 builder.Services.AddAuthentication(options =>
     {

@@ -9,7 +9,7 @@ using WARSApplication.Data.DataModel.Business;
 namespace WARSApplication;
 
 internal static class AuthMethods
-{ // TODO: what if the user exists already?
+{
     /// <summary>
     /// Adds a new user to the authentication database. 
     /// </summary>
