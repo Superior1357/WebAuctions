@@ -18,31 +18,37 @@ public class ViewController(IServiceProvider serviceProvider) : IViewController
         {
             return await view.RunAsync();
         }
+        
         catch (ApiException e)
         {
             await ShowApiErrorAsync(e);
             return new Result();
         }
+        
         catch (Exception e)
         {
-            await AnsiConsole.PromptAsync(
-                new ConfirmationPrompt($"The following error: {e.Message} occured. Click to continue...")
-            );
+            AnsiConsole.MarkupLine($"The following error: {e.Message} occured.");
             return new Result();
         }
     }
 
     private static async Task ShowApiErrorAsync(ApiException e)
-        => await AnsiConsole.PromptAsync(
-            new ConfirmationPrompt($"The following error: {await ExtractMessageAsync(e)} occured. Click to continue...")
-        );
+        => AnsiConsole.MarkupLine($"The following error: {await ExtractMessageAsync(e)} occured.");
 
     private static async Task<string> ExtractMessageAsync(ApiException e)
     {
-        var error = await e.GetContentAsAsync<ApiErrorBody>(); // TODO: error code here
-        var errorBody = error?.Message ?? throw new Exception("No message in error response");
+        try
+        {
+            var error = await e.GetContentAsAsync<ApiErrorBody>(); // TODO: error code here
+            var errorBody = error?.Message ?? throw new Exception("No message in error response");
 
-        return $"The error \"{e.Message}\" with body \"{errorBody}\" occured";
+            return $"The error \"{e.Message}\" with body \"{errorBody}\"";
+        }
+        
+        catch (Exception)
+        {
+            return $"The error \"{e.Message}\"";
+        }
     }
 }
 

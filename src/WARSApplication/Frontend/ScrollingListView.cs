@@ -47,6 +47,7 @@ public class ScrollingListView<T>(List<T> items, Func<T, Panel> itemToPanel) whe
             AnsiConsole.Write(shownPanel);
             await controller.MakeSelectionAsync();
         }
+        AnsiConsole.Clear();
 
         return _result;
     }

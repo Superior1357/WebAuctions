@@ -55,12 +55,20 @@ public partial class Program(IServiceProvider services)
 {
     public async Task RunAsync()
     {
-        var authMode = await PresentModes.PresentAsync(
-            services.GetRequiredService<LoginMode>(),
-            services.GetRequiredService<RegisterMode>()
-            );
+        var viewController = services.GetRequiredService<IViewController>();
+        var tokenBearer = services.GetRequiredService<ITokenBearer>();
         
-        _ = await authMode.RunAsync();
+        do
+        {
+            AnsiConsole.Clear();
+            
+            var authMode = await PresentModes.PresentAsync(
+                services.GetRequiredService<LoginMode>(),
+                services.GetRequiredService<RegisterMode>()
+            );
+
+            await viewController.ShowViewAsync(authMode);
+        } while (tokenBearer.Token == null);
         
         while (true)
         {
@@ -73,7 +81,13 @@ public partial class Program(IServiceProvider services)
             ];
             
             var mode = await PresentModes.PresentAsync(menuOptions);
-            _ = await mode.RunAsync();
+            _ = await viewController.ShowViewAsync(mode);
+            
+            AnsiConsole.Prompt(
+                new TextPrompt<string>("The process is complete. Press [green][[Enter]][/] to continue...")
+                    .AllowEmpty()
+                    .Secret() // Prevents typed text from showing if they type before hitting Enter
+            );
         }
     }
 }
