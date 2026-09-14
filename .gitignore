@@ -433,3 +433,6 @@ FodyWeavers.xsd
 
 # MacOS directory files
 .DS_Store
+
+# The databases directory
+Databases/
