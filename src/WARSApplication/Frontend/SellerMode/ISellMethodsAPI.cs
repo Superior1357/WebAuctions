@@ -11,7 +11,7 @@ public interface ISellMethodsAPI
     [Post("/create")]
     public Task CreateAuctionAsync(CreatedAuction auction);
 
-    [Post("/update")]
+    [Patch("/update")]
     public Task UpdateAuctionAsync(AuctionUpdateRequest updateRequest);
 
     [Get("/list/{status}")]

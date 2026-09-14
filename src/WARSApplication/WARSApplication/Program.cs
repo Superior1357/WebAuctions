@@ -16,8 +16,14 @@ using WARSApplication.Data.DataModel.Business;
 using WARSApplication.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("Auctions") ?? "Data Source=Auctions.db";
-var authConnectionString = builder.Configuration.GetConnectionString("Auth") ?? "Data Source=Auth.db";
+
+var dataDirectory = Path.Combine(builder.Environment.ContentRootPath, "Databases");
+Directory.CreateDirectory(dataDirectory);
+
+var connectionString = builder.Configuration.GetConnectionString("Auctions")
+                       ?? $"Data Source={Path.Combine(dataDirectory, "Auctions.db")}";
+var authConnectionString = builder.Configuration.GetConnectionString("Auth")
+                           ?? $"Data Source={Path.Combine(dataDirectory, "Auth.db")}";
 
 builder.Services.AddSqlite<AuthDbContext>(authConnectionString);
 
@@ -44,6 +50,15 @@ builder.Services.AddIdentityCore<IdentityUser>(
 ).AddEntityFrameworkStores<AuthDbContext>();
 
 var jwtKey = builder.Configuration["JwtSecret"];
+if (jwtKey == null)
+{
+    var secretFile = Path.Combine(dataDirectory, "jwt_secret");
+    if (File.Exists(secretFile))
+    {
+        jwtKey = File.ReadAllText(secretFile).Trim();
+    }
+}
+
 if (jwtKey == null)
 {
     throw new Exception("JwtSecret not configured");

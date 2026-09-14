@@ -1,10 +1,9 @@
-using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using WARSApplication;
 
 namespace Frontend.Authentication;
 
-public class RegisterMode(IAuthApi authApi, IViewController controller) : IView
+public class RegisterMode(IAuthApi authApi, ITokenBearer tokenBearer) : IView
 {
     public async Task<IViewResult> RunAsync()
     {
@@ -14,6 +13,11 @@ public class RegisterMode(IAuthApi authApi, IViewController controller) : IView
         var registerRequest = new RegisterRequest(username, password);
         await authApi.RegisterAsync(registerRequest);
 
-        return await controller.ShowViewAsync<LoginMode>();
+        var loginRequest = new LoginRequest(username, password);
+        
+        var token = await authApi.LoginAsync(loginRequest);
+        tokenBearer.Token = token.Token;
+        
+        return new Result();
     }
 }
