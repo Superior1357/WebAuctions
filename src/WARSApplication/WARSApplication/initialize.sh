@@ -19,6 +19,9 @@ else
 fi
 export JwtSecret="$(cat "$DB_DIR/jwt_secret")"
 
+echo "==> Restoring NuGet packages"
+dotnet restore "$SCRIPT_DIR/WARSApplication.csproj"
+
 echo "==> Creating Auctions.db"
 dotnet ef database update --project "$SCRIPT_DIR" \
     --context AuctionDbContext \
