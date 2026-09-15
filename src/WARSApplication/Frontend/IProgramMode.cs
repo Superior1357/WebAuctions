@@ -2,6 +2,7 @@ namespace Frontend;
 
 public interface IView
 {
+    public string Title { get; }
     Task<IViewResult> RunAsync();
 }
 

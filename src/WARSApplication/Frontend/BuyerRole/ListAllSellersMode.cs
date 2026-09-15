@@ -7,12 +7,14 @@ public class ListAllSellersMode(IBuyMethodsAPI buyMethodsApi, IViewController vi
 {
     private record UserIdClass(UserId Id);
     private static Panel IdToPanel(UserIdClass id) => new ($"User ID: {id.Id.Id}");
-    
+
+    public string Title => "List all sellers";
+
     public async Task<IViewResult> RunAsync()
     {
         var users = (await buyMethodsApi.ListAllSellersAsync()).Select(user => new UserIdClass(user)).ToList();
 
-        var view = new ScrollingListView<UserIdClass>(users, IdToPanel);
+        var view = new ScrollingListView<UserIdClass>("Choose a seller to list all his auctions.", users, IdToPanel);
         var user = await view.MakeChoiceAsync();
         
         if (user is null) return new Result();

@@ -4,8 +4,10 @@ using WARSApplication.Data.APIData.Outgoing;
 
 namespace Frontend.BuyerMode;
 
-public class InfoAndBidView(BuyerAuctionInfo info, IBuyMethodsAPI api) : IView
+public class BidView(BuyerAuctionInfo info, IBuyMethodsAPI api) : IView
 {
+    public string Title => "Bid on auction";
+
     public async Task<IViewResult> RunAsync()
     {
         AnsiConsole.MarkupLine(info.ToString());

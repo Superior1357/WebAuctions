@@ -54,6 +54,15 @@ return;
 
 public partial class Program(IServiceProvider services)
 {
+    private static void MakeConfirmationPrompt()
+    {
+        AnsiConsole.Prompt(
+            new TextPrompt<string>("The process is complete. Press [green][[Enter]][/] to continue...")
+                .AllowEmpty()
+                .Secret() // Prevents typed text from showing if they type before hitting Enter
+        );
+    } 
+    
     public async Task RunAsync()
     {
         var viewController = services.GetRequiredService<IViewController>();
@@ -63,12 +72,13 @@ public partial class Program(IServiceProvider services)
         {
             AnsiConsole.Clear();
             
-            var authMode = await PresentModes.PresentAsync(
+            var authMode = await PresentOptions.PresentAsync(
                 services.GetRequiredService<LoginMode>(),
                 services.GetRequiredService<RegisterMode>()
             );
 
             await viewController.ShowViewAsync(authMode);
+            MakeConfirmationPrompt();
         } while (tokenBearer.Token == null);
         
         while (true)
@@ -81,14 +91,10 @@ public partial class Program(IServiceProvider services)
                 services.GetRequiredService<SellerRole>()
             ];
             
-            var mode = await PresentModes.PresentAsync(menuOptions);
+            var mode = await PresentOptions.PresentAsync(menuOptions);
             _ = await viewController.ShowViewAsync(mode);
             
-            AnsiConsole.Prompt(
-                new TextPrompt<string>("The process is complete. Press [green][[Enter]][/] to continue...")
-                    .AllowEmpty()
-                    .Secret() // Prevents typed text from showing if they type before hitting Enter
-            );
+            MakeConfirmationPrompt();
         }
     }
 }

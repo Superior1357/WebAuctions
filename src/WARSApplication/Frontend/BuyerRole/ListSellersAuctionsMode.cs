@@ -39,19 +39,19 @@ public class ListSellersAuctionsMode(UserId userId, IBuyMethodsAPI api, IViewCon
     }
 
     private int currentIndex = 0;
-    
+    public string Title => "List seller's auctions";
     public async Task<IViewResult> RunAsync()
     {
         var auctions = await api.ListNotFinishedAuctionsOfAUserAsync(userId);
         var infos = (await api.ListAuctionsInfoAsync(auctions)).ToList();
 
-        var scrollingListView = new ScrollingListView<BuyerAuctionInfo>(infos, BuyerAuctionInfoToListItem);
+        var scrollingListView = new ScrollingListView<BuyerAuctionInfo>("Choose an auction to bid", infos, BuyerAuctionInfoToListItem);
         var choice = await scrollingListView.MakeChoiceAsync();
 
         if (choice == null)
             return new Result();
         
-        var view = new InfoAndBidView(choice, api);
+        var view = new BidView(choice, api);
         return await viewController.ShowViewAsync(view);
     }
 }

@@ -52,7 +52,9 @@ public class ListMode(ISellMethodsAPI api, IViewController controller) : IView
 
         return new Panel(shownString);
     }
-    
+
+    public string Title => "List user's auctions";
+
     public async Task<IViewResult> RunAsync()
     {
         var statusChoice = await AnsiConsole.PromptAsync(
@@ -73,7 +75,7 @@ public class ListMode(ISellMethodsAPI api, IViewController controller) : IView
         var auctions = await api.ListAuctionsAsync(statusChoice);
         var infos = (await api.GetInfoAsync(auctions)).ToList();
 
-        var list = new ScrollingListView<SellerAuctionInfo>(infos, SellerAuctionInfoToPanel);
+        var list = new ScrollingListView<SellerAuctionInfo>("Choose an auction to update", infos, SellerAuctionInfoToPanel);
         var choice = await list.MakeChoiceAsync();
         
         if (choice is null || statusChoice == AuctionStatus.Finished)

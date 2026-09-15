@@ -2,15 +2,15 @@ using Spectre.Console;
 
 namespace Frontend;
 
-public static class PresentModes
+public static class PresentOptions
 {
     public static async Task<IView> PresentAsync(params IView[] modes)
     {
         return await AnsiConsole.PromptAsync(
             new SelectionPrompt<IView>()
-                .Title("Choose a mode")
+                .Title("Choose an option")
                 .PageSize(15)
-                .UseConverter(mode => mode.ToString())
+                .UseConverter(mode => mode.Title)
                 .AddChoices(modes)
         );
     }

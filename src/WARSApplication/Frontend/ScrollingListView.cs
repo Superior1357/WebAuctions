@@ -2,7 +2,7 @@ using Spectre.Console;
 
 namespace Frontend;
 
-public class ScrollingListView<T>(List<T> items, Func<T, Panel> itemToPanel) where T : class
+public class ScrollingListView<T>(string header, List<T> items, Func<T, Panel> itemToPanel) where T : class
 {
     private int _currentIndex = 0;
     private bool _abort = false;
@@ -45,6 +45,8 @@ public class ScrollingListView<T>(List<T> items, Func<T, Panel> itemToPanel) whe
             AnsiConsole.Clear();
             var shownPanel = new Panel(itemToPanel(items[_currentIndex]));
             AnsiConsole.Write(shownPanel);
+            
+            AnsiConsole.WriteLine(header);
             await controller.MakeSelectionAsync();
         }
         AnsiConsole.Clear();

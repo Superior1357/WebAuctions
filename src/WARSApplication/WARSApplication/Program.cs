@@ -41,11 +41,11 @@ builder.Services.AddScoped<IDataConverter<Auction, BuyerAuctionInfo>, BusinessTo
 builder.Services.AddIdentityCore<IdentityUser>(
     options =>
     {
-        // Relax password rules for easier testing
+        // Relax password rules
         options.Password.RequireDigit = false;
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequireUppercase = false;
-        options.Password.RequiredLength = 6;
+        options.Password.RequiredLength = 1;
     }
 ).AddEntityFrameworkStores<AuthDbContext>();
 

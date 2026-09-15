@@ -5,6 +5,8 @@ namespace Frontend.Authentication;
 
 public class RegisterMode(IAuthApi authApi, ITokenBearer tokenBearer) : IView
 {
+    public string Title => "Register a new user";
+
     public async Task<IViewResult> RunAsync()
     {
         var username = await AnsiConsole.AskAsync<string>("Username: ");

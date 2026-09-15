@@ -5,6 +5,8 @@ namespace Frontend.Authentication;
 
 public class LoginMode(IAuthApi authApi, ITokenBearer tokenBearer) : IView
 {
+    public string Title => "Login";
+
     public async Task<IViewResult> RunAsync()
     {
         var username = await AnsiConsole.AskAsync<string>("Username: ");

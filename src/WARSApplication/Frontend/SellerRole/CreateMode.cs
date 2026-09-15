@@ -9,9 +9,9 @@ public class CreateMode(ISellMethodsAPI api) : IView
     {
         English,
         Dutch,
-        FirstTimeSealedBid
+        FirstPriceSealedBid
     }
-    
+    public string Title => "Create auction";
     public async Task<IViewResult> RunAsync()
     {
         var description = await AnsiConsole.AskAsync<string>("Description: ");
@@ -57,7 +57,7 @@ public class CreateMode(ISellMethodsAPI api) : IView
                 };
                 
                 break;
-            case "FirstTimeSealedBid":
+            case "FirstPriceSealedBid":
                 createdAuction = new FirstPriceSealedBidCreatedAuction
                 {
                     Description = description,
