@@ -49,20 +49,9 @@ builder.Services.AddIdentityCore<IdentityUser>(
     }
 ).AddEntityFrameworkStores<AuthDbContext>();
 
-var jwtKey = builder.Configuration["JwtSecret"];
-if (jwtKey == null)
-{
-    var secretFile = Path.Combine(dataDirectory, "jwt_secret");
-    if (File.Exists(secretFile))
-    {
-        jwtKey = File.ReadAllText(secretFile).Trim();
-    }
-}
-
-if (jwtKey == null)
-{
-    throw new Exception("JwtSecret not configured");
-}
+var secretFile = Path.Combine(dataDirectory, "jwt_secret");
+var jwtKey = File.Exists(secretFile) ? File.ReadAllText(secretFile).Trim() : throw new Exception("JwtSecret not configured"); 
+builder.Configuration["JwtSecret"] = jwtKey;
 
 builder.Services.AddAuthentication(options =>
     {

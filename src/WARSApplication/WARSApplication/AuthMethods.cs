@@ -45,7 +45,8 @@ internal static class AuthMethods
             return Results.Unauthorized();
                 
         // 1. Get the secret key bytes
-        var keyBytes = Encoding.UTF8.GetBytes(config["JwtSecret"]!);
+        var jwtSecret = config["JwtSecret"];
+        var keyBytes = jwtSecret is not null ? Encoding.UTF8.GetBytes(jwtSecret) : throw new Exception("JwtSecret not configured");
                 
         // 2. Define the token's properties (Claims, Expiration, Signature)
         var tokenDescriptor = new SecurityTokenDescriptor
