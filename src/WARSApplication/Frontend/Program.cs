@@ -8,22 +8,23 @@ using Refit;
 using Spectre.Console;
 
 var builder = Host.CreateApplicationBuilder(args);
-const string address = "http://localhost:5205";
+var apiBaseAddress = builder.Configuration["Api:BaseAddress"]
+                              ?? throw new InvalidOperationException("'Api:BaseAddress' is missing from configuration.");
 
 builder.Services
     .AddRefitClient<IBuyMethodsAPI>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{address}/buy"))
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{apiBaseAddress}/buy"))
     .AddHttpMessageHandler<AuthHandler>()
     .RemoveAllLoggers();
 
 builder.Services
     .AddRefitClient<IAuthApi>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{address}/auth"))
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{apiBaseAddress}/auth"))
     .RemoveAllLoggers();
 
 builder.Services
     .AddRefitClient<ISellMethodsAPI>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{address}/sell"))
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{apiBaseAddress}/sell"))
     .AddHttpMessageHandler<AuthHandler>()
     .RemoveAllLoggers();
 
