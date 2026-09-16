@@ -1,12 +1,11 @@
 using Refit;
+using WARSApplication.Data.APIData.Incoming;
+using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.SharedDataProperties;
 
-namespace Frontend.BuyerMode;
-using WARSApplication.Data.APIData.Outgoing;
-using WARSApplication.Data.APIData.Incoming;
+namespace Frontend.BuyerRole;
 
-
-public interface IBuyMethodsAPI
+public interface IBuyMethodsApi
 {
     [Get("/list/sellers")]
     public Task<IEnumerable<UserId>> ListAllSellersAsync();

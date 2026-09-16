@@ -4,9 +4,9 @@ using WARSApplication.Data.APIData.Incoming;
 using WARSApplication.Data.APIData.Outgoing;
 using WARSApplication.Data.SharedDataProperties;
 
-namespace Frontend.SellerMode;
+namespace Frontend.SellerRole;
 
-public interface ISellMethodsAPI
+public interface ISellMethodsApi
 {
     [Post("/create")]
     public Task CreateAuctionAsync(CreatedAuction auction);

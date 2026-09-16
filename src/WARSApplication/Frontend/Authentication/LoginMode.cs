@@ -1,13 +1,20 @@
+using Frontend.GenericInterfaces;
+using Frontend.Miscellaneous;
 using Spectre.Console;
 using WARSApplication;
 
 namespace Frontend.Authentication;
-
-public class LoginMode(IAuthApi authApi, ITokenBearer tokenBearer) : IView
+/// <summary>
+/// Prompt the user for a username and password to log in to a registered account.
+/// Save the obtained token in the token bearer.
+/// </summary>
+public class LoginMode(IAuthApi authApi, ITokenBearer tokenBearer) : IViewController
 {
-    public string Title => "Login";
-
-    public async Task<IViewResult> RunAsync()
+    public string ViewName => "Login";
+    /// <summary>
+    /// Prompt the user for a username and password to log in to a registered account.
+    /// </summary>
+    public async Task RunAsync()
     {
         var username = await AnsiConsole.AskAsync<string>("Username: ");
         var password = await AnsiConsole.PromptAsync(new TextPrompt<string>("Password: ").Secret());
@@ -16,7 +23,5 @@ public class LoginMode(IAuthApi authApi, ITokenBearer tokenBearer) : IView
         var token = await authApi.LoginAsync(loginRequest);
 
         tokenBearer.Token = token.Token;
-        
-        return new Result();
     }
 }

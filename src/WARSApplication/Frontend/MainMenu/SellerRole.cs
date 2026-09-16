@@ -1,19 +1,27 @@
-using Frontend.SellerMode;
+using Frontend.GenericInterfaces;
+using Frontend.SellerRole;
+using Frontend.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Frontend;
+namespace Frontend.MainMenu;
 
-public class SellerRole(IServiceProvider serviceProvider, IViewController viewController) : IView
+/// <summary>
+/// Present the user with the options to create an auction or list all auctions.
+/// </summary>
+public class SellerRole(IServiceProvider serviceProvider, IMasterController masterController) : IViewController
 {
-    public string Title => "Seller role";
+    public string ViewName => "Seller role";
 
-    public async Task<IViewResult> RunAsync()
+    /// <summary>
+    /// Present the user with the options to create an auction or list all auctions.
+    /// </summary>
+    public async Task RunAsync()
     {
         var mode = await PresentOptions.PresentAsync(
             serviceProvider.GetRequiredService<CreateMode>(),
             serviceProvider.GetRequiredService<ListMode>()
         );
         
-        return await viewController.ShowViewAsync(mode);
+        await masterController.ShowViewAsync(mode);
     }
 }

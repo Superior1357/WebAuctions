@@ -1,26 +1,33 @@
+using Frontend.GenericInterfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 
-namespace Frontend;
+namespace Frontend.Utils;
 
-public class MainMenuLoopView(IServiceProvider services, IViewController viewController) : IView
+/// <summary>
+/// Present the user with the options to buy or sell.
+/// </summary>
+public class MainMenuLoopViewController(IServiceProvider services, IMasterController masterController) : IViewController
 {
-    public string Title => "Main menu";
-    public async Task<IViewResult> RunAsync()
+    public string ViewName => "Main menu";
+    
+    /// <summary>
+    /// Present the user with the options to buy or sell.
+    /// Keep presenting the user with the options until the user quits.
+    /// </summary>
+    public async Task RunAsync()
     {
         while (true)
         {
             AnsiConsole.Clear();
-
-            IView[] menuOptions =
+            IViewController[] menuOptions =
             [
-                services.GetRequiredService<BuyerRole>(),
-                services.GetRequiredService<SellerRole>()
+                services.GetRequiredService<MainMenu.BuyerRole>(),
+                services.GetRequiredService<MainMenu.SellerRole>()
             ];
             
             var mode = await PresentOptions.PresentAsync(menuOptions);
-            _ = await viewController.ShowViewAsync(mode);
-            
+            await masterController.ShowViewAsync(mode);
             Utils.MakeConfirmationPrompt();
         }
     }

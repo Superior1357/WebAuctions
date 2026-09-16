@@ -1,10 +1,16 @@
+using Frontend.GenericInterfaces;
+using Frontend.Utils;
 using Spectre.Console;
 using WARSApplication;
 using WARSApplication.Data.APIData.Outgoing;
+namespace Frontend.SellerRole;
 
-namespace Frontend.SellerMode;
-
-public class ListMode(ISellMethodsAPI api, IViewController controller) : IView
+/// <summary>
+/// View for listing all auctions the user instantiated.
+/// </summary>
+/// <param name="api"></param>
+/// <param name="controller"></param>
+public class ListMode(ISellMethodsApi api, IMasterController controller) : IViewController
 {
     private static Panel SellerAuctionInfoToPanel(SellerAuctionInfo info)
     {
@@ -53,9 +59,13 @@ public class ListMode(ISellMethodsAPI api, IViewController controller) : IView
         return new Panel(shownString);
     }
 
-    public string Title => "List user's auctions";
+    public string ViewName => "List user's auctions";
 
-    public async Task<IViewResult> RunAsync()
+    /// <summary>
+    /// Ask the user to choose an auction he created and show the update view.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public async Task RunAsync()
     {
         var statusChoice = await AnsiConsole.PromptAsync(
                 new SelectionPrompt<AuctionStatus>()
@@ -75,13 +85,13 @@ public class ListMode(ISellMethodsAPI api, IViewController controller) : IView
         var auctions = await api.ListAuctionsAsync(statusChoice);
         var infos = (await api.GetInfoAsync(auctions)).ToList();
 
-        var list = new ScrollingListView<SellerAuctionInfo>("Choose an auction to update", infos, SellerAuctionInfoToPanel);
+        var list = new ScrollingListViewController<SellerAuctionInfo>("Choose an auction to update", infos, SellerAuctionInfoToPanel);
         var choice = await list.MakeChoiceAsync();
         
         if (choice is null || statusChoice == AuctionStatus.Finished)
-            return new Result();
+            return;
 
         var mode = new UpdateMode(choice, api);
-        return await controller.ShowViewAsync(mode);
+        await controller.ShowViewAsync(mode);
     }
 }

@@ -1,9 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Frontend;
 using Frontend.Authentication;
-using Frontend.BuyerMode;
-using Frontend.SellerMode;
+using Frontend.BuyerRole;
+using Frontend.GenericInterfaces;
+using Frontend.MainMenu;
+using Frontend.Miscellaneous;
+using Frontend.SellerRole;
+using Frontend.Utils;
 using Refit;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -17,7 +20,7 @@ builder.Services
     .RemoveAllLoggers();
 
 builder.Services
-    .AddRefitClient<IBuyMethodsAPI>()
+    .AddRefitClient<IBuyMethodsApi>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{apiBaseAddress}/buy"))
     .AddHttpMessageHandler<AuthHandler>()
     .RemoveAllLoggers();
@@ -28,7 +31,7 @@ builder.Services
     .RemoveAllLoggers();
 
 builder.Services
-    .AddRefitClient<ISellMethodsAPI>()
+    .AddRefitClient<ISellMethodsApi>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{apiBaseAddress}/sell"))
     .AddHttpMessageHandler<AuthHandler>()
     .RemoveAllLoggers();
@@ -49,30 +52,33 @@ builder.Services.AddTransient<LoginMode>();
 builder.Services.AddTransient<AuthHandler>();
 builder.Services.AddTransient<ListAllSellersMode>();
 
-builder.Services.AddTransient<ListParticipatedAuctionsView>();
-builder.Services.AddTransient<ListWonAuctionsView>();
+builder.Services.AddTransient<ListParticipatedAuctionsViewController>();
+builder.Services.AddTransient<ListWonAuctionsViewController>();
 
-builder.Services.AddTransient<AuthenticationView>();
-builder.Services.AddTransient<MainMenuLoopView>();
+builder.Services.AddTransient<AuthenticationViewController>();
+builder.Services.AddTransient<MainMenuLoopViewController>();
 
-builder.Services.AddTransient<IViewController, ViewController>();
+builder.Services.AddTransient<IMasterController, MasterController>();
 
 using var host = builder.Build();
 
 var runner = host.Services.GetRequiredService<Program>();
 await runner.RunAsync();
-return;
 
 public partial class Program(IServiceProvider services)
 {
+    /// <summary>
+    /// The main entry point for the application.
+    /// Ask the user to login or register and then show the main menu.
+    /// </summary>
     public async Task RunAsync()
     {
-        var viewController = services.GetRequiredService<IViewController>();
+        var viewController = services.GetRequiredService<IMasterController>();
         
-        var authView = services.GetRequiredService<AuthenticationView>();
-        _ = await viewController.ShowViewAsync(authView);
+        var authView = services.GetRequiredService<AuthenticationViewController>();
+        await viewController.ShowViewAsync(authView);
         
-        var mainMenuLoopView = services.GetRequiredService<MainMenuLoopView>();
-        _ = await viewController.ShowViewAsync(mainMenuLoopView);
+        var mainMenuLoopView = services.GetRequiredService<MainMenuLoopViewController>();
+        await viewController.ShowViewAsync(mainMenuLoopView);
     }
 }

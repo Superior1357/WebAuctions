@@ -1,9 +1,14 @@
+using Frontend.GenericInterfaces;
 using Spectre.Console;
 using WARSApplication.Data.APIData.Incoming;
 
-namespace Frontend.SellerMode;
+namespace Frontend.SellerRole;
 
-public class CreateMode(ISellMethodsAPI api) : IView
+/// <summary>
+/// Control the creation of an auction.
+/// </summary>
+/// <param name="api"></param>
+public class CreateMode(ISellMethodsApi api) : IViewController
 {
     private enum AuctionType
     {
@@ -11,13 +16,18 @@ public class CreateMode(ISellMethodsAPI api) : IView
         Dutch,
         FirstPriceSealedBid
     }
-    public string Title => "Create auction";
-    public async Task<IViewResult> RunAsync()
+    public string ViewName => "Create auction";
+    
+    /// <summary>
+    /// Prompt the user for the auction's parameters and send them to the API.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public async Task RunAsync()
     {
         var description = await AnsiConsole.AskAsync<string>("Description: ");
 
-        var startTime = await Utils.PromptTimeAsync("Start time: ");
-        var endTime = await Utils.PromptTimeAsync("End time: ");
+        var startTime = await Utils.Utils.PromptTimeAsync("Start time: ");
+        var endTime = await Utils.Utils.PromptTimeAsync("End time: ");
         
         var type = await AnsiConsole.PromptAsync(
             new SelectionPrompt<string>()
@@ -71,6 +81,5 @@ public class CreateMode(ISellMethodsAPI api) : IView
         }
 
         await api.CreateAuctionAsync(createdAuction);
-        return new Result();
     }
 }

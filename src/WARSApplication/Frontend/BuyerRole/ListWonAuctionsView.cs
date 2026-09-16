@@ -1,21 +1,29 @@
+using Frontend.GenericInterfaces;
+using Frontend.Utils;
 using WARSApplication.Data.APIData.Outgoing;
 
-namespace Frontend.BuyerMode;
+namespace Frontend.BuyerRole;
 
-public class ListWonAuctionsView(IBuyMethodsAPI api) : IView
+/// <summary>
+/// View for listing all auctions the user won.
+/// </summary>
+public class ListWonAuctionsViewController(IBuyMethodsApi api) : IViewController
 {
-    public string Title => "List won auctions";
-    public async Task<IViewResult> RunAsync()
+    public string ViewName => "List won auctions";
+    
+    /// <summary>
+    /// List all auctions the user won.
+    /// </summary>
+    public async Task RunAsync()
     {
         var auctions = await api.ListWonAuctionsAsync();
         var infos = (await api.ListAuctionsInfoAsync(auctions)).ToList();
 
-        var scrollingList = new ScrollingListView<BuyerAuctionInfo>(
+        var scrollingList = new ScrollingListViewController<BuyerAuctionInfo>(
             "Auctions you won",
             infos,
-            Utils.BuyerAuctionInfoToListItem);
+            BuyerRole.Utils.BuyerAuctionInfoToListItem);
 
         _ = await scrollingList.MakeChoiceAsync();
-        return new Result();
     }
 }

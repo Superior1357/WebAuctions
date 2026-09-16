@@ -1,7 +1,7 @@
 using Refit;
 using WARSApplication.Data.SharedDataProperties;
 
-namespace Frontend;
+namespace Frontend.Miscellaneous;
 
 public interface IIdentityApi
 {

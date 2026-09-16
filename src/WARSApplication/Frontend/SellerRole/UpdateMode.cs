@@ -1,19 +1,24 @@
+using Frontend.GenericInterfaces;
 using WARSApplication.Data.APIData.Incoming;
 using WARSApplication.Data.APIData.Outgoing;
+namespace Frontend.SellerRole;
 
-namespace Frontend.SellerMode;
-
-public class UpdateMode(SellerAuctionInfo auctionInfo, ISellMethodsAPI api) : IView
+/// <summary>
+/// View for updating an auction.
+/// </summary>
+public class UpdateMode(SellerAuctionInfo auctionInfo, ISellMethodsApi api) : IViewController
 {
-    public string Title => "Update auction";
-
-    public async Task<IViewResult> RunAsync()
+    public string ViewName => "Update auction";
+    
+    /// <summary>
+    /// Ask the user for a new end time and send it to the API.
+    /// </summary>
+    public async Task RunAsync()
     {
-        var newEnd = await Utils.PromptTimeAsync("New auction end: ");
+        var newEnd = await Utils.Utils.PromptTimeAsync("New auction end: ");
 
         var updateRequest = new AuctionUpdateRequest(auctionInfo.Id, newEnd);
         
         await api.UpdateAuctionAsync(updateRequest);
-        return new Result();
     }
 }

@@ -1,16 +1,23 @@
+using Frontend.GenericInterfaces;
 using Spectre.Console;
 
-namespace Frontend;
+namespace Frontend.Utils;
 
+/// <summary>
+/// Present the user with a list of options.
+/// </summary>
 public static class PresentOptions
 {
-    public static async Task<IView> PresentAsync(params IView[] modes)
+    /// <summary>
+    /// Present the user with a list of options.
+    /// </summary>
+    public static async Task<IViewController> PresentAsync(params IViewController[] modes)
     {
         return await AnsiConsole.PromptAsync(
-            new SelectionPrompt<IView>()
+            new SelectionPrompt<IViewController>()
                 .Title("Choose an option")
                 .PageSize(15)
-                .UseConverter(mode => mode.Title)
+                .UseConverter(controller => controller.ViewName)
                 .AddChoices(modes)
         );
     }
