@@ -18,6 +18,7 @@ internal static class BuyMethods
 {
     /// <summary>
     /// Returns ids of all sellers of all auctions.
+    /// A seller is considered such a user that instantiated at least one auction.
     /// </summary>
     /// <param name="repository">the repository service</param>
     /// <returns>OK status code and enumerable of seller user ids.</returns>
@@ -30,7 +31,7 @@ internal static class BuyMethods
     }
     
     /// <summary>
-    /// Returns ids of all auctions in which the user participated.
+    /// Returns ids of all auctions in which the user participated (made a bid).
     /// </summary>
     /// <param name="usr">an authenticated user</param>
     /// <param name="repository">the repository service</param>
@@ -56,6 +57,7 @@ internal static class BuyMethods
 
     /// <summary>
     /// Lists ids of all auctions in which the user won.
+    /// Whether the user won is determined by the auction evaluator.
     /// </summary>
     /// <param name="usr">an authenticated user</param>
     /// <param name="repository">the repository service</param>
@@ -77,7 +79,8 @@ internal static class BuyMethods
         return TypedResults.Ok(wonIds);
     }
     /// <summary>
-    /// List ids of all auctions of a seller that are not finished yet. 
+    /// List ids of all auctions of a seller that are not finished yet.
+    /// Auction status is determined by the auction evaluator.
     /// </summary>
     /// <param name="seller">the seller whose auctions are requested.</param>
     /// <param name="auctionRepository">the repository service</param>

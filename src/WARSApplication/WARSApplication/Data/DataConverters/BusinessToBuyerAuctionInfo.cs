@@ -4,8 +4,18 @@ using WARSApplication.Data.DataModel.Business;
 
 namespace WARSApplication.Data.DataConverters;
 
+/// <summary>
+/// Data converter for auctions to buyer auction info
+/// </summary>
+/// <param name="auctionEvaluator"></param>
 internal class BusinessToBuyerAuctionInfo(IAuctionEvaluator auctionEvaluator) : IDataConverter<Auction, BuyerAuctionInfo>
 {
+    /// <summary>
+    /// Map all properties of an auction to a buyer auction info.
+    /// </summary>
+    /// <param name="auction"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public BuyerAuctionInfo Convert(Auction auction)
     {
         var auctionStatus = auctionEvaluator.EvaluateStatus(auction);

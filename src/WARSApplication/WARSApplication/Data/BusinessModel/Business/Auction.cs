@@ -24,12 +24,28 @@ internal abstract record Auction
     public DateTimeOffset EndTime { get; set; }
 }
 
-
+/// <summary>
+/// Represents an English auction.
+/// An English auction is an auction where the highest bidder wins.
+/// Every bid has to be higher than the previous bid; the starting price is the lowest bid.
+/// The auction is open until the end time.
+/// </summary>
 internal sealed record EnglishAuction(DateTimeOffset StartTime, DateTimeOffset EndTime) : Auction(StartTime, EndTime)
 {
     public IAddOnlyCollection<Bid> Bids { get; private init; } = new AddOnlyCollection<Bid>();
     public required Price StartingPrice { get; init; }
     
+    /// <summary>
+    /// Database restore function.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="description"></param>
+    /// <param name="seller"></param>
+    /// <param name="startTime"></param>
+    /// <param name="endTime"></param>
+    /// <param name="bids"></param>
+    /// <param name="startingPrice"></param>
+    /// <returns></returns>
     public static EnglishAuction Restore(
             AuctionId id,
             AuctionDescription description,
@@ -48,6 +64,12 @@ internal sealed record EnglishAuction(DateTimeOffset StartTime, DateTimeOffset E
         };
 }
 
+/// <summary>
+/// Represents a Dutch auction.
+/// A Dutch auction is an auction where the (only) bidder wins.
+/// The auction is open until the end time or until a bid is made.
+/// The minimal bid price is decremented by a fixed rate every fixed time.
+/// </summary>
 internal sealed record DutchAuction(DateTimeOffset StartTime, DateTimeOffset EndTime) : Auction(StartTime, EndTime)
 {
     public required Price StartingPrice { get; init; }
@@ -67,6 +89,19 @@ internal sealed record DutchAuction(DateTimeOffset StartTime, DateTimeOffset End
         }
     }
 
+    /// <summary>
+    /// Database restore function.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="description"></param>
+    /// <param name="seller"></param>
+    /// <param name="startTime"></param>
+    /// <param name="endTime"></param>
+    /// <param name="bid"></param>
+    /// <param name="startingPrice"></param>
+    /// <param name="priceDecrementRate"></param>
+    /// <param name="priceDecrementFrequency"></param>
+    /// <returns></returns>
     public static DutchAuction Restore(
         AuctionId id,
         AuctionDescription description,
@@ -89,8 +124,26 @@ internal sealed record DutchAuction(DateTimeOffset StartTime, DateTimeOffset End
     };
 }
 
+/// <summary>
+/// Represents a First Price Sealed Bid auction.
+/// A First Price Sealed Bid auction is an auction where the highest bidder wins.
+/// Every bidder can bid only once.
+/// The minimal bid is not revealed.
+/// </summary>
+/// <param name="StartTime"></param>
+/// <param name="EndTime"></param>
 internal sealed record FirstPriceSealedBidAuction(DateTimeOffset StartTime, DateTimeOffset EndTime) : Auction(StartTime, EndTime)
 {
+    /// <summary>
+    /// Database restore function.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="description"></param>
+    /// <param name="seller"></param>
+    /// <param name="bids"></param>
+    /// <param name="startTime"></param>
+    /// <param name="endTime"></param>
+    /// <returns></returns>
     public static FirstPriceSealedBidAuction Restore(
         AuctionId id, 
         AuctionDescription description,

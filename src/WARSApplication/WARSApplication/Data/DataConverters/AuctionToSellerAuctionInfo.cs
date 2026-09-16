@@ -10,6 +10,12 @@ namespace WARSApplication.Data.DataConverters;
 /// <param name="auctionEvaluator">the auction evaluator service</param>
 internal class AuctionToSellerAuctionInfo(IAuctionEvaluator auctionEvaluator) : IDataConverter<Auction, SellerAuctionInfo>
 {
+    /// <summary>
+    /// Map all properties of an auction to a seller auction info.
+    /// </summary>
+    /// <param name="entity">the mapped entity.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public SellerAuctionInfo Convert(Auction entity)
     {
         var status = auctionEvaluator.EvaluateStatus(entity);
