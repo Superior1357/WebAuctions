@@ -146,4 +146,3 @@ namespace WARSApplication
         }
     }
 }
-// TODO: improve documentation (mainly the developer/user), user - both server (ensure to have dotnet ef installed and configured) and client (what's possible)
