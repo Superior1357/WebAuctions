@@ -13,7 +13,13 @@ public interface IBuyMethodsAPI
     
     [Post("/list/not_finished")]
     public Task<IEnumerable<AuctionId>> ListNotFinishedAuctionsOfAUserAsync([Body] UserId userId);
-
+    
+    [Get("/list/participated")]
+    public Task<IEnumerable<AuctionId>> ListParticipatedAuctionsAsync();
+    
+    [Get("/list/won")]
+    public Task<IEnumerable<AuctionId>> ListWonAuctionsAsync();
+    
     [Post("/info")]
     public Task<IEnumerable<BuyerAuctionInfo>> ListAuctionsInfoAsync(IEnumerable<AuctionId> auctionIds);
     

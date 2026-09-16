@@ -12,6 +12,12 @@ var apiBaseAddress = builder.Configuration["Api:BaseAddress"]
                               ?? throw new InvalidOperationException("'Api:BaseAddress' is missing from configuration.");
 
 builder.Services
+    .AddRefitClient<IIdentityApi>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{apiBaseAddress}"))
+    .AddHttpMessageHandler<AuthHandler>()
+    .RemoveAllLoggers();
+
+builder.Services
     .AddRefitClient<IBuyMethodsAPI>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{apiBaseAddress}/buy"))
     .AddHttpMessageHandler<AuthHandler>()
@@ -43,6 +49,9 @@ builder.Services.AddTransient<LoginMode>();
 
 builder.Services.AddTransient<AuthHandler>();
 builder.Services.AddTransient<ListAllSellersMode>();
+
+builder.Services.AddTransient<ListParticipatedAuctionsView>();
+builder.Services.AddTransient<ListWonAuctionsView>();
 
 builder.Services.AddTransient<IViewController, ViewController>();
 
@@ -80,6 +89,12 @@ public partial class Program(IServiceProvider services)
             await viewController.ShowViewAsync(authMode);
             MakeConfirmationPrompt();
         } while (tokenBearer.Token == null);
+        
+        var authApi = services.GetRequiredService<IIdentityApi>();
+        var userId = await authApi.RevealUserId();
+        
+        AnsiConsole.WriteLine($"Your user id is {userId.Id}");
+        MakeConfirmationPrompt();
         
         while (true)
         {

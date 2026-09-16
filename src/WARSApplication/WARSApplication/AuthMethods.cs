@@ -1,10 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using WARSApplication.Data.DataModel;
 using WARSApplication.Data.DataModel.Business;
+using WARSApplication.Data.SharedDataProperties;
 
 namespace WARSApplication;
 
@@ -67,6 +69,8 @@ internal static class AuthMethods
         
         return Results.Ok(new TokenResponse(jwtString));
     }
+
+    public static Ok<UserId> RevealUserId(User user) => TypedResults.Ok(user.Id);
 }
 
 public record RegisterRequest(string UserName, string Password);

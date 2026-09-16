@@ -99,6 +99,7 @@ app.UseHttpsRedirection();
 
 app.MapGroup("/buy").MapBuyApis().RequireAuthorization();
 app.MapGroup("/sell").MapSellApis().RequireAuthorization();
+app.MapGet("/identity", AuthMethods.RevealUserId).RequireAuthorization();
 app.MapGroup("/auth").MapAuthApis();
 
 app.Run();
@@ -145,3 +146,4 @@ namespace WARSApplication
         }
     }
 }
+// TODO: improve documentation (mainly the developer/user), user - both server (ensure to have dotnet ef installed and configured) and client (what's possible)
