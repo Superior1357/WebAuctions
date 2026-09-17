@@ -19,7 +19,7 @@ else
 fi
 
 echo "==> Restoring NuGet packages"
-dotnet restore "$SCRIPT_DIR/WARSApplication.csproj"
+dotnet restore "$SCRIPT_DIR/Backend.csproj"
 
 echo "==> Creating Auctions.db"
 dotnet ef database update --project "$SCRIPT_DIR" \
