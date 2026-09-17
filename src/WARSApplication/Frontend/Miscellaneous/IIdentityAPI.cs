@@ -1,5 +1,5 @@
 using Refit;
-using WARSApplication.Data.SharedDataProperties;
+using Backend.Data.SharedDataProperties;
 
 namespace Frontend.Miscellaneous;
 

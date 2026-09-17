@@ -1,17 +1,17 @@
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http.HttpResults;
 using UnitTests.HelperClasses;
-using WARSApplication;
-using WARSApplication.AuctionEvaluation;
-using WARSApplication.Data;
-using WARSApplication.Data.APIData.Incoming;
-using WARSApplication.Data.APIData.Outgoing;
-using WARSApplication.Data.DataModel.Business;
-using WARSApplication.Data.SharedDataProperties;
-using WARSApplication.ErrorResponses;
-using WARSApplication.ErrorResponses.BuyErrorResponses;
-using WARSApplication.Utils;
-using BuyMethods = WARSApplication.BusinessMethods.BuyMethods;
+using Backend;
+using Backend.AuctionEvaluation;
+using Backend.Data;
+using Backend.Data.APIData.Incoming;
+using Backend.Data.APIData.Outgoing;
+using Backend.Data.DataModel.Business;
+using Backend.Data.SharedDataProperties;
+using Backend.ErrorResponses;
+using Backend.ErrorResponses.BuyErrorResponses;
+using Backend.Utils;
+using BuyMethods = Backend.BusinessMethods.BuyMethods;
 
 namespace UnitTests.Tests;
 [TestSubject(typeof(BuyMethods))]

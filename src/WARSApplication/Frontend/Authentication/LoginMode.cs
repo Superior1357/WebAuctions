@@ -1,7 +1,7 @@
 using Frontend.GenericInterfaces;
 using Frontend.Miscellaneous;
 using Spectre.Console;
-using WARSApplication;
+using Backend;
 
 namespace Frontend.Authentication;
 /// <summary>

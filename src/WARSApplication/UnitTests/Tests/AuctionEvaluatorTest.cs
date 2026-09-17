@@ -1,10 +1,10 @@
 using JetBrains.Annotations;
 using UnitTests.HelperClasses;
-using WARSApplication;
-using WARSApplication.AuctionEvaluation;
-using WARSApplication.Data.DataModel.Business;
-using WARSApplication.Data.SharedDataProperties;
-using WARSApplication.Utils;
+using Backend;
+using Backend.AuctionEvaluation;
+using Backend.Data.DataModel.Business;
+using Backend.Data.SharedDataProperties;
+using Backend.Utils;
 
 namespace UnitTests.Tests;
 

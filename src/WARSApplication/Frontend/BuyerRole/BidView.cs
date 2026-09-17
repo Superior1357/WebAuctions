@@ -1,7 +1,7 @@
 using Frontend.GenericInterfaces;
 using Spectre.Console;
-using WARSApplication.Data.APIData.Incoming;
-using WARSApplication.Data.APIData.Outgoing;
+using Backend.Data.APIData.Incoming;
+using Backend.Data.APIData.Outgoing;
 
 namespace Frontend.BuyerRole;
 

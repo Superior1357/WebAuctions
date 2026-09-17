@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Time.Testing;
-using WARSApplication.Data.DataModel.Business;
+using Backend.Data.DataModel.Business;
 
 namespace IntegrationTests;
 

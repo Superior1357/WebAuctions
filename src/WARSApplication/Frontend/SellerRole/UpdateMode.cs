@@ -1,6 +1,6 @@
 using Frontend.GenericInterfaces;
-using WARSApplication.Data.APIData.Incoming;
-using WARSApplication.Data.APIData.Outgoing;
+using Backend.Data.APIData.Incoming;
+using Backend.Data.APIData.Outgoing;
 namespace Frontend.SellerRole;
 
 /// <summary>

@@ -1,7 +1,7 @@
 using Frontend.GenericInterfaces;
 using Frontend.Utils;
 using Spectre.Console;
-using WARSApplication.Data.SharedDataProperties;
+using Backend.Data.SharedDataProperties;
 
 namespace Frontend.BuyerRole;
 

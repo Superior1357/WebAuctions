@@ -1,7 +1,7 @@
 using Refit;
-using WARSApplication.Data.APIData.Incoming;
-using WARSApplication.Data.APIData.Outgoing;
-using WARSApplication.Data.SharedDataProperties;
+using Backend.Data.APIData.Incoming;
+using Backend.Data.APIData.Outgoing;
+using Backend.Data.SharedDataProperties;
 
 namespace Frontend.BuyerRole;
 

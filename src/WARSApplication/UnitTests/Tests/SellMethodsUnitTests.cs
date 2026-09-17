@@ -1,16 +1,16 @@
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http.HttpResults;
 using UnitTests.HelperClasses;
-using WARSApplication;
-using WARSApplication.BusinessMethods;
-using WARSApplication.Data;
-using WARSApplication.Data.APIData.Incoming;
-using WARSApplication.Data.APIData.Outgoing;
-using WARSApplication.Data.DataModel.Business;
-using WARSApplication.Data.SharedDataProperties;
-using WARSApplication.ErrorResponses;
-using WARSApplication.ErrorResponses.SellErrorResponses;
-using WARSApplication.Utils;
+using Backend;
+using Backend.BusinessMethods;
+using Backend.Data;
+using Backend.Data.APIData.Incoming;
+using Backend.Data.APIData.Outgoing;
+using Backend.Data.DataModel.Business;
+using Backend.Data.SharedDataProperties;
+using Backend.ErrorResponses;
+using Backend.ErrorResponses.SellErrorResponses;
+using Backend.Utils;
 
 namespace UnitTests.Tests;
 

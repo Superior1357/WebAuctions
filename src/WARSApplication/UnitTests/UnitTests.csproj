@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\WARSApplication\WARSApplication.csproj" />
+        <ProjectReference Include="..\Backend\Backend.csproj" />
         <Using Include="Xunit"/>
     </ItemGroup>
 

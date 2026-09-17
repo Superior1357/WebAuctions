@@ -1,5 +1,5 @@
 using Spectre.Console;
-using WARSApplication.Data.APIData.Outgoing;
+using Backend.Data.APIData.Outgoing;
 
 namespace Frontend.BuyerRole;
 

@@ -1,6 +1,6 @@
 using Refit;
-using WARSApplication;
-using WARSApplication.Data.SharedDataProperties;
+using Backend;
+using Backend.Data.SharedDataProperties;
 
 namespace Frontend.Authentication;
 

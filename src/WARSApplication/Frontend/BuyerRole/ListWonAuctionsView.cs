@@ -1,6 +1,6 @@
 using Frontend.GenericInterfaces;
 using Frontend.Utils;
-using WARSApplication.Data.APIData.Outgoing;
+using Backend.Data.APIData.Outgoing;
 
 namespace Frontend.BuyerRole;
 

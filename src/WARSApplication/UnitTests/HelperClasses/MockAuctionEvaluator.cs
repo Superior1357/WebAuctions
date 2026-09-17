@@ -1,7 +1,7 @@
-using WARSApplication;
-using WARSApplication.AuctionEvaluation;
-using WARSApplication.Data.DataModel.Business;
-using WARSApplication.Data.SharedDataProperties;
+using Backend;
+using Backend.AuctionEvaluation;
+using Backend.Data.DataModel.Business;
+using Backend.Data.SharedDataProperties;
 
 namespace UnitTests.HelperClasses;
 

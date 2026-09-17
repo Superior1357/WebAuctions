@@ -1,10 +1,10 @@
 using JetBrains.Annotations;
-using WARSApplication;
-using WARSApplication.AuctionEvaluation;
-using WARSApplication.Data.APIData.Outgoing;
-using WARSApplication.Data.DataConverters;
-using WARSApplication.Data.DataModel.Business;
-using WARSApplication.Data.SharedDataProperties;
+using Backend;
+using Backend.AuctionEvaluation;
+using Backend.Data.APIData.Outgoing;
+using Backend.Data.DataConverters;
+using Backend.Data.DataModel.Business;
+using Backend.Data.SharedDataProperties;
 
 namespace UnitTests.Tests;
 

@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
-using WARSApplication.Data.APIData.Incoming;
-using WARSApplication.Data.DataModel.Business;
-using WARSApplication.Data.SharedDataProperties;
+using Backend.Data.APIData.Incoming;
+using Backend.Data.DataModel.Business;
+using Backend.Data.SharedDataProperties;
 using System.Net.Http.Json;
-using WARSApplication.Data.APIData.Outgoing;
-using WARSApplication.Data.DataModel;
+using Backend.Data.APIData.Outgoing;
+using Backend.Data.DataModel;
 
 namespace IntegrationTests;
 

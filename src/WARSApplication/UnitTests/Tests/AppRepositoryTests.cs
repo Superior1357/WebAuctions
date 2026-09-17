@@ -2,9 +2,9 @@ using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
-using WARSApplication.Data.DataModel;
-using WARSApplication.Data.DataModel.Business;
-using WARSApplication.Repository;
+using Backend.Data.DataModel;
+using Backend.Data.DataModel.Business;
+using Backend.Repository;
 
 namespace UnitTests.Tests;
 [TestSubject(typeof(AppRepository))]
