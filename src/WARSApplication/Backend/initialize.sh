@@ -17,7 +17,6 @@ if command -v openssl >/dev/null 2>&1; then
 else
     head -c 64 /dev/urandom | base64 > "$DB_DIR/jwt_secret"
 fi
-export JwtSecret="$(cat "$DB_DIR/jwt_secret")"
 
 echo "==> Restoring NuGet packages"
 dotnet restore "$SCRIPT_DIR/WARSApplication.csproj"

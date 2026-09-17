@@ -1,22 +1,11 @@
 # WARS Application — User Guide
 
-WARS (Web Auction and Registration System) is a console-based auction platform consisting of two components:
+WARS (Web Auction Realtime Service) is a console-based auction platform consisting of two components:
 
 - **Server** (`Backend/`) — an ASP.NET Core Web API that manages auctions, bids, and user authentication.
 - **Client** (`Frontend/`) — a .NET console application that communicates with the server through its REST API.
 
 Both components target **.NET 10** and must be built and run separately.
-
----
-
-## Table of Contents
-
-1. [Backend (Server) User Guide](#backend-server-user-guide)
-   - [Initialization (from scratch)](#backend-initialization-from-scratch)
-   - [Usage](#backend-usage)
-2. [Frontend (Client) User Guide](#frontend-client-user-guide)
-   - [Initialization (from scratch)](#frontend-initialization-from-scratch)
-   - [Usage](#frontend-usage)
 
 ---
 
@@ -33,7 +22,7 @@ Both components target **.NET 10** and must be built and run separately.
   dotnet tool install --global dotnet-ef
   ```
 
-- `openssl` command-line utility **or** `/dev/urandom` (available on macOS/Linux by default; Windows users should install Git Bash or WSL)
+- `openssl` command-line utility **or** `/dev/urandom`
 
 #### Steps
 
@@ -84,7 +73,7 @@ The server reads its configuration from `Backend/appsettings.json`:
 
 If either connection string is absent, the server falls back to the paths relative to its content root (`Databases/Auctions.db` and `Databases/Auth.db`).
 
-The JWT secret is **not** stored in `appsettings.json`. It is read at startup from `Databases/jwt_secret`. If that file does not exist, the server throws an exception and refuses to start — run `initialize.sh` first.
+The JWT secret is read at startup from `Databases/jwt_secret`. If that file does not exist, the server throws an exception and refuses to start — run `initialize.sh` first.
 
 ---
 
@@ -246,7 +235,7 @@ dotnet test IntegrationTests/IntegrationTests.csproj
    }
    ```
 
-   The default value `http://localhost:5205` matches the server's default HTTP profile and does not need to be changed unless you are using HTTPS or a non-standard port.
+   The default value `http://localhost:5205` matches the server's default HTTP profile.
 
 4. **Restore dependencies** (optional — `dotnet run` does this automatically):
 
@@ -281,7 +270,7 @@ Use the arrow keys to select and press **Enter** to confirm. You must successful
 
 **Register** — prompts for a username and password. The username must be unique. Password requirements are minimal (minimum length: 1 character).
 
-**Login** — prompts for username and password. On success, a JWT token is stored in memory for the duration of the session (tokens are valid for 8 hours). Your user ID (a GUID) is then displayed — note it if you intend to share it with other users acting as buyers.
+**Login** — prompts for username and password. On success, a JWT token is stored in memory for the duration of the session (tokens are valid for 8 hours). Your user ID is then displayed — note it if you intend to share it with other users acting as buyers.
 
 #### Main menu
 
