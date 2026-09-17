@@ -1,0 +1,43 @@
+using Backend.Data.BusinessModel.Business;
+using Backend.Exceptions;
+using Backend.Repository;
+
+namespace UnitTests.HelperClasses;
+
+internal class MockRepository<T>(ICollection<T> repoItems, bool commitWithConcurrencyConflict) : IRepository<T>
+{
+    private readonly ICollection<T> _repoContent = repoItems.ToList();
+    public ICollection<T> CommitedRepoContent { get; private set; } = repoItems.ToList();
+    public bool AllChangesCommited { get; private set; }
+    public ICollection<T> UpdatesCalled { get; } = new List<T>();
+    
+    public Task<IEnumerable<T>> ListAsync() => Task.FromResult(CommitedRepoContent.AsEnumerable());
+
+    public Task AddAsync(T item)
+    {
+        AllChangesCommited = false;
+        _repoContent.Add(item);
+        return Task.FromResult(item);
+    }
+
+    public Task UpdateAsync(T updatedEntity)
+    {
+        AllChangesCommited = false;
+        UpdatesCalled.Add(updatedEntity);
+        return Task.CompletedTask;
+    }
+
+    public Task CommitAsync()
+    {
+        if (commitWithConcurrencyConflict)
+        {
+            return Task.FromException(new ConcurrencyException());
+        }
+    
+        AllChangesCommited = true;
+        CommitedRepoContent = _repoContent.ToList();
+        return Task.CompletedTask;
+    }
+}
+
+internal class MockAuctionRepository(ICollection<Auction> repoItems, bool commitWithConcurrencyConflict = false) : MockRepository<Auction>(repoItems, commitWithConcurrencyConflict);

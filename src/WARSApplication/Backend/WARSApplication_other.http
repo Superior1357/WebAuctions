@@ -1,0 +1,6 @@
+###
+GET http://localhost:5205/buy/list/sellers
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIyYTUwOGUxYi1jZGRkLTRhODMtODYwMi1lOTZlZTc0MjZlNDEiLCJuYmYiOjE3ODgyNzQ5NjQsImV4cCI6MTc4ODMwMzc2NCwiaWF0IjoxNzg4Mjc0OTY0fQ.RR-tjhnh68nJpQxp72wt-CZPjtNcJGh7uJZNycpO4co
+Content-Type: application/json
+
+{}
