@@ -268,7 +268,7 @@ On startup, the client clears the terminal and presents a selection menu:
 
 Use the arrow keys to select and press **Enter** to confirm. You must successfully register or log in before proceeding. The client loops on the authentication screen until a valid token is obtained.
 
-**Register** — prompts for a username and password. The username must be unique. Password requirements are minimal (minimum length: 1 character).
+**Register** — prompts for a username and password. The username must be unique. Spaces are not supported. Password requirements are minimal (minimum length: 1 character).
 
 **Login** — prompts for username and password. On success, a JWT token is stored in memory for the duration of the session (tokens are valid for 8 hours). Your user ID is then displayed — note it if you intend to share it with other users acting as buyers.
 
