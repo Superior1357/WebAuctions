@@ -1,9 +1,10 @@
 using System.Reflection;
 using System.Security.Claims;
 using Backend.Data.SharedDataProperties;
+using Backend.Repository;
 using Microsoft.EntityFrameworkCore;
 
-namespace Backend.Data.DataModel.Business;
+namespace Backend.Data.BusinessModel.Business;
 
 /// <summary>
 /// Business model for a user. When creating a new user, the object should be created with the default constructor.

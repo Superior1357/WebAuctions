@@ -1,8 +1,9 @@
 using Frontend.GenericInterfaces;
 using Frontend.Utils;
 using Spectre.Console;
-using Backend;
 using Backend.Data.APIData.Outgoing;
+using Backend.Data.SharedDataProperties;
+
 namespace Frontend.SellerRole;
 
 /// <summary>

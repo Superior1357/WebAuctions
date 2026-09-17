@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Backend.Data.SharedDataProperties;
 
-namespace Backend.Data.DataModel.Business;
+namespace Backend.Data.BusinessModel.Business;
 
 /// <summary>
 /// Base class for generic business auction representation. When creating a new auction with a not yet-assigned id,

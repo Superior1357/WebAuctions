@@ -10,7 +10,6 @@ namespace Frontend.BuyerRole;
 /// </summary>
 public class ListSellersAuctionsViewController(UserId userId, IBuyMethodsApi api, IMasterController masterController) : IViewController
 {
-    private int currentIndex = 0;
     public string ViewName => "List seller's auctions";
     
     /// <summary>
@@ -22,7 +21,7 @@ public class ListSellersAuctionsViewController(UserId userId, IBuyMethodsApi api
         var auctions = await api.ListNotFinishedAuctionsOfAUserAsync(userId);
         var infos = (await api.ListAuctionsInfoAsync(auctions)).ToList();
 
-        var scrollingListView = new ScrollingListViewController<BuyerAuctionInfo>("Choose an auction to bid", infos, BuyerRole.Utils.BuyerAuctionInfoToListItem);
+        var scrollingListView = new ScrollingListViewController<BuyerAuctionInfo>("Choose an auction to bid", infos, Utils.BuyerAuctionInfoToListItem);
         var choice = await scrollingListView.MakeChoiceAsync();
 
         if (choice == null)

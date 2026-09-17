@@ -6,11 +6,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Backend.Data.APIData.Incoming;
-using Backend.Data.DataModel.Business;
 using Backend.Data.SharedDataProperties;
 using System.Net.Http.Json;
 using Backend.Data.APIData.Outgoing;
 using Backend.Data.DataModel;
+using Backend.Repository;
 
 namespace IntegrationTests;
 
@@ -19,8 +19,8 @@ using Xunit;
 
 public static class TestData
 {
-    public static readonly string AuthUserId = "woenfon";
-    public static readonly string AuthUserId2 = "woenfon2";
+    public static readonly string AuthUserId = "womenfolk";
+    private static readonly string AuthUserId2 = "woenfon2";
 
     internal static DataModelUser DummyUser { get; private set; } = new()
     {
@@ -59,14 +59,15 @@ public class MinimalDummyAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions
 
 public class BusinessEndpointFunctionalityTests : IAsyncLifetime
 {
-    private TestingWARSAppFactory _factory;
-    private HttpClient _client;
+    private TestingWarsAppFactory _factory = null!;
+    private HttpClient _client = null!;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync()
     {
-        _factory = new TestingWARSAppFactory();
+        _factory = new TestingWarsAppFactory();
         _client = _factory.CreateClient();
         TestData.RefreshUser();
+        return Task.CompletedTask;
     }
 
     public async Task DisposeAsync()
@@ -131,7 +132,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/sell/create", payload);
+        _ = await _client.PostAsJsonAsync("/sell/create", payload);
 
         // Assert
         using (var scope = _factory.Services.CreateScope())
@@ -206,7 +207,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         }
 
         // Act
-        var response = await _client.PatchAsJsonAsync("/sell/update",
+        _ = await _client.PatchAsJsonAsync("/sell/update",
             new AuctionUpdateRequest(auction.Id, new DateTimeOffset(2025, 1, 1, 1, 1, 1, TimeSpan.Zero)));
 
         // Assert
@@ -267,7 +268,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
 
             await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
 
-            var auction = db.Auctions.Add(
+            _ = db.Auctions.Add(
                 new DutchDataModelAuction
                 {
                     Seller = TestData.DummyUser2,
@@ -300,7 +301,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
 
             await db.Users.AddAsync(TestData.DummyUser); // Add a dummy user to db
 
-            var auction = db.Auctions.Add(
+            _ = db.Auctions.Add(
                 new DutchDataModelAuction
                 {
                     Seller = TestData.DummyUser,
@@ -484,7 +485,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
 
             bid = new BidRequest(auction.Id, 10_000);
         }
-        var response = await _client.PostAsJsonAsync("/buy/bid", bid);
+        _ = await _client.PostAsJsonAsync("/buy/bid", bid);
         
         // Assert
         using (var scope = _factory.Services.CreateScope())
@@ -763,7 +764,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         Assert.True(response.IsSuccessStatusCode,
             $"Expected success but got {(int)response.StatusCode}: {responseBody}");
         
-        var content = await response.Content.ReadFromJsonAsync<IEnumerable<AuctionId>>();
+        var content = (await response.Content.ReadFromJsonAsync<IEnumerable<AuctionId>>()).ToList();
         Assert.Single(content);
         Assert.Equal(sellerAuction.Id, content.First());
         
@@ -916,7 +917,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
 
         // Act
         var response = await _client.GetAsync("/buy/list/won");
-        var content = await response.Content.ReadFromJsonAsync<IEnumerable<AuctionId>>();
+        var content = (await response.Content.ReadFromJsonAsync<IEnumerable<AuctionId>>()).ToList();
         
         // Assert
         Assert.Single(content);
@@ -1014,7 +1015,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
 
         // Act
         var response = await _client.GetAsync("/buy/list/participated");
-        var content = await response.Content.ReadFromJsonAsync<IEnumerable<AuctionId>>();
+        var content = (await response.Content.ReadFromJsonAsync<IEnumerable<AuctionId>>()).ToList();
         
         // Assert
         Assert.Single(content);
@@ -1076,7 +1077,7 @@ public class BusinessEndpointFunctionalityTests : IAsyncLifetime
         var response = await _client.PostAsJsonAsync("/buy/info", requestedInfo);
         
         // Assert
-        var content = await response.Content.ReadFromJsonAsync<IEnumerable<BuyerAuctionInfo>>();
+        _ = await response.Content.ReadFromJsonAsync<IEnumerable<BuyerAuctionInfo>>();
         
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }

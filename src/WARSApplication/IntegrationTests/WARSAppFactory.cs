@@ -1,6 +1,6 @@
+using Backend.Repository;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
@@ -8,11 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Time.Testing;
-using Backend.Data.DataModel.Business;
 
 namespace IntegrationTests;
 
-public class TestingWARSAppFactory : WebApplicationFactory<Program>
+public class TestingWarsAppFactory : WebApplicationFactory<Program>
 {
     private SqliteConnection _dbConnection = null!;
     public readonly DateTimeOffset TestApplicationTime = new (2022, 1, 1, 0, 0, 0, TimeSpan.Zero);

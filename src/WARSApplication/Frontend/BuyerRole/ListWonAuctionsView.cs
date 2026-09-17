@@ -22,7 +22,7 @@ public class ListWonAuctionsViewController(IBuyMethodsApi api) : IViewController
         var scrollingList = new ScrollingListViewController<BuyerAuctionInfo>(
             "Auctions you won",
             infos,
-            BuyerRole.Utils.BuyerAuctionInfoToListItem);
+            Utils.BuyerAuctionInfoToListItem);
 
         _ = await scrollingList.MakeChoiceAsync();
     }

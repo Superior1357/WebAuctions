@@ -1,6 +1,6 @@
 using Backend.Data.SharedDataProperties;
 
-namespace Backend.Data.DataModel.Business;
+namespace Backend.Data.BusinessModel.Business;
 
 /// <summary>
 /// Type representing a business bid. When placing a new bid, the default constructor should be used.

@@ -1,6 +1,6 @@
 using System.Collections;
+using Backend.Data.BusinessModel.Business;
 using Backend.Data.DataModel;
-using Backend.Data.DataModel.Business;
 using Backend.Data.SharedDataProperties;
 using Backend.Exceptions;
 using Microsoft.EntityFrameworkCore;
@@ -35,8 +35,6 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
             _addedItems.Add(item);
             _items.Add(item);
         }
-
-        public int Count => _items.Count;
     }
     
     private static Bid DataToBusinessBid(DataModelBid dataBid)
@@ -151,7 +149,7 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
         {
             case EnglishDataModelAuction englishDataModelAuction:
                 var englishBusinessAuction = (EnglishAuction) updatedAuction;
-                var updatedCollection = englishBusinessAuction.Bids as ChangesTrackingAddOnlyCollection<Bid>;
+                var updatedCollection = (ChangesTrackingAddOnlyCollection<Bid>)englishBusinessAuction.Bids;
                 var addedBids = updatedCollection.AddedItems;
                 
                 if (addedBids.Count != 0)
@@ -177,7 +175,7 @@ internal sealed class AppRepository(AuctionDbContext dbContext) : IRepository<Au
                 break;
             case FirstPriceSealedBidDataModelAuction firstPriceSealedBidDataModelAuction:
                 var firstPriceSealedBidBusinessAuction = (FirstPriceSealedBidAuction) updatedAuction;
-                updatedCollection = firstPriceSealedBidBusinessAuction.Bids as ChangesTrackingAddOnlyCollection<Bid>;
+                updatedCollection = (ChangesTrackingAddOnlyCollection<Bid>)firstPriceSealedBidBusinessAuction.Bids;
                 addedBids = updatedCollection.AddedItems;
                 
                 if (addedBids.Count != 0)

@@ -1,12 +1,11 @@
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http.HttpResults;
 using UnitTests.HelperClasses;
-using Backend;
 using Backend.AuctionEvaluation;
 using Backend.Data;
 using Backend.Data.APIData.Incoming;
 using Backend.Data.APIData.Outgoing;
-using Backend.Data.DataModel.Business;
+using Backend.Data.BusinessModel.Business;
 using Backend.Data.SharedDataProperties;
 using Backend.ErrorResponses;
 using Backend.ErrorResponses.BuyErrorResponses;

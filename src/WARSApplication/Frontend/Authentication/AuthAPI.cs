@@ -1,6 +1,5 @@
 using Refit;
 using Backend;
-using Backend.Data.SharedDataProperties;
 
 namespace Frontend.Authentication;
 

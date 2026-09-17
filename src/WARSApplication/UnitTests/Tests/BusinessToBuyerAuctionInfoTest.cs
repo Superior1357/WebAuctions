@@ -1,10 +1,9 @@
 using JetBrains.Annotations;
 using UnitTests.HelperClasses;
-using Backend;
 using Backend.AuctionEvaluation;
 using Backend.Data.APIData.Outgoing;
+using Backend.Data.BusinessModel.Business;
 using Backend.Data.DataConverters;
-using Backend.Data.DataModel.Business;
 using Backend.Data.SharedDataProperties;
 
 namespace UnitTests.Tests;

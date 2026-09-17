@@ -1,7 +1,8 @@
+using Backend.Data.DataModel;
 using Backend.Data.SharedDataProperties;
 using Microsoft.EntityFrameworkCore;
 
-namespace Backend.Data.DataModel.Business;
+namespace Backend.Repository;
 
 internal sealed class AuctionDbContext(DbContextOptions<AuctionDbContext> options) : DbContext(options)
 {

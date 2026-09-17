@@ -10,12 +10,10 @@ namespace Frontend.SellerRole;
 /// <param name="api"></param>
 public class CreateMode(ISellMethodsApi api) : IViewController
 {
-    private enum AuctionType
-    {
-        English,
-        Dutch,
-        FirstPriceSealedBid
-    }
+    private const string EnglishAuctionName = "English auction";
+    private const string DutchAuctionName = "Dutch auction";
+    private const string FirstPriceSealedBidAuctionName = "First price sealed bid auction";
+    
     public string ViewName => "Create auction";
     
     /// <summary>
@@ -32,14 +30,16 @@ public class CreateMode(ISellMethodsApi api) : IViewController
         var type = await AnsiConsole.PromptAsync(
             new SelectionPrompt<string>()
                 .Title("Choose auction type")
-                .AddChoices(Enum.GetNames<AuctionType>())
+                .AddChoices(
+                    EnglishAuctionName, DutchAuctionName, FirstPriceSealedBidAuctionName
+                )
             );
 
         CreatedAuction createdAuction;
         
         switch (type)
         {
-            case "English":
+            case EnglishAuctionName:
                 createdAuction = new EnglishCreatedAuction
                 {
                     Description = description,
@@ -49,7 +49,7 @@ public class CreateMode(ISellMethodsApi api) : IViewController
                 };
                 
                 break;
-            case "Dutch":
+            case DutchAuctionName:
                 var decrementFrequency = await AnsiConsole.PromptAsync(
                     new TextPrompt<TimeSpan>("Choose the decrement frequency: ")
                         .DefaultValue(new TimeSpan(1,0,0,0))
@@ -67,7 +67,7 @@ public class CreateMode(ISellMethodsApi api) : IViewController
                 };
                 
                 break;
-            case "FirstPriceSealedBid":
+            case FirstPriceSealedBidAuctionName:
                 createdAuction = new FirstPriceSealedBidCreatedAuction
                 {
                     Description = description,

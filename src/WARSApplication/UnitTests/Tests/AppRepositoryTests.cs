@@ -1,16 +1,15 @@
+using Backend.Data.BusinessModel.Business;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
 using Backend.Data.DataModel;
-using Backend.Data.DataModel.Business;
 using Backend.Repository;
 
 namespace UnitTests.Tests;
 [TestSubject(typeof(AppRepository))]
 public class AppRepositoryTests
 {
-    private readonly SqliteConnection _connection;
     private readonly DbContextOptions<AuctionDbContext> _contextOptions;
 
     private readonly TimeProvider _fakeTimeProvider =
@@ -87,47 +86,15 @@ public class AppRepositoryTests
     
     public AppRepositoryTests()
     {
-        _connection = new SqliteConnection("DataSource=:memory:");
-        _connection.Open();
+        var connection = new SqliteConnection("DataSource=:memory:");
+        connection.Open();
 
         _contextOptions = new DbContextOptionsBuilder<AuctionDbContext>()
-            .UseSqlite(_connection)
+            .UseSqlite(connection)
             .Options;
 
         using var context = new AuctionDbContext(_contextOptions);
         context.Database.EnsureCreated();
-    }
-
-    private static void AssertAuctionMatches(Auction expected, Auction actual)
-    {
-        Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Description, actual.Description);
-        Assert.Equal(expected.StartTime, actual.StartTime);
-        Assert.Equal(expected.EndTime, actual.EndTime);
-        Assert.Equal(expected.Seller, actual.Seller);
-
-        switch (expected)
-        {
-            case EnglishAuction englishExpected:
-            {
-                var englishActual = Assert.IsType<EnglishAuction>(actual);
-                Assert.Equal(englishExpected.StartingPrice, englishActual.StartingPrice);
-                break;
-            }
-            
-            case DutchAuction dutchExpected:
-            {
-                var dutchActual = Assert.IsType<DutchAuction>(actual);
-                Assert.Equal(dutchExpected.StartingPrice, dutchActual.StartingPrice);
-                Assert.Equal(dutchExpected.PriceDecrementRate, dutchActual.PriceDecrementRate);
-                Assert.Equal(dutchExpected.PriceDecrementFrequency, dutchActual.PriceDecrementFrequency);
-                break;
-            }
-            
-            case FirstPriceSealedBidAuction:
-                Assert.IsType<FirstPriceSealedBidAuction>(actual);
-                break;
-        }
     }
 
     private static void AssertBidsEquivalency(IEnumerable<DataModelBid> expectedBids, IEnumerable<Bid> actualBids)
@@ -545,17 +512,6 @@ public class AppRepositoryTests
             PriceDecrementRate = 1,
             StartingPrice = 1000,
             Seller = User.Restore(users[2].Id)
-        };
-
-        var expectedRespectiveData = new DutchDataModelAuction
-        {
-            Description = addedAuction.Description,
-            StartTime = addedAuction.StartTime,
-            EndTime = addedAuction.EndTime,
-            Seller = users[2],
-            StartingPrice = addedAuction.StartingPrice,
-            PriceDecrementFrequency = addedAuction.PriceDecrementFrequency,
-            PriceDecrementRate = addedAuction.PriceDecrementRate
         };
 
         // Act

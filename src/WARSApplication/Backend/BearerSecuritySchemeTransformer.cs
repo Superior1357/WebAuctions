@@ -31,7 +31,7 @@ internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvi
 
         // Apply the scheme as a requirement for every operation so Swagger UI
         // attaches the token to requests (the lock icon + Authorization header).
-        foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations))
+        foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations ?? throw new InvalidOperationException()))
         {
             operation.Value.Security ??= [];
             operation.Value.Security.Add(new OpenApiSecurityRequirement

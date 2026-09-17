@@ -1,4 +1,4 @@
-using Backend.Data.DataModel.Business;
+using Backend.Data.BusinessModel.Business;
 using Backend.Data.SharedDataProperties;
 using Backend.Utils;
 
@@ -122,7 +122,7 @@ internal class AuctionEvaluator(ICurrentTime time) : IAuctionEvaluator
                     return dutchAuction.StartingPrice;
                 
                 return CalculateActiveDutchAuctionPrice(dutchAuction);
-            case FirstPriceSealedBidAuction firstPriceSealedBidAuction:
+            case FirstPriceSealedBidAuction:
                 return null;
             default:
                 throw new ArgumentOutOfRangeException();

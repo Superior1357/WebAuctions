@@ -1,4 +1,4 @@
-namespace Backend;
+namespace Backend.Data.SharedDataProperties;
 
 public enum AuctionStatus
 {

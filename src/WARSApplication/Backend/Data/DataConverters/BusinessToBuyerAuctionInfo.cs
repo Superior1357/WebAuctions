@@ -1,6 +1,6 @@
 using Backend.AuctionEvaluation;
 using Backend.Data.APIData.Outgoing;
-using Backend.Data.DataModel.Business;
+using Backend.Data.BusinessModel.Business;
 
 namespace Backend.Data.DataConverters;
 

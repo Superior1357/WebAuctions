@@ -30,5 +30,6 @@ public class MainMenuLoopViewController(IServiceProvider services, IMasterContro
             await masterController.ShowViewAsync(mode);
             Utils.MakeConfirmationPrompt();
         }
+        // ReSharper disable once FunctionNeverReturns
     }
 }

@@ -10,9 +10,9 @@ using Backend;
 using Backend.AuctionEvaluation;
 using Backend.Data;
 using Backend.Data.APIData.Outgoing;
+using Backend.Data.BusinessModel.Authentication;
+using Backend.Data.BusinessModel.Business;
 using Backend.Data.DataConverters;
-using Backend.Data.DataModel.Authentication;
-using Backend.Data.DataModel.Business;
 using Backend.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -145,4 +145,4 @@ namespace Backend
             }
         }
     }
-}
+} // TODO: check warnings

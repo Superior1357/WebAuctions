@@ -11,8 +11,8 @@ namespace Frontend.Utils;
 /// <typeparam name="T"></typeparam>
 public class ScrollingListViewController<T>(string header, List<T> items, Func<T, Panel> itemToPanel) where T : class
 {
-    private int _currentIndex = 0;
-    private bool _abort = false;
+    private int _currentIndex;
+    private bool _abort;
     private T? _result;
     
     private void RightAction()

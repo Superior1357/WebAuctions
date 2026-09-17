@@ -1,4 +1,4 @@
-using Backend.Data.DataModel.Business;
+using Backend.Data.BusinessModel.Business;
 using Backend.Data.SharedDataProperties;
 
 namespace Backend.AuctionEvaluation;

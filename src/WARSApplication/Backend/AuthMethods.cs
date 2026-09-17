@@ -1,9 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Backend.Data.BusinessModel.Business;
 using Backend.Data.DataModel;
-using Backend.Data.DataModel.Business;
 using Backend.Data.SharedDataProperties;
+using Backend.Repository;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
