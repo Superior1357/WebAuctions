@@ -1,104 +1,368 @@
-# Final project for Programming in C# (`NPRG035`) and other C# courses (`NPRG038`, `NPRG057`, `NPRG064`)
-This repository should contain all work related to your final project for all relevant C# courses. This file specifically lists several important notes regarding the final project. While working on your project, we expect you will completely rewrite this file. Don't forget that Git allows you to see the previous version of the file, and the [source project this repository is forked from](https://gitlab.mff.cuni.cz/teaching/nprg035/2025/student-base) also contains the original version of this file.
+# WARS Application — User Guide
 
-(Czech note: Pokud by Vám nějaká z informací v tomto repozitáři nebyla jasná a ani Google Translate nepomůže, ozvěte se prosím svému cvičícímu, který Vám to objasní.)
+WARS (Web Auction Realtime Service) is a console-based auction platform consisting of two components:
 
-## Website courses (including detailed information about further final project requirements and deadlines)
-(Make sure to check the relevant language variant based on the language of your studies. Differences, however unlikely, may occur.)
+- **Server** (`Backend/`) — an ASP.NET Core Web API that manages auctions, bids, and user authentication.
+- **Client** (`Frontend/`) — a .NET console application that communicates with the server through its REST API.
 
-- NPRG035 (EN: [Programming in C# language](https://d3s.mff.cuni.cz/teaching/nprg035/) | CZ: [Programování v jazyce C#](https://d3s.mff.cuni.cz/cz/teaching/nprg035/))
-- NPRG038 (EN: [Advanced C# Programming](https://d3s.mff.cuni.cz/teaching/nprg038/) | CZ: [Pokročilé programování v jazyce C#](https://d3s.mff.cuni.cz/cz/teaching/nprg038/))
-- NPRG057 (CZ: [Advanced .NET Programming II | Pokročilé programování pro .NET II](https://is.cuni.cz/studium/predmety/index.php?do=predmet&kod=NPRG057))
-- NPRG064 (CZ: [Programming user interfaces in .NET | Programování uživatelských rozhraní v .NET](https://is.cuni.cz/studium/predmety/index.php?do=predmet&kod=NPRG064))
-
-## Working in this repository
-In this repository, your role is set to Developer. This means that you are not allowed to directly push changes into the main branch. Instead, for *relevant changes* (see below), you are supposed to create a merge request from a `dev` branch into the `main` branch and assign it to the *relevant teacher* (see below). The relevant changes are these (performed in this order):
-
-### Submitting the specification
-This is done by modifying the [`spec/README.md`](./spec/README.md) file. For further details about the specification, check the content of the linked file.
-
-### Rarely: Submitting specification adjustments after the specification deadline
-In rare scenarios, it might be necessary to alter the specification. A non-exhaustive list of reasons includes:
-- A specific library or external service that was supposed to be used went out of support, is buggy, non-portable, has licensing or legal issues, or is otherwise not suitable for the project.
-- Further research shows that the problem the final project is addressing turned out to be much more difficult and likely can't be completed within a reasonable time span.
-
-In these rare cases, make sure to back your statements, cite resources, or otherwise convince the teacher that the change is appropriate.
-
-### Submitting the implementation
-When working on the implementation, make sure to make use of the skills you learned throughout the semester. This includes things like proper program decomposition, object design, writing readable code, naming identifiers, etc.
-
-Do not forget that documentation is a crucial part of the final project. When creating the merge request, make sure to point out where the documentation can be found. The documentation typically consists of three parts:
-
-#### User guide, likely in [`README.md`](./README.md)
-The main purpose of the user guide is to provide instructions to the relevant target audience on how to work with the application. Based on the target audience, a different level of detail might be required (a library for sound processing and a mobile app for exercise have different target audiences). This document should answer questions like how to start the application, what arguments to pass, what to click on, where files are stored, what the format of the files is (if the user is expected to edit them), what the API is, where to store configuration, etc. Screenshots of relevant parts of the UI can also be included.
-
-Other forms of the user guide are also accepted. For example, a game can have a dedicated in-game tutorial; a GUI-heavy application might have extensive tooltips directly in the application. Utilizing GitLab wiki pages is also possible.
-
-#### Developer guide, likely in [`docs/Developer.md`](./docs/Developer.md)
-Imagine a scenario where a different developer of your skill level, who has never seen this project, would like to contribute to your source code. To make the new developer more accustomed to your code, it is useful to have a developer guide that answers questions like how the application is designed, what the layout of the application is, what (C#) projects are in the solution, what algorithms are used, how to extend the application, and which components handle user input or communicate with the database.
-
-Again, other forms of the developer guide (diagrams, slides, ...) can also be accepted.
-
-#### Documentation comments, directly in code
-While the developer guide serves as a good introduction to the codebase and basically creates a mental unidirectional mapping *features => project/class/method*, it is also helpful to have the other half of the mapping (*method => functionality*). This is done by providing [documentation comments](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/documentation-comments), starting with `///` directly in the source code. This typically allows IDEs to display this information when mousing over a method or a type. It is usually sufficient to document publicly available types (`class`, `struct`, `interface`) and members (methods, properties).
-
-The documentation comment is usually rather short and only describes what the method does, what the [parameters](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/documentation-comments#d39-param) are, what the [return value](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/documentation-comments#d313-returns) is, and what [exceptions](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/documentation-comments#d35-exception) are possibly thrown.
-
-Here is an example of a not-so-useful documentation comment:
-
-```csharp
-/// <summary>
-/// Grades the answer.
-/// </summary>
-/// <param name="answer">The answer or null.</param>
-/// <returns>The grade.</returns>
-public abstract double Grade(string? answer);
-```
-
-Compare it to this more verbose one:
-```csharp
-/// <summary>
-/// Grades the answer by assigning a score based on the correctness of the user's input.
-/// If the user decides to skip this question, the <paramref name="answer"/> is <c>null</c>.
-/// </summary>
-/// <param name="answer">Whatever the user provided as their answer, with leading and trailing whitespaces removed, or <c>null</c> if the user decided to skip this question.</param>
-/// <returns>The answer's score, in the range [0, 1].</returns>
-public abstract double Grade(string? answer);
-```
-
-### Occasionally: Fixing the implementation after the presentation
-In some cases, problems in the implementation may arise during the presentation. This might include a bug in the implementation of a specific feature, a certain part of the documentation not being clear, or some part of the source not being [good code](https://imgs.xkcd.com/comics/good_code.png). In these scenarios, you are expected to revise the implementation and create another merge request that fixes these problems.
+Both components target **.NET 10** and must be built and run separately.
 
 ---
-When creating the merge request, you are supposed to assign the request itself to the *relevant teacher*. Who the relevant teacher is depends on which courses you plan to get credit for using this final project. The logic that selects the *relevant teacher* can be summarized like this:
 
-| List of courses to complete | Teacher |
-| ------------- | ------------- |
-| includes `NPRG057` | Pavel Ježek |
-| includes `NPRG038` but not `NPRG057` | `NPRG038` Teacher |
-| otherwise | `NPRG035` Teacher |
+## Backend (Server) User Guide
 
-Therefore, `NPRG064` doesn't affect the *relevant teacher* (and any teacher can assess whether the final project meets these requirements). In rare occasions, it is possible to choose different teacher. These occasions would usually be: repeating the course, project being part of ISP (`NPRG045`) with different C# teacher as a supervisor, and similar. Make sure to discuss this in advance, before assigning the merge request.
+### Backend Initialization (from scratch)
 
-Note that this is to keep the workload balanced across the teachers.
+#### Prerequisites
 
-## FAQ
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- `dotnet-ef` global tool (Entity Framework Core CLI):
 
-#### What can I do as a final project? Is there a list of projects to choose from?
-Any form of a program can be accepted as a final project. This includes a library, web app, phone app, game, console app, ...
-The topic is for you to decide. From our experience, most of the final projects are based on *I have a hobby and I could use this kind of tool*.
+  ```bash
+  dotnet tool install --global dotnet-ef
+  ```
 
-#### Can I use external libraries for my project?
-Yes, if it makes sense. If your topic is *Library for graph algorithms*, then using a library for graph algorithms is likely not sensible. On the other hand, if your topic is *WebApp for monitoring power outages*, then using a plotting library is perfectly sensible.
+- `openssl` command-line utility **or** `/dev/urandom`
 
-To be concrete, using Unity, Godot, MonoGame, WPF, Avalonia, etc., is allowed.
+#### Steps
 
-#### How to present the final project?
-Contact your *relevant teacher*, schedule a date and means (in person or over Zoom) for the presentation, and prepare your presentation.
+1. **Navigate to the server project directory:**
 
-The form of the presentation depends on the kind of project. Presenting a project with a TUI/GUI is usually done by running the application itself and showcasing the features. For a library, presenting a typical use-case scenario, API, and some parts of the developer guide might be more useful.
+   ```bash
+   cd Backend
+   ```
 
-Note that scheduling a presentation may take some time, especially during the holiday season. It is not impossible that it will take two weeks for you to present your program after you finish the implementation. There might be some state examinations happening during this period, so make sure to communicate with your teacher in advance if you need to present your program before a specific day if you are finishing your studies.
+2. **Run the initialization script:**
 
-#### I am retaking a course and I have work in a different repository --- what should I do?
-If you did pass the requirements for the final project in a previous year, you don't need to repeat that part of the course again. If you didn't pass this requirement, you are, in principle, starting with no progress on the final project. Therefore, follow the current year's deadlines, the current year's *relevant teacher*, and manually transfer your work (specification, implementation) from the other repository to this one (including merge requests).
+   ```bash
+   ./initialize.sh
+   ```
+
+   This script performs the following actions in order:
+
+   - Creates the `Databases/` directory inside `Backend/` (if it does not exist).
+   - Deletes any previously existing databases (`Auctions.db`, `Auth.db`) and JWT secret file — all data will be wiped.
+   - Generates a new cryptographically random JWT secret (48 bytes, base64-encoded) using `openssl rand -base64 48`, or falls back to `/dev/urandom`, and saves it to `Databases/jwt_secret` with owner-only read permissions (`umask 077`).
+   - Restores NuGet packages for the `Backend.csproj`.
+   - Applies all EF Core migrations to create `Databases/Auctions.db` (auction and bid data).
+   - Applies all EF Core migrations to create `Databases/Auth.db` (user identity and authentication data).
+
+   On success, the script prints the paths of both databases and the JWT secret file.
+
+   > **Note:** Re-running `initialize.sh` deletes all existing data and starts fresh. Do not run it on a production instance unless you intend to wipe all data.
+
+3. **Verify the databases were created:**
+
+   ```bash
+   ls Databases/
+   # Auctions.db  Auth.db  jwt_secret
+   ```
+
+#### Configuration
+
+The server reads its configuration from `Backend/appsettings.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "Auctions": "Data Source=Databases/Auctions.db",
+    "Auth": "Data Source=Databases/Auth.db"
+  }
+}
+```
+
+If either connection string is absent, the server falls back to the paths relative to its content root (`Databases/Auctions.db` and `Databases/Auth.db`).
+
+The JWT secret is read at startup from `Databases/jwt_secret`. If that file does not exist, the server throws an exception and refuses to start — run `initialize.sh` first.
+
+---
+
+### Backend Usage
+
+#### Starting the server
+
+From the `Backend/` directory:
+
+```bash
+dotnet run
+```
+
+The default `http` profile serves on **`http://localhost:5205`**.
+
+The server starts in Development mode, which enables:
+
+- The developer exception page (detailed error responses).
+- The OpenAPI document at `GET /openapi/v1.json`.
+- The Swagger UI at **`http://localhost:5205/swagger`** — useful for exploring and testing endpoints interactively.
+
+#### Authentication
+
+All buyer and seller endpoints require a valid JWT Bearer token. Tokens are obtained by logging in and expire after **8 hours**.
+
+Password rules are intentionally relaxed (no digit, non-alphanumeric, or uppercase requirement; minimum length is 1 character).
+
+#### API Endpoints
+
+##### Authentication (`/auth`) — no token required
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/auth/register` | Create a new user account. Body: `{ "userName": "...", "password": "..." }`. Returns `200 OK` or `400 Bad Request` (e.g. username already taken). |
+| `POST` | `/auth/login` | Log in and receive a JWT token. Body: `{ "userName": "...", "password": "..." }`. Returns `200 OK` with `{ "token": "..." }` or `401 Unauthorized`. |
+
+##### Identity — token required
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/identity` | Returns the current user's ID (`{ "id": "..." }`). |
+
+##### Buyer endpoints (`/buy`) — token required
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/buy/list/sellers` | Returns an array of user IDs of all users who have created at least one auction. |
+| `POST` | `/buy/list/not_finished` | Body: a `UserId` object. Returns auction IDs of all non-finished auctions belonging to the given seller. Returns `404` if the seller ID is unknown. |
+| `POST` | `/buy/info` | Body: an array of `AuctionId` values. Returns buyer-relevant auction info for each requested auction ID, in the same order as requested. Returns `404` if any ID is not found. |
+| `POST` | `/buy/bid` | Body: `{ "auctionId": ..., "amount": ... }`. Places a bid on an active auction. Returns `200 OK`, `404` (auction not found), `422` (bid violates rules), or `409` (concurrency conflict). |
+| `GET` | `/buy/list/won` | Returns IDs of all finished auctions that the current user has won. |
+| `GET` | `/buy/list/participated` | Returns IDs of all auctions in which the current user has placed at least one bid. |
+
+##### Seller endpoints (`/sell`) — token required
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/sell/create` | Create a new auction. Body is a polymorphic `CreatedAuction` object (see auction types below). Returns `200 OK` or `422` (invalid parameters). |
+| `PATCH` | `/sell/update` | Update the end time of a non-finished auction. Body: `{ "id": ..., "newEnd": "..." }`. Returns `200 OK`, `404` (auction not found or belongs to a different seller), or `422` (new end time is before the current end time, or auction is already finished). |
+| `GET` | `/sell/list/{status}` | List IDs of the current user's auctions filtered by status. `{status}` is one of `Pending`, `Active`, or `Finished`. |
+| `POST` | `/sell/info` | Body: an array of `AuctionId` values. Returns seller-relevant info (including winner details) for each requested auction. Returns `404` if any ID is not found or belongs to a different seller. |
+
+#### Auction Types
+
+The system supports three auction types, each passed as a discriminated JSON object with a `$type` discriminator field.
+
+**English Auction** — highest bidder wins; each bid must exceed the previous one; the minimum bid starts at the starting price and increments by 1 after each bid.
+
+```json
+{
+  "$type": "English",
+  "description": "Vintage lamp",
+  "startTime": "2026-10-01T10:00:00Z",
+  "endTime":   "2026-10-07T10:00:00Z",
+  "startingPrice": 50.00
+}
+```
+
+**Dutch Auction** — the price starts high and decreases over time at a fixed rate and frequency; the first bidder wins and the auction closes immediately. Only one bid is possible.
+
+```json
+{
+  "$type": "Dutch",
+  "description": "Fresh tulips",
+  "startTime": "2026-10-01T10:00:00Z",
+  "endTime":   "2026-10-01T18:00:00Z",
+  "startingPrice": 200.00,
+  "priceDecrementRate": 10.00,
+  "priceDecrementFrequency": "01:00:00"
+}
+```
+
+**First Price Sealed Bid Auction** — each bidder may bid only once; the minimum bid is not revealed; the highest bidder wins when the auction closes.
+
+```json
+{
+  "$type": "FirstPriceSealedBid",
+  "description": "Rare coin",
+  "startTime": "2026-10-01T10:00:00Z",
+  "endTime":   "2026-10-14T10:00:00Z"
+}
+```
+
+#### Auction Statuses
+
+| Status | Meaning |
+|--------|---------|
+| `Pending` | Before the auction's `startTime`. |
+| `Active` | Between `startTime` and `endTime` (or until the Dutch auction receives its first bid). |
+| `Finished` | After `endTime`, or for a Dutch auction, after the first bid. |
+
+#### Concurrency
+
+Bidding endpoints apply optimistic concurrency control. If two bids are submitted simultaneously for the same auction, one will succeed and the other will receive `409 Conflict`. The client should retry when this occurs.
+
+#### Running Tests
+
+```bash
+# All tests (from the solution root)
+dotnet test
+
+# Unit tests only
+dotnet test UnitTests/UnitTests.csproj
+
+# Integration tests only
+dotnet test IntegrationTests/IntegrationTests.csproj
+```
+
+---
+
+## Frontend (Client) User Guide
+
+### Frontend Initialization (from scratch)
+
+#### Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- A running instance of the WARS backend server (see [Backend Initialization](#backend-initialization-from-scratch) above).
+
+#### Steps
+
+1. **Start the backend server first** (the client cannot connect without it).
+
+2. **Navigate to the client project directory:**
+
+   ```bash
+   cd Frontend
+   ```
+
+3. **Configure the server URL** (only if the server is not running on the default address):
+
+   Open `Frontend/appsettings.json` and set `Api:BaseAddress` to match the server's address:
+
+   ```json
+   {
+     "Api": {
+       "BaseAddress": "http://localhost:5205"
+     }
+   }
+   ```
+
+   The default value `http://localhost:5205` matches the server's default HTTP profile.
+
+4. **Restore dependencies** (optional — `dotnet run` does this automatically):
+
+   ```bash
+   dotnet restore
+   ```
+
+---
+
+### Frontend Usage
+
+#### Starting the client
+
+From the `Frontend/` directory:
+
+```bash
+dotnet run
+```
+
+The client is a full-screen interactive console application rendered with Spectre.Console. It communicates with the backend over HTTP using typed Refit clients.
+
+#### Authentication screen
+
+On startup, the client clears the terminal and presents a selection menu:
+
+```
+> Login
+  Register
+```
+
+Use the arrow keys to select and press **Enter** to confirm. You must successfully register or log in before proceeding. The client loops on the authentication screen until a valid token is obtained.
+
+**Register** — prompts for a username and password. The username must be unique. Spaces are not supported. Password requirements are minimal (minimum length: 1 character).
+
+**Login** — prompts for username and password. On success, a JWT token is stored in memory for the duration of the session (tokens are valid for 8 hours). Your user ID is then displayed — note it if you intend to share it with other users acting as buyers.
+
+#### Main menu
+
+After authentication, the main menu presents two roles:
+
+```
+> Buyer role
+  Seller role
+```
+
+The menu loops — after each action completes you are returned here.
+
+---
+
+#### Buyer role
+
+From the buyer role menu you can:
+
+```
+> List all sellers
+  List participated auctions
+  List won auctions
+```
+
+**List all sellers**
+
+Displays a scrollable list of all user IDs that have created at least one auction. Select a seller's ID with the arrow keys and press Enter to view their active and pending auctions.
+
+From the seller's auction list, select an auction to see its details. You are then prompted to enter a bid amount. Entering nothing (leaving the prompt blank) cancels without bidding. If you confirm the bid, the result is displayed:
+
+- Success: the bid is recorded.
+- `422 Unprocessable Entity`: the bid violated auction rules (e.g. bid too low, auction not active, already bid in a First Price Sealed Bid auction).
+- `409 Conflict`: a concurrent bid was placed — retry.
+
+**Minimum bid rules by auction type:**
+
+| Auction type | Visible minimum bid | Rule |
+|---|---|---|
+| English | Starting price (or last bid + 1) | Each new bid must exceed the current highest bid. |
+| Dutch | Current decremented price | Any bid at or above the current price is accepted. The auction closes immediately. |
+| First Price Sealed Bid | Not shown | Each user may bid at most once. |
+
+**List participated auctions**
+
+Displays a scrollable list of all auction IDs in which you have placed at least one bid. Selection doesn't do anything.
+
+**List won auctions**
+
+Displays IDs of all finished auctions you have won.
+
+---
+
+#### Seller role
+
+From the seller role menu you can:
+
+```
+> Create auction
+  List user's auctions
+```
+
+**Create auction**
+
+Prompts for:
+
+1. **Description** — free-text description of the item being auctioned.
+2. **Start time** — when the auction opens for bidding.
+3. **End time** — when the auction closes. Must be after the start time and in the future.
+4. **Auction type** — choose from `English`, `Dutch`, or `FirstPriceSealedBid`.
+5. Type-specific fields:
+   - **English**: starting price.
+   - **Dutch**: starting price, price decrement rate, price decrement frequency (default: 1 day).
+   - **First Price Sealed Bid**: no additional fields.
+
+**List user's auctions**
+
+Prompts you to choose a status (`Pending`, `Active`, or `Finished`), then displays a scrollable, panelled list of all your auctions with that status. Each panel shows:
+
+- Auction ID
+- Auction type and type-specific parameters
+- Description
+- Start and end times
+- Current status, and for finished auctions, the winner's user ID and winning bid (if any)
+
+Selecting a `Pending` or `Active` auction opens the **update screen**, where you can extend the auction's end time. The new end time must be later than the current end time. Selecting a `Finished` auction returns to the list.
+
+---
+
+#### Navigation
+
+All list screens support scrolling with the **arrow keys** or with the dedicated buttons. Selecting the Quit option in any menu returns to the menu. After each completed action, the client waits for you to press **Enter** before returning to the menu.
+
+#### Error handling
+
+If the backend returns an error response, the client displays the HTTP error message and any error body returned by the server. Network errors or unexpected exceptions are also caught and displayed without crashing the application.
